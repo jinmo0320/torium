@@ -11,7 +11,7 @@ jobs:
     env:
       AWS_REGION: ${{ secrets.AWS_REGION }}
       ECR_URI: ${{ secrets.AWS_ECR_URI }}
-      IMAGE_REPO:
+      IMAGE_REPO: dev/alpha-repo
 
     steps:
       - name: Checkout code
@@ -41,7 +41,7 @@ jobs:
       - name: Build and push docker image
         env:
           ECR_URI: ${{ secrets.AWS_ECR_URI }}
-          IMAGE_REPO:
+          IMAGE_REPO: dev/alpha-repo
         run: |
           IMAGE_TAG=latest
           BUILD_TAG=${GITHUB_RUN_NUMBER:-${GITHUB_RUN_ID}}
