@@ -1,0 +1,54 @@
+name: Build and Push Docker Image to ECR
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      ECR_URI: ${{ secrets.AWS_ECR_URI }}
+      IMAGE_REPO:
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push docker image
+        env:
+          ECR_URI: ${{ secrets.AWS_ECR_URI }}
+          IMAGE_REPO:
+        run: |
+          IMAGE_TAG=latest
+          BUILD_TAG=${GITHUB_RUN_NUMBER:-${GITHUB_RUN_ID}}
+          FULL_IMAGE="${ECR_URI}/${IMAGE_REPO}"
+          # Build
+          docker build --build-arg NODE_ENV=production -t ${FULL_IMAGE}:${IMAGE_TAG} .
+          docker tag ${FULL_IMAGE}:${IMAGE_TAG} ${FULL_IMAGE}:${BUILD_TAG}
+          # Push both tags
+          docker push ${FULL_IMAGE}:${IMAGE_TAG}
+          docker push ${FULL_IMAGE}:${BUILD_TAG}
