@@ -11,22 +11,25 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use(
-  cors({
-    origin: "http://localhost:3000",
-    credentials: true,
-  })
-); // CORS 설정
 app.use(express.json()); // json 포맷을 해독하기 위해 사용하는 미들웨어
 app.use(express.urlencoded({ extended: true })); // x-www-form-urlencoded 포맷을 해독하기 위해 사용하는 미들웨어
 
-app.use("/auth", authRoutes);
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "ok",
+    message: "Server is healthy",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+  });
+});
+
+const router = express.Router();
+router.use("/auth", authRoutes);
+
+app.use("/api/v1", router);
 
 app.use(errorMiddleware);
 
 app.listen(port, () => {
-  console.log(`
-    🎉 Server is running on port ${port}
-    🎉 http://localhost:${port}
-    `);
+  console.log(`🚀 Server is running on port ${port}`);
 });
