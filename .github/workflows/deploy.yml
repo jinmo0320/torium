@@ -79,10 +79,25 @@ jobs:
           # 설명: ECR 로그인 -> 이미지 Pull -> 기존 컨테이너 중지/삭제 -> 새 컨테이너 실행 -> 찌꺼기 정리
           COMMANDS=$(cat <<EOF
             aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin $ECR_REGISTRY
+            
+            # AWS Parameter Store에서 .env 내용 가져와서 파일 만들기
+            aws ssm get-parameter \
+              --name "/my-app/prod/env" \
+              --with-decryption \
+              --query "Parameter.Value" \
+              --output text > .env
+            
             docker pull $ECR_REGISTRY/$IMAGE_REPO:latest
             docker stop $CONTAINER_NAME || true
             docker rm $CONTAINER_NAME || true
-            docker run -d --name $CONTAINER_NAME -p $HOST_PORT:$CONTAINER_PORT --restart always $ECR_REGISTRY/$IMAGE_REPO:latest
+
+            docker run -d \
+              --name $CONTAINER_NAME \
+              -p $HOST_PORT:$CONTAINER_PORT \
+              --env-file .env \
+              --restart always \
+              $ECR_REGISTRY/$IMAGE_REPO:latest
+              
             docker image prune -f
           EOF
           )
