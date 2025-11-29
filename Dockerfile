@@ -21,6 +21,7 @@ RUN npm run build
 FROM node:18-alpine AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
+ENV NODE_OPTIONS=--dns-result-order=ipv4first
 
 # 7. 프로덕션 의존성만 설치
 COPY package.json package-lock.json ./
