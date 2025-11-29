@@ -9,7 +9,7 @@ import "./di/diContainer";
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = Number(process.env.PORT) || 3000;
 
 app.use(express.json()); // json 포맷을 해독하기 위해 사용하는 미들웨어
 app.use(express.urlencoded({ extended: true })); // x-www-form-urlencoded 포맷을 해독하기 위해 사용하는 미들웨어
@@ -30,6 +30,6 @@ app.use("/api/v1", router);
 
 app.use(errorMiddleware);
 
-app.listen(port, () => {
+app.listen(port, "0.0.0.0", () => {
   console.log(`🚀 Server is running on port ${port}`);
 });
