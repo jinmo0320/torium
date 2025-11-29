@@ -1,5 +1,5 @@
 # 1. 베이스 이미지(계층 1)
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 
 # 2. 작업 디렉토리 설정
 WORKDIR /app
