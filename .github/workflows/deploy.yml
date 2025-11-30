@@ -91,6 +91,7 @@ jobs:
             rm .env
           EOF
           )
+          ESCAPED_COMMANDS=$(printf '%s' "$COMMANDS" | jq -Rs .)
 
           # 2. SSM 명령 전송
           echo "Sending deployment command to EC2..."
@@ -98,7 +99,7 @@ jobs:
             --document-name "AWS-RunShellScript" \
             --targets "Key=instanceids,Values=${{ secrets.AWS_EC2_INSTANCE_ID }}" \
             --comment "Deploying Node.js App" \
-            --parameters "commands=$COMMANDS" \
+            --parameters "commands=$ESCAPED_COMMANDS" \
             --query "Command.CommandId" \
             --output text)
 
