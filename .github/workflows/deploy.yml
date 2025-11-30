@@ -39,20 +39,20 @@ jobs:
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build and push docker image
-        env:
-          ECR_URI: ${{ secrets.AWS_ECR_URI }}
-          IMAGE_REPO: dev/alpha-repo
-        run: |
-          IMAGE_TAG=latest
-          BUILD_TAG=${GITHUB_RUN_NUMBER:-${GITHUB_RUN_ID}}
-          FULL_IMAGE="${ECR_URI}/${IMAGE_REPO}"
-          # Build
-          docker build --build-arg NODE_ENV=production -t ${FULL_IMAGE}:${IMAGE_TAG} .
-          docker tag ${FULL_IMAGE}:${IMAGE_TAG} ${FULL_IMAGE}:${BUILD_TAG}
-          # Push both tags
-          docker push ${FULL_IMAGE}:${IMAGE_TAG}
-          docker push ${FULL_IMAGE}:${BUILD_TAG}
+      # - name: Build and push docker image
+      #   env:
+      #     ECR_URI: ${{ secrets.AWS_ECR_URI }}
+      #     IMAGE_REPO: dev/alpha-repo
+      #   run: |
+      #     IMAGE_TAG=latest
+      #     BUILD_TAG=${GITHUB_RUN_NUMBER:-${GITHUB_RUN_ID}}
+      #     FULL_IMAGE="${ECR_URI}/${IMAGE_REPO}"
+      #     # Build
+      #     docker build --build-arg NODE_ENV=production -t ${FULL_IMAGE}:${IMAGE_TAG} .
+      #     docker tag ${FULL_IMAGE}:${IMAGE_TAG} ${FULL_IMAGE}:${BUILD_TAG}
+      #     # Push both tags
+      #     docker push ${FULL_IMAGE}:${IMAGE_TAG}
+      #     docker push ${FULL_IMAGE}:${BUILD_TAG}
 
   # 2. SSM을 통한 배포
   deploy:
@@ -79,16 +79,16 @@ jobs:
           # ECR 로그인 -> .env 생성 -> 이미지 Pull -> 기존 컨테이너 중지/삭제 -> 새 컨테이너 실행 -> 찌꺼기 정리
           COMMANDS=$(cat <<EOF
             aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin $ECR_REGISTRY
-            rm .env
-            printf "${{ secrets.ENV_FILE }}" > .env
+            # rm .env
+            # printf "${{ secrets.ENV_FILE }}" > .env
 
             docker pull $ECR_REGISTRY/$IMAGE_REPO:latest
             docker stop $CONTAINER_NAME || true
             docker rm $CONTAINER_NAME || true
-            docker run -d --name $CONTAINER_NAME -p $HOST_PORT:$CONTAINER_PORT --env-file .env --restart always $ECR_REGISTRY/$IMAGE_REPO:latest
+            docker run -d --name $CONTAINER_NAME -p $HOST_PORT:$CONTAINER_PORT --restart always $ECR_REGISTRY/$IMAGE_REPO:latest
 
             docker image prune -f
-            rm .env
+            # rm .env
           EOF
           )
 
@@ -98,7 +98,7 @@ jobs:
             --document-name "AWS-RunShellScript" \
             --targets "Key=instanceids,Values=${{ secrets.AWS_EC2_INSTANCE_ID }}" \
             --comment "Deploying Node.js App" \
-            --parameters "commands=[\"aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin $ECR_REGISTRY\", \"aws ssm get-parameter --name \'/alpha/dev/env\' --with-decryption --query \'Parameter.Value\' --output text > .env\", \"docker pull $ECR_REGISTRY/$IMAGE_REPO:latest\", \"docker stop $CONTAINER_NAME || true, docker rm $CONTAINER_NAME || true\", \"docker run -d --name $CONTAINER_NAME -p $HOST_PORT:$CONTAINER_PORT --env-file .env --restart always $ECR_REGISTRY/$IMAGE_REPO:latest\", \"docker image prune -f\"]" \
+            --parameters "commands=$COMMANDS" \
             --query "Command.CommandId" \
             --output text)
 
