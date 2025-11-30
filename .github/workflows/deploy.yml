@@ -6,53 +6,53 @@ on:
 
 jobs:
   # 1. 빌드 및 ECR 푸시
-  # build-and-push:
-  #   runs-on: ubuntu-latest
+  build-and-push:
+    runs-on: ubuntu-latest
 
-  #   env:
-  #     AWS_REGION: ${{ secrets.AWS_REGION }}
-  #     ECR_URI: ${{ secrets.AWS_ECR_URI }}
-  #     IMAGE_REPO: dev/alpha-repo
+    env:
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      ECR_URI: ${{ secrets.AWS_ECR_URI }}
+      IMAGE_REPO: dev/alpha-repo
 
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v5
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
 
-  #     - name: Set up Node.js
-  #       uses: actions/setup-node@v4
-  #       with:
-  #         node-version: 20
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
-  #     - name: Install dependencies
-  #       run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-  #     - name: Run tests
-  #       run: npm test
+      - name: Run tests
+        run: npm test
 
-  #     - name: Configure AWS Credentials
-  #       uses: aws-actions/configure-aws-credentials@v5
-  #       with:
-  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  #         aws-region: ${{ secrets.AWS_REGION }}
+      # - name: Configure AWS Credentials
+      #   uses: aws-actions/configure-aws-credentials@v5
+      #   with:
+      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     aws-region: ${{ secrets.AWS_REGION }}
 
-  #     - name: Login to Amazon ECR
-  #       uses: aws-actions/amazon-ecr-login@v2
+      # - name: Login to Amazon ECR
+      #   uses: aws-actions/amazon-ecr-login@v2
 
-  #     - name: Build and push docker image
-  #       env:
-  #         ECR_URI: ${{ secrets.AWS_ECR_URI }}
-  #         IMAGE_REPO: dev/alpha-repo
-  #       run: |
-  #         IMAGE_TAG=latest
-  #         BUILD_TAG=${GITHUB_RUN_NUMBER:-${GITHUB_RUN_ID}}
-  #         FULL_IMAGE="${ECR_URI}/${IMAGE_REPO}"
-  #         # Build
-  #         docker build --build-arg NODE_ENV=production -t ${FULL_IMAGE}:${IMAGE_TAG} .
-  #         docker tag ${FULL_IMAGE}:${IMAGE_TAG} ${FULL_IMAGE}:${BUILD_TAG}
-  #         # Push both tags
-  #         docker push ${FULL_IMAGE}:${IMAGE_TAG}
-  #         docker push ${FULL_IMAGE}:${BUILD_TAG}
+      # - name: Build and push docker image
+      #   env:
+      #     ECR_URI: ${{ secrets.AWS_ECR_URI }}
+      #     IMAGE_REPO: dev/alpha-repo
+      #   run: |
+      #     IMAGE_TAG=latest
+      #     BUILD_TAG=${GITHUB_RUN_NUMBER:-${GITHUB_RUN_ID}}
+      #     FULL_IMAGE="${ECR_URI}/${IMAGE_REPO}"
+      #     # Build
+      #     docker build --build-arg NODE_ENV=production -t ${FULL_IMAGE}:${IMAGE_TAG} .
+      #     docker tag ${FULL_IMAGE}:${IMAGE_TAG} ${FULL_IMAGE}:${BUILD_TAG}
+      #     # Push both tags
+      #     docker push ${FULL_IMAGE}:${IMAGE_TAG}
+      #     docker push ${FULL_IMAGE}:${BUILD_TAG}
 
   # 2. SSM을 통한 배포
   deploy:
@@ -90,7 +90,7 @@ jobs:
           EOF
           )
           ESCAPED_COMMANDS=$(printf '%s' "$COMMANDS" | jq -Rs .)
-          echo "Command ID: $ESCAPED_COMMANDS"
+          echo "ESCAPED_COMMANDS: $ESCAPED_COMMANDS"
 
           # 2. SSM 명령 전송
           echo "Sending deployment command to EC2..."
@@ -122,6 +122,10 @@ jobs:
           echo "Deployment Status: $STATUS"
 
           if [ "$STATUS" != "Success" ]; then
-            echo "Deployment Failed!"
+            aws ssm get-command-invocation \
+              --command-id "$COMMAND_ID" \
+              --instance-id "${{ secrets.AWS_EC2_INSTANCE_ID }}" \
+              --query "StandardErrorContent" \
+              --output text
             exit 1
           fi
