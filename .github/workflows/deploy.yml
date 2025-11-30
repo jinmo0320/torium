@@ -80,7 +80,7 @@ jobs:
           COMMANDS=$(cat <<EOF
             aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin $ECR_REGISTRY
             rm .env
-            printf "${{ secrets.ENV_FILE }}" > .env
+            echo "${{ secrets.ENV_FILE }}" | base64 -d > .env
             
             docker pull $ECR_REGISTRY/$IMAGE_REPO:latest
             docker stop $CONTAINER_NAME || true
