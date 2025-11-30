@@ -98,7 +98,7 @@ jobs:
             --document-name "AWS-RunShellScript" \
             --targets "Key=instanceids,Values=${{ secrets.AWS_EC2_INSTANCE_ID }}" \
             --comment "Deploying Node.js App" \
-            --parameters "commands=$COMMANDS" \
+            --parameters "commands=[\"aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin $ECR_REGISTRY\", \"aws ssm get-parameter --name \'/alpha/dev/env\' --with-decryption --query \'Parameter.Value\' --output text > .env\", \"docker pull $ECR_REGISTRY/$IMAGE_REPO:latest\", \"docker stop $CONTAINER_NAME || true, docker rm $CONTAINER_NAME || true\", \"docker run -d --name $CONTAINER_NAME -p $HOST_PORT:$CONTAINER_PORT --env-file .env --restart always $ECR_REGISTRY/$IMAGE_REPO:latest\", \"docker image prune -f\"]" \
             --query "Command.CommandId" \
             --output text)
 
@@ -122,6 +122,6 @@ jobs:
           echo "Deployment Status: $STATUS"
 
           if [ "$STATUS" != "Success" ]; then
-            echo "Deployment Failed!"
+            echo "Faild"
             exit 1
           fi
