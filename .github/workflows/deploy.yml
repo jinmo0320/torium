@@ -76,7 +76,7 @@ jobs:
       - name: Deploy to EC2 via SSM
         run: |
           # 1. EC2 내부에서 실행될 스크립트 작성
-          # 설명: ECR 로그인 -> 이미지 Pull -> 기존 컨테이너 중지/삭제 -> 새 컨테이너 실행 -> 찌꺼기 정리
+          # ECR 로그인 -> .env 생성 -> 이미지 Pull -> 기존 컨테이너 중지/삭제 -> 새 컨테이너 실행 -> 찌꺼기 정리
           COMMANDS=$(cat <<EOF
             aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin $ECR_REGISTRY
             rm .env
