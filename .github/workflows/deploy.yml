@@ -29,30 +29,30 @@ jobs:
       - name: Run tests
         run: npm test
 
-      # - name: Configure AWS Credentials
-      #   uses: aws-actions/configure-aws-credentials@v5
-      #   with:
-      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #     aws-region: ${{ secrets.AWS_REGION }}
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
-      # - name: Login to Amazon ECR
-      #   uses: aws-actions/amazon-ecr-login@v2
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
 
-      # - name: Build and push docker image
-      #   env:
-      #     ECR_URI: ${{ secrets.AWS_ECR_URI }}
-      #     IMAGE_REPO: dev/alpha-repo
-      #   run: |
-      #     IMAGE_TAG=latest
-      #     BUILD_TAG=${GITHUB_RUN_NUMBER:-${GITHUB_RUN_ID}}
-      #     FULL_IMAGE="${ECR_URI}/${IMAGE_REPO}"
-      #     # Build
-      #     docker build --build-arg NODE_ENV=production -t ${FULL_IMAGE}:${IMAGE_TAG} .
-      #     docker tag ${FULL_IMAGE}:${IMAGE_TAG} ${FULL_IMAGE}:${BUILD_TAG}
-      #     # Push both tags
-      #     docker push ${FULL_IMAGE}:${IMAGE_TAG}
-      #     docker push ${FULL_IMAGE}:${BUILD_TAG}
+      - name: Build and push docker image
+        env:
+          ECR_URI: ${{ secrets.AWS_ECR_URI }}
+          IMAGE_REPO: dev/alpha-repo
+        run: |
+          IMAGE_TAG=latest
+          BUILD_TAG=${GITHUB_RUN_NUMBER:-${GITHUB_RUN_ID}}
+          FULL_IMAGE="${ECR_URI}/${IMAGE_REPO}"
+          # Build
+          docker build --build-arg NODE_ENV=production -t ${FULL_IMAGE}:${IMAGE_TAG} .
+          docker tag ${FULL_IMAGE}:${IMAGE_TAG} ${FULL_IMAGE}:${BUILD_TAG}
+          # Push both tags
+          docker push ${FULL_IMAGE}:${IMAGE_TAG}
+          docker push ${FULL_IMAGE}:${BUILD_TAG}
 
   # 2. SSM을 통한 배포
   deploy:
