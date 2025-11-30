@@ -79,7 +79,7 @@ jobs:
           # ECR 로그인 -> AWS Parameter .env 변환 -> 이미지 Pull -> 기존 컨테이너 중지/삭제 -> 새 컨테이너 실행 -> 찌꺼기 정리
           COMMANDS=$(cat <<EOF
             aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin $ECR_REGISTRY
-            aws ssm get-parameter --name '/alpha/dev/env' --with-decryption --query 'Parameter.Value' --output text > .env
+            aws ssm get-parameter --name "/alpha/dev/env" --with-decryption --query "Parameter.Value" --output text > .env
 
             docker pull $ECR_REGISTRY/$IMAGE_REPO:latest
             docker stop $CONTAINER_NAME || true
@@ -89,6 +89,7 @@ jobs:
             docker image prune -f
           EOF
           )
+          ESCAPED_COMMANDS=$(printf '%s' "$COMMANDS" | jq -Rs .)
 
           # 2. SSM 명령 전송
           echo "Sending deployment command to EC2..."
