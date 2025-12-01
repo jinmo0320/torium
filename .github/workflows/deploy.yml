@@ -75,18 +75,15 @@ jobs:
 
       - name: Deploy to EC2 via SSM
         run: |
-          # 1. EC2에서 실행할 로직을 파일로 먼저 작성합니다.
-          # (여전히 Parameter Store를 사용하는 방식입니다)
+          # 1. EC2에서 실행할 로직을 파일로 먼저 작성
           cat <<EOF > deploy_script.sh
           #!/bin/bash
-          # 에러 발생 시 즉시 중단
-          set -e
+          set -e # 에러 발생 시 즉시 중단
 
           # ECR 로그인
           aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin $ECR_REGISTRY
 
           # Parameter Store에서 .env 안전하게 가져오기
-          # (따옴표가 있어도 Base64로 감싸져서 전송되므로 안전함)
           aws ssm get-parameter --name "/alpha/dev/env" --with-decryption --query "Parameter.Value" --output text > .env
 
           # Docker 배포
@@ -104,8 +101,6 @@ jobs:
           ENCODED_COMMAND=$(base64 -w 0 deploy_script.sh)
 
           # 3. SSM 명령 전송
-          # EC2에는 "인코딩된 문자열을 풀어서 실행하라"는 아주 단순한 명령만 전달됩니다.
-          # 따라서 따옴표 파싱 에러가 발생할 수 없습니다.
           echo "Sending deployment command to EC2..."
 
           SH_COMMAND_ID=$(aws ssm send-command \
