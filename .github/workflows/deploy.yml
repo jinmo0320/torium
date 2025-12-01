@@ -75,38 +75,50 @@ jobs:
 
       - name: Deploy to EC2 via SSM
         run: |
-          # 1. EC2 내부에서 실행될 스크립트 작성
-          COMMANDS=$(cat <<EOF
-            aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin $ECR_REGISTRY
-            
-            # Parameter Store에서 .env 가져오기 (--with-decryption 필수)
-            aws ssm get-parameter --name "/alpha/dev/env" --with-decryption --query "Parameter.Value" --output text > .env
-            
-            # Docker 배포 절차
-            docker pull $ECR_REGISTRY/$IMAGE_REPO:latest
-            docker stop $CONTAINER_NAME || true
-            docker rm $CONTAINER_NAME || true
-            docker run -d --name $CONTAINER_NAME -p $HOST_PORT:$CONTAINER_PORT --env-file .env --restart always $ECR_REGISTRY/$IMAGE_REPO:latest
+          # 1. EC2에서 실행할 로직을 파일로 먼저 작성합니다.
+          # (여전히 Parameter Store를 사용하는 방식입니다)
+          cat <<EOF > deploy_script.sh
+          #!/bin/bash
+          # 에러 발생 시 즉시 중단
+          set -e
 
-            docker image prune -f
-            rm .env
+          # ECR 로그인
+          aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin $ECR_REGISTRY
+
+          # Parameter Store에서 .env 안전하게 가져오기
+          # (따옴표가 있어도 Base64로 감싸져서 전송되므로 안전함)
+          aws ssm get-parameter --name "/alpha/dev/env" --with-decryption --query "Parameter.Value" --output text > .env
+
+          # Docker 배포
+          docker pull $ECR_REGISTRY/$IMAGE_REPO:latest
+          docker stop $CONTAINER_NAME || true
+          docker rm $CONTAINER_NAME || true
+          docker run -d --name $CONTAINER_NAME -p $HOST_PORT:$CONTAINER_PORT --env-file .env --restart always $ECR_REGISTRY/$IMAGE_REPO:latest
+
+          # 정리
+          docker image prune -f
+          rm .env
           EOF
-          )
 
-          # 2. SSM 명령 전송
+          # 2. 작성된 스크립트 파일을 Base64로 인코딩 (줄바꿈 제거)
+          ENCODED_COMMAND=$(base64 -w 0 deploy_script.sh)
+
+          # 3. SSM 명령 전송
+          # EC2에는 "인코딩된 문자열을 풀어서 실행하라"는 아주 단순한 명령만 전달됩니다.
+          # 따라서 따옴표 파싱 에러가 발생할 수 없습니다.
           echo "Sending deployment command to EC2..."
+
           SH_COMMAND_ID=$(aws ssm send-command \
             --document-name "AWS-RunShellScript" \
             --targets "Key=instanceids,Values=${{ secrets.AWS_EC2_INSTANCE_ID }}" \
-            --comment "Deploying Node.js App" \
-            --parameters "commands=$COMMANDS" \
+            --comment "Deploying Node.js App via Encoded Script" \
+            --parameters "commands=echo $ENCODED_COMMAND | base64 -d | bash" \
             --query "Command.CommandId" \
             --output text)
 
           echo "Command ID: $SH_COMMAND_ID"
 
-          # 3. 배포 결과 확인 (Polling)
-          # 명령이 끝날 때까지 기다렸다가 성공/실패 여부를 판단합니다.
+          # 4. 배포 결과 확인 (Polling)
           echo "Waiting for command execution..."
           sleep 2 
 
@@ -114,7 +126,6 @@ jobs:
             --command-id "$SH_COMMAND_ID" \
             --instance-id "${{ secrets.AWS_EC2_INSTANCE_ID }}"
 
-          # 최종 상태 조회
           STATUS=$(aws ssm get-command-invocation \
             --command-id "$SH_COMMAND_ID" \
             --instance-id "${{ secrets.AWS_EC2_INSTANCE_ID }}" \
@@ -123,6 +134,11 @@ jobs:
           echo "Deployment Status: $STATUS"
 
           if [ "$STATUS" != "Success" ]; then
-            echo "Faild"
+            echo "Deployment Failed"
+            # 실패 시 상세 로그 출력 (디버깅용)
+            aws ssm get-command-invocation \
+              --command-id "$SH_COMMAND_ID" \
+              --instance-id "${{ secrets.AWS_EC2_INSTANCE_ID }}" \
+              --query "StandardErrorContent" --output text
             exit 1
           fi
