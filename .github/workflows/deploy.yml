@@ -76,12 +76,13 @@ jobs:
       - name: Deploy to EC2 via SSM
         run: |
           # 1. EC2 내부에서 실행될 스크립트 작성
-          # ECR 로그인 -> .env 생성 -> 이미지 Pull -> 기존 컨테이너 중지/삭제 -> 새 컨테이너 실행 -> 찌꺼기 정리
           COMMANDS=$(cat <<EOF
             aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin $ECR_REGISTRY
-            rm .env
-            echo "${{ secrets.ENV_FILE }}" | base64 -d > .env
             
+            # Parameter Store에서 .env 가져오기 (--with-decryption 필수)
+            aws ssm get-parameter --name "/alpha/dev/env" --with-decryption --query "Parameter.Value" --output text > .env
+            
+            # Docker 배포 절차
             docker pull $ECR_REGISTRY/$IMAGE_REPO:latest
             docker stop $CONTAINER_NAME || true
             docker rm $CONTAINER_NAME || true
@@ -91,7 +92,6 @@ jobs:
             rm .env
           EOF
           )
-          ESCAPED_COMMANDS=$(printf '%s' "$COMMANDS" | jq -Rs .)
 
           # 2. SSM 명령 전송
           echo "Sending deployment command to EC2..."
@@ -99,7 +99,7 @@ jobs:
             --document-name "AWS-RunShellScript" \
             --targets "Key=instanceids,Values=${{ secrets.AWS_EC2_INSTANCE_ID }}" \
             --comment "Deploying Node.js App" \
-            --parameters "commands=$ESCAPED_COMMANDS" \
+            --parameters "commands=$COMMANDS" \
             --query "Command.CommandId" \
             --output text)
 
