@@ -18,7 +18,7 @@ COPY src ./src
 RUN npm run build
 
 # --- 이제 프로덕션 이미지를 만들기 위해 멀티스테이지 사용 ---
-FROM node:18-alpine AS runtime
+FROM node:20-alpine AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NODE_OPTIONS=--dns-result-order=ipv4first
