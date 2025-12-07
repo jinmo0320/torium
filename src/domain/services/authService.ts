@@ -1,11 +1,11 @@
-import { UserRepository } from "../repositories/userRepository";
-import { HttpException } from "../utils/errors";
-import { BcryptHelper } from "../utils/bcryptHelper";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
-import { EmailSender } from "../utils/emailSender";
-import { AuthRepository } from "../repositories/authRepository";
+import { HttpException } from "../../utils/errors";
+import { BcryptHelper } from "../../utils/bcryptHelper";
+import { EmailSender } from "../../utils/emailSender";
 import { inject, injectable } from "tsyringe";
+import { UserRepository } from "../repositories/userRepository";
+import { AuthRepository } from "../repositories/authRepository";
 
 dotenv.config();
 
