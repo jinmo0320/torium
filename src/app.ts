@@ -2,8 +2,8 @@ import "reflect-metadata";
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import authRoutes from "./routes/authRoutes";
-import errorMiddleware from "./middlewares/errorMiddleware";
+import authRoutes from "./presentation/routes/authRoutes";
+import errorMiddleware from "./presentation/middlewares/errorMiddleware";
 import "./di/diContainer";
 
 dotenv.config();

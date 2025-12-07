@@ -1,13 +1,9 @@
 import "reflect-metadata";
 import { container } from "tsyringe";
-import {
-  UserRepository,
-  UserRepositoryImpl,
-} from "../repositories/userRepository";
-import {
-  AuthRepository,
-  AuthRepositoryImpl,
-} from "../repositories/authRepository";
+import { UserRepository } from "../domain/repositories/userRepository";
+import { UserRepositoryImpl } from "../data/repositories/userRepositoryImpl";
+import { AuthRepository } from "../domain/repositories/authRepository";
+import { AuthRepositoryImpl } from "../data/repositories/authRepositoryImpl";
 
 container.registerSingleton<UserRepository>(
   "UserRepository",
