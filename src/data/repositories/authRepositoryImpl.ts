@@ -1,12 +1,7 @@
 import { RowDataPacket } from "mysql2";
-import db from "../config/db";
+import db from "../../data/config/db";
 import { injectable } from "tsyringe";
-
-export interface AuthRepository {
-  saveVerificationCode(email: string, code: string): Promise<void>;
-  checkVerificationCode(email: string, code: string): Promise<boolean>;
-  deleteVerificationCode(email: string): Promise<void>;
-}
+import { AuthRepository } from "../../domain/repositories/authRepository";
 
 @injectable()
 export class AuthRepositoryImpl implements AuthRepository {

@@ -1,17 +1,8 @@
-import { User } from "../models/user";
-import db from "../config/db";
+import db from "../../data/config/db";
 import { RowDataPacket } from "mysql2";
 import { injectable } from "tsyringe";
-
-export interface UserRepository {
-  createUser(
-    nickname: string,
-    email: string,
-    hashedPassword: string
-  ): Promise<void>;
-
-  findUser(email: string): Promise<User | null>;
-}
+import { UserRepository } from "../../domain/repositories/userRepository";
+import { User } from "../../domain/models/user";
 
 @injectable()
 export class UserRepositoryImpl implements UserRepository {
