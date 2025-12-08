@@ -8,7 +8,7 @@ export const register = async (
   res: Response,
   next: NextFunction
 ) => {
-  const authService = container.resolve(AuthService);
+  const authService = container.resolve<AuthService>("AuthService");
 
   try {
     const { nickname, email, password } = req.body;
@@ -25,7 +25,7 @@ export const login = async (
   res: Response,
   next: NextFunction
 ) => {
-  const authService = container.resolve(AuthService);
+  const authService = container.resolve<AuthService>("AuthService");
 
   try {
     const { email, password } = req.body;
@@ -45,11 +45,11 @@ export const sendVerificationCode = async (
   res: Response,
   next: NextFunction
 ) => {
-  const authService = container.resolve(AuthService);
+  const authService = container.resolve<AuthService>("AuthService");
 
   try {
     const { email } = req.body;
-    await authService.verifyEmail(email);
+    await authService.sendVerificationCode(email);
     res.status(200).json({ message: "Verification email sent" });
   } catch (error) {
     next(error);
@@ -62,11 +62,45 @@ export const checkVerificationCode = async (
   res: Response,
   next: NextFunction
 ) => {
-  const authService = container.resolve(AuthService);
+  const authService = container.resolve<AuthService>("AuthService");
 
   try {
     const { email, code } = req.body;
     await authService.checkVerificationCode(email, code);
+    res.status(200).json({ message: "Email verified" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/* ================= 비밀번호 재설정코드 전송 ================= */
+export const sendForgotCode = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const authService = container.resolve<AuthService>("AuthService");
+
+  try {
+    const { email } = req.body;
+    await authService.sendForgotCode(email);
+    res.status(200).json({ message: "Verification email sent" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/* ================= 비밀번호 재설정코드 검증 ================= */
+export const checkForgotCode = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const authService = container.resolve<AuthService>("AuthService");
+
+  try {
+    const { email, code } = req.body;
+    await authService.checkForgotCode(email, code);
     res.status(200).json({ message: "Email verified" });
   } catch (error) {
     next(error);
@@ -79,10 +113,11 @@ export const resetPassword = async (
   res: Response,
   next: NextFunction
 ) => {
-  const authService = container.resolve(AuthService);
+  const authService = container.resolve<AuthService>("AuthService");
 
   try {
     const { email, newPassword } = req.body;
+    await authService.resetPassword(email, newPassword);
     res.status(200).json({ message: "Password reset successfully" });
   } catch (error) {
     next(error);
@@ -95,9 +130,10 @@ export const refreshToken = async (
   res: Response,
   next: NextFunction
 ) => {
-  const authService = container.resolve(AuthService);
+  const authService = container.resolve<AuthService>("AuthService");
 
   try {
+    authService.refreshToken();
     res.status(200).json({ message: "Token refreshed" });
   } catch (error) {
     next(error);

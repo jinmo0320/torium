@@ -3,7 +3,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import authRoutes from "./presentation/routes/authRoutes";
-import usersRoutes from "./presentation/routes/usersRoutes";
+import userRoutes from "./presentation/routes/userRoutes";
 import errorMiddleware from "./presentation/middlewares/errorMiddleware";
 import "./di/diContainer";
 
@@ -26,7 +26,7 @@ app.get("/health", (req, res) => {
 
 const router = express.Router();
 router.use("/auth", authRoutes);
-router.use("/users", usersRoutes);
+router.use("/user", userRoutes);
 
 app.use("/api/v1", router);
 
