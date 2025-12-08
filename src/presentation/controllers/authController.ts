@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { AuthService } from "../../domain/services/authService";
 import { container } from "tsyringe";
 
+/* ================= 회원가입 ================= */
 export const register = async (
   req: Request,
   res: Response,
@@ -18,6 +19,7 @@ export const register = async (
   }
 };
 
+/* ================= 로그인 ================= */
 export const login = async (
   req: Request,
   res: Response,
@@ -37,7 +39,8 @@ export const login = async (
   }
 };
 
-export const verifyEmail = async (
+/* ================= 이메일 인증코드 전송 ================= */
+export const sendVerificationCode = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -53,6 +56,7 @@ export const verifyEmail = async (
   }
 };
 
+/* ================= 이메일 인증코드 검증 ================= */
 export const checkVerificationCode = async (
   req: Request,
   res: Response,
@@ -64,6 +68,37 @@ export const checkVerificationCode = async (
     const { email, code } = req.body;
     await authService.checkVerificationCode(email, code);
     res.status(200).json({ message: "Email verified" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/* ================= 비밀번호 재설정 ================= */
+export const resetPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const authService = container.resolve(AuthService);
+
+  try {
+    const { email, newPassword } = req.body;
+    res.status(200).json({ message: "Password reset successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/* ================= 토큰 리프레쉬 ================= */
+export const refreshToken = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const authService = container.resolve(AuthService);
+
+  try {
+    res.status(200).json({ message: "Token refreshed" });
   } catch (error) {
     next(error);
   }
