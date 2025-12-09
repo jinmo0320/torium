@@ -2,12 +2,13 @@ import { NextFunction, Request, Response } from "express";
 import { AuthService } from "../../domain/services/authService";
 import { container } from "tsyringe";
 
+/* ================= 회원가입 ================= */
 export const register = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const authService = container.resolve(AuthService);
+  const authService = container.resolve<AuthService>("AuthService");
 
   try {
     const { nickname, email, password } = req.body;
@@ -18,12 +19,13 @@ export const register = async (
   }
 };
 
+/* ================= 로그인 ================= */
 export const login = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const authService = container.resolve(AuthService);
+  const authService = container.resolve<AuthService>("AuthService");
 
   try {
     const { email, password } = req.body;
@@ -37,33 +39,102 @@ export const login = async (
   }
 };
 
-export const verifyEmail = async (
+/* ================= 이메일 인증코드 전송 ================= */
+export const sendVerificationCode = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const authService = container.resolve(AuthService);
+  const authService = container.resolve<AuthService>("AuthService");
 
   try {
     const { email } = req.body;
-    await authService.verifyEmail(email);
+    await authService.sendVerificationCode(email);
     res.status(200).json({ message: "Verification email sent" });
   } catch (error) {
     next(error);
   }
 };
 
+/* ================= 이메일 인증코드 검증 ================= */
 export const checkVerificationCode = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const authService = container.resolve(AuthService);
+  const authService = container.resolve<AuthService>("AuthService");
 
   try {
     const { email, code } = req.body;
     await authService.checkVerificationCode(email, code);
     res.status(200).json({ message: "Email verified" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/* ================= 비밀번호 재설정코드 전송 ================= */
+export const sendForgotCode = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const authService = container.resolve<AuthService>("AuthService");
+
+  try {
+    const { email } = req.body;
+    await authService.sendForgotCode(email);
+    res.status(200).json({ message: "Verification email sent" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/* ================= 비밀번호 재설정코드 검증 ================= */
+export const checkForgotCode = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const authService = container.resolve<AuthService>("AuthService");
+
+  try {
+    const { email, code } = req.body;
+    await authService.checkForgotCode(email, code);
+    res.status(200).json({ message: "Email verified" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/* ================= 비밀번호 재설정 ================= */
+export const resetPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const authService = container.resolve<AuthService>("AuthService");
+
+  try {
+    const { email, newPassword } = req.body;
+    await authService.resetPassword(email, newPassword);
+    res.status(200).json({ message: "Password reset successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/* ================= 토큰 리프레쉬 ================= */
+export const refreshToken = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const authService = container.resolve<AuthService>("AuthService");
+
+  try {
+    authService.refreshToken();
+    res.status(200).json({ message: "Token refreshed" });
   } catch (error) {
     next(error);
   }

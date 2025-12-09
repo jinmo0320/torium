@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import authRoutes from "./presentation/routes/authRoutes";
+import userRoutes from "./presentation/routes/userRoutes";
 import errorMiddleware from "./presentation/middlewares/errorMiddleware";
 import "./di/diContainer";
 
@@ -25,11 +26,12 @@ app.get("/health", (req, res) => {
 
 const router = express.Router();
 router.use("/auth", authRoutes);
+router.use("/user", userRoutes);
 
 app.use("/api/v1", router);
 
 app.use(errorMiddleware);
 
-app.listen(port, "0.0.0.0", () => {
+app.listen(port, () => {
   console.log(`🚀 Server is running on port ${port}`);
 });

@@ -9,8 +9,19 @@ import { AuthRepository } from "../repositories/authRepository";
 
 dotenv.config();
 
+export interface AuthService {
+  register(nickname: string, email: string, password: string): Promise<void>;
+  login(email: string, password: string): Promise<string>;
+  sendVerificationCode(email: string): Promise<void>;
+  checkVerificationCode(email: string, code: string): Promise<void>;
+  sendForgotCode(email: string): Promise<void>;
+  checkForgotCode(email: string, code: string): Promise<void>;
+  resetPassword(email: string, newPassword: string): Promise<void>;
+  refreshToken(): Promise<void>;
+}
+
 @injectable()
-export class AuthService {
+export class AuthServiceImpl implements AuthService {
   constructor(
     @inject("UserRepository") private userRepository: UserRepository,
     @inject("AuthRepository") private authRepository: AuthRepository
@@ -64,7 +75,7 @@ export class AuthService {
     return token;
   }
 
-  async verifyEmail(email: string): Promise<void> {
+  async sendVerificationCode(email: string): Promise<void> {
     /* 에러: 이메일이 비었을 경우 */
     if (!email) {
       throw new HttpException(400, "Invalid input");
@@ -100,4 +111,9 @@ export class AuthService {
     /* 코드 삭제 */
     await this.authRepository.deleteVerificationCode(email);
   }
+
+  async sendForgotCode(email: string): Promise<void> {}
+  async checkForgotCode(email: string, code: string): Promise<void> {}
+  async resetPassword(email: string, newPassword: string): Promise<void> {}
+  async refreshToken(): Promise<void> {}
 }
