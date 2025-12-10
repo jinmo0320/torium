@@ -1,3 +1,4 @@
+/* 유저 모델 */
 export class User {
   constructor(
     public id: number,
