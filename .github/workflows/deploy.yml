@@ -12,7 +12,7 @@ jobs:
     env:
       AWS_REGION: ${{ secrets.AWS_REGION }}
       ECR_URI: ${{ secrets.AWS_ECR_URI }}
-      IMAGE_REPO: dev/alpha-repo
+      IMAGE_REPO: prod/torium-repo
 
     steps:
       - name: Checkout code
@@ -42,7 +42,7 @@ jobs:
       - name: Build and push docker image
         env:
           ECR_URI: ${{ secrets.AWS_ECR_URI }}
-          IMAGE_REPO: dev/alpha-repo
+          IMAGE_REPO: prod/torium-repo
         run: |
           IMAGE_TAG=latest
           BUILD_TAG=${GITHUB_RUN_NUMBER:-${GITHUB_RUN_ID}}
@@ -59,10 +59,10 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     env:
-      ECR_REGISTRY: ${{ secrets.AWS_ECR_URI }}
-      IMAGE_REPO: dev/alpha-repo
-      CONTAINER_NAME: alpha-server
-      HOST_PORT: 80 # EC2에서 열어줄 포트
+      ECR_URI: ${{ secrets.AWS_ECR_URI }}
+      IMAGE_REPO: prod/torium-repo
+      CONTAINER_NAME: torium-server
+      HOST_PORT: 3000 # EC2에서 열어줄 포트
       CONTAINER_PORT: 3000 # Node.js 앱이 사용하는 포트
 
     steps:
@@ -81,16 +81,16 @@ jobs:
           set -e # 에러 발생 시 즉시 중단
 
           # ECR 로그인
-          aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin $ECR_REGISTRY
+          aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin $ECR_URI
 
           # Parameter Store에서 .env 안전하게 가져오기
-          aws ssm get-parameter --name "/alpha/dev/env" --with-decryption --query "Parameter.Value" --output text > .env
+          aws ssm get-parameter --name "/torium/prod/env" --with-decryption --query "Parameter.Value" --output text > .env
 
           # Docker 배포
-          docker pull $ECR_REGISTRY/$IMAGE_REPO:latest
+          docker pull $ECR_URI/$IMAGE_REPO:latest
           docker stop $CONTAINER_NAME || true
           docker rm $CONTAINER_NAME || true
-          docker run -d --name $CONTAINER_NAME -p $HOST_PORT:$CONTAINER_PORT --env-file .env --restart always $ECR_REGISTRY/$IMAGE_REPO:latest
+          docker run -d --name $CONTAINER_NAME -p 127.0.0.1:$HOST_PORT:CONTAINER_PORT --env-file .env --restart always $ECR_URI/$IMAGE_REPO:latest
 
           # 정리
           docker image prune -f
