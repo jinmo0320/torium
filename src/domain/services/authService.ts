@@ -86,7 +86,13 @@ export class AuthServiceImpl implements AuthService {
       Math.floor(Math.random() * 10)
     ).join("");
 
-    await EmailSender.sendMail(email, code);
+    const isEmailSended = await EmailSender.sendMail(email, code);
+    if (!isEmailSended) {
+      throw new HttpException(
+        500,
+        "Failed to send verification code email. Please try again later."
+      );
+    }
 
     /* 코드 저장 */
     await this.authRepository.saveVerificationCode(email, code);
