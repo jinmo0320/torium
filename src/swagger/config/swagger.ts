@@ -39,11 +39,6 @@ const swaggerOptions: Options = {
     // 개발 환경
     "./src/swagger/schemas/*/*.yaml",
     "./src/swagger/apis/*.yaml",
-
-    // 배포 환경
-    "./dist/presentation/routes/*.js",
-    "./dist/swageger/schemas/*/*.js",
-    "./dist/swageger/schemas/*.js",
   ],
 };
 
