@@ -35,11 +35,7 @@ const swaggerOptions: Options = {
       },
     },
   },
-  apis: [
-    // 개발 환경
-    "./src/swagger/schemas/*/*.yaml",
-    "./src/swagger/apis/*.yaml",
-  ],
+  apis: ["./src/swagger/**/*.yaml", "./dist/swagger/**/*.yaml"],
 };
 
 const specs = swaggerJsdoc(swaggerOptions);
