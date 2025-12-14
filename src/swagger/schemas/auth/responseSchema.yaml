@@ -1,0 +1,24 @@
+components:
+  schemas:
+    # ------------------------------------
+    # Response Schemas
+    # ------------------------------------
+    # ------------------------------------
+    # 1. login or register
+    # ------------------------------------
+    TokenResponse:
+      type: object
+      description: return jwt access token
+      properties:
+        message:
+          type: string
+        accessToken:
+          type: string
+          description: jwt access token
+        refreshToken:
+          type: string
+          description: jwt refresh token
+      example:
+        message: "string"
+        accessToken: "oqLSyTa_bdl3FPwfDbIYP5bsZYdb6u-5CK1r"
+        refreshToken: "I6MSwibmFtZSI6Imppbm1vIiwiaWF0IjoxNzY1"

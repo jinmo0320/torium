@@ -14,18 +14,17 @@ const sesClient = new SESClient({
   },
 });
 
-const sender_email = process.env.SES_SENDER_EMAIL;
-
 export class EmailSender {
   static async sendMail(email: string, code: string): Promise<boolean> {
-    if (!sender_email) {
+    const senderEmail = process.env.SES_SENDER_EMAIL;
+    const expirationMinutes = process.env.EXPIRATION_MINUTES || 5;
+
+    if (!senderEmail) {
       console.error(
         "SES_SENDER_EMAIL is not configured in environment variables."
       );
       return false;
     }
-
-    const expirationMinutes = process.env.EXPIRATION_MINUTES || 5;
 
     const params: SendEmailCommandInput = {
       Destination: {
@@ -59,7 +58,7 @@ export class EmailSender {
           Data: "[Torium] 인증 코드 발송",
         },
       },
-      Source: sender_email,
+      Source: `"Torium 인증센터" ${senderEmail}`,
     };
 
     try {

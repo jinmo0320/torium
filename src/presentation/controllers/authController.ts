@@ -32,7 +32,7 @@ export const login = async (
     const token = await authService.login(email, password);
     res.status(200).json({
       message: "Login successful",
-      access_token: token,
+      accessToken: token,
     });
   } catch (error) {
     next(error);

@@ -1,0 +1,28 @@
+components:
+  schemas:
+    # ------------------------------------
+    # Response Schemas
+    # ------------------------------------
+    # ------------------------------------
+    # 1. find user
+    # ------------------------------------
+    UserResponse:
+      type: object
+      description: return user object
+      properties:
+        message:
+          type: string
+        user:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            nickname:
+              type: string
+            email:
+              type: string
+              format: email
+            createdAt:
+              type: string
+              format: date-time
