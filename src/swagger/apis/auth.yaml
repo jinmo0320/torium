@@ -1,0 +1,252 @@
+paths:
+  # ====================================
+  # /auth/register (POST)
+  # ====================================
+  /auth/register:
+    post:
+      summary: 회원가입
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        201:
+          description: 회원가입 성공
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Default"
+        400:
+          description: Bad Request (형식 오류)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              examples:
+                AUTH_WRONG_NICKNAME_FORMAT:
+                  $ref: "#/components/examples/AUTH_WRONG_NICKNAME_FORMAT"
+                AUTH_WRONG_EMAIL_FORMAT:
+                  $ref: "#/components/examples/AUTH_WRONG_EMAIL_FORMAT"
+                AUTH_WRONG_PASSWORD_FORMAT:
+                  $ref: "#/components/examples/AUTH_WRONG_PASSWORD_FORMAT"
+        401:
+          description: Unauthorized (이메일 미인증 상태 등)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              examples:
+                AUTH_EMAIL_NOT_VERIFIED:
+                  $ref: "#/components/examples/AUTH_EMAIL_NOT_VERIFIED"
+        409:
+          description: Conflict (중복)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              examples:
+                AUTH_EMAIL_ALREADY_REGISTERED:
+                  $ref: "#/components/examples/AUTH_EMAIL_ALREADY_REGISTERED"
+
+  # ====================================
+  # /auth/login (POST)
+  # ====================================
+  /auth/login:
+    post:
+      summary: 로그인
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        200:
+          description: 로그인 성공
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenResponse"
+        401:
+          description: Unauthorized (로그인 정보 불일치)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              examples:
+                AUTH_SIGN_IN_INVALID:
+                  $ref: "#/components/examples/AUTH_SIGN_IN_INVALID"
+
+  # ====================================
+  # /auth/verification/send (POST)
+  # ====================================
+  /auth/verification/send:
+    post:
+      summary: 회원가입 인증 이메일 전송
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerificationSendRequest"
+      responses:
+        200:
+          description: 이메일 전송 성공
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Default"
+        400:
+          description: Bad Request (이메일 형식 오류)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              examples:
+                AUTH_WRONG_EMAIL_FORMAT:
+                  $ref: "#/components/examples/AUTH_WRONG_EMAIL_FORMAT"
+        409:
+          description: Conflict (이미 가입된 이메일)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              examples:
+                AUTH_EMAIL_ALREADY_REGISTERED:
+                  $ref: "#/components/examples/AUTH_EMAIL_ALREADY_REGISTERED"
+
+  # ====================================
+  # /auth/verification/verify (POST)
+  # ====================================
+  /auth/verification/verify:
+    post:
+      summary: 회원가입 이메일 인증 확인
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerifyRequest"
+      responses:
+        200:
+          description: 이메일 인증 성공
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Default"
+        401:
+          description: Unauthorized (인증 실패)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              examples:
+                AUTH_EMAIL_VERIFICATION_FAILED:
+                  $ref: "#/components/examples/AUTH_EMAIL_VERIFICATION_FAILED"
+
+  # ====================================
+  # /auth/forgot-password/send (POST)
+  # ====================================
+  /auth/forgot-password/send:
+    post:
+      summary: 비밀번호 재설정 인증 이메일 전송
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerificationSendRequest"
+      responses:
+        200:
+          description: 이메일 전송 성공
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Default"
+        400:
+          description: Bad Request (이메일 형식 오류)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              examples:
+                AUTH_WRONG_EMAIL_FORMAT:
+                  $ref: "#/components/examples/AUTH_WRONG_EMAIL_FORMAT"
+
+  # ====================================
+  # /auth/forgot-password/verify (POST)
+  # ====================================
+  /auth/forgot-password/verify:
+    post:
+      summary: 비밀번호 재설정 이메일 인증 확인
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerifyRequest"
+      responses:
+        200:
+          description: 이메일 인증 성공
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Default"
+        401:
+          description: Unauthorized (인증 실패)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              examples:
+                AUTH_EMAIL_VERIFICATION_FAILED:
+                  $ref: "#/components/examples/AUTH_EMAIL_VERIFICATION_FAILED"
+
+  # ====================================
+  # /auth/reset-password (POST)
+  # ====================================
+  /auth/reset-password:
+    post:
+      summary: 비밀번호 재설정
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResetPasswordRequest"
+      responses:
+        200:
+          description: 비밀번호 재설정 성공
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Default"
+        400:
+          description: Bad Request (형식 오류)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              examples:
+                AUTH_WRONG_EMAIL_FORMAT:
+                  $ref: "#/components/examples/AUTH_WRONG_EMAIL_FORMAT"
+                AUTH_WRONG_PASSWORD_FORMAT:
+                  $ref: "#/components/examples/AUTH_WRONG_PASSWORD_FORMAT"
+        401:
+          description: Unauthorized (인증되지 않은 이메일 등)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              examples:
+                AUTH_EMAIL_NOT_VERIFIED:
+                  $ref: "#/components/examples/AUTH_EMAIL_NOT_VERIFIED"

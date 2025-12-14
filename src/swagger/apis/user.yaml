@@ -1,0 +1,76 @@
+paths:
+  # ====================================
+  # /user/me (GET)
+  # ====================================
+  /user/me:
+    get:
+      summary: 내 정보 조회
+      tags: [User]
+      security: [{ bearerAuth: [] }]
+      responses:
+        200:
+          description: 내 정보 조회 성공
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              examples:
+                USER_AUTHENTICATION_FAILED:
+                  $ref: "#/components/examples/USER_AUTHENTICATION_FAILED"
+        404:
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              examples:
+                USER_NOT_FOUND:
+                  $ref: "#/components/examples/USER_NOT_FOUND"
+
+  # ====================================
+  # /user/change-password (POST)
+  # ====================================
+  /user/change-password:
+    post:
+      summary: 비밀번호 변경
+      tags: [User]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChangePasswordRequest"
+      responses:
+        200:
+          description: 비밀번호 변경 성공
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Default"
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              examples:
+                AUTH_WRONG_PASSWORD_FORMAT:
+                  $ref: "#/components/examples/AUTH_WRONG_PASSWORD_FORMAT"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              examples:
+                USER_AUTHENTICATION_FAILED:
+                  $ref: "#/components/examples/USER_AUTHENTICATION_FAILED"
+                USER_INCORRECT_CURRENT_PASSWORD:
+                  $ref: "#/components/examples/USER_INCORRECT_CURRENT_PASSWORD"

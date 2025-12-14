@@ -1,0 +1,36 @@
+components:
+  schemas:
+    # ------------------------------------
+    # Request Body Schemas
+    # ------------------------------------
+    # ------------------------------------
+    # 1. find user
+    # ------------------------------------
+    UserRequest:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+      example:
+        email: "hong@torium.kro.kr"
+    # ------------------------------------
+    # 2. change password
+    # ------------------------------------
+    ChangePasswordRequest:
+      type: object
+      required:
+        - oldPassword
+        - newPassword
+      properties:
+        oldPassword:
+          type: string
+          format: password
+        newPassword:
+          type: string
+          format: password
+      example:
+        oldPassword: "old0123#"
+        newPassword: "new0123#"
