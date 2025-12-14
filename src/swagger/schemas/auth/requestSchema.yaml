@@ -1,0 +1,93 @@
+components:
+  schemas:
+    # ------------------------------------
+    # Request Body Schemas
+    # ------------------------------------
+    # ------------------------------------
+    # 1. register
+    # ------------------------------------
+    RegisterRequest:
+      type: object
+      required:
+        - nickname
+        - email
+        - password
+      properties:
+        nickname:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+      example:
+        nickname: "홍길동"
+        email: "hong@torium.kro.kr"
+        password: "Secret0123#"
+    # ------------------------------------
+    # 2. login
+    # ------------------------------------
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+      example:
+        email: "hong@torium.kro.kr"
+        password: "Secret0123#"
+    # ------------------------------------
+    # 3. verification send
+    # ------------------------------------
+    VerificationSendRequest:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+      example:
+        email: "hong@torium.kro.kr"
+    # ------------------------------------
+    # 4. verify
+    # ------------------------------------
+    VerifyRequest:
+      type: object
+      required:
+        - email
+        - code
+      properties:
+        email:
+          type: string
+          format: email
+        code:
+          type: integer
+      example:
+        email: "hong@torium.kro.kr"
+        code: 012345
+    # ------------------------------------
+    # 5. reset password
+    # ------------------------------------
+    ResetPasswordRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+      example:
+        email: "hong@torium.kro.kr"
+        newPassword: "Secret0123#"

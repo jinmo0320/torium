@@ -1,0 +1,18 @@
+components:
+  schemas:
+    # ------------------------------------
+    # 공통 에러 스키마
+    # ------------------------------------
+    Error:
+      type: object
+      description: API 요청 실패 시 반환되는 공통 에러 응답
+      properties:
+        errorCode:
+          type: string
+          description: 에러 응답 코드
+        message:
+          type: string
+          description: 오류 메시지
+        timestamp:
+          type: string
+          format: date-time

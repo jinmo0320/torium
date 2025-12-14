@@ -5,6 +5,7 @@
     "module": "CommonJS",
     "moduleResolution": "node", //모듈 해석 방법 설정: 'node' (Node.js)
     "esModuleInterop": true,
+    "resolveJsonModule": true,
     "strict": true,
     "sourceMap": true,
     "allowJs": true,
