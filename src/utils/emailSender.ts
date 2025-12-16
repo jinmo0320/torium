@@ -35,8 +35,12 @@ export class EmailSender {
           Html: {
             Charset: "UTF-8",
             Data: `
-              <html>
-                  <body style="font-family: Arial, sans-serif; line-height: 1.6;">
+              <!DOCTYPE html>
+              <html lang="ko"> 
+                  <head>
+                      <meta charset="UTF-8">
+                  </head>
+                  <body style="font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', Arial, sans-serif; line-height: 1.6;">
                       <h2>인증 코드 안내</h2>
                       <p>안녕하세요. 회원님의 인증 코드는 다음과 같습니다:</p>
                       <div style="background-color: #f4f4f4; padding: 15px; border-radius: 5px; text-align: center;">
