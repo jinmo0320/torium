@@ -58,7 +58,7 @@ export class EmailSender {
           Data: "[Torium] 인증 코드 발송",
         },
       },
-      Source: `"Torium 인증센터" ${senderEmail}`,
+      Source: senderEmail,
     };
 
     try {
