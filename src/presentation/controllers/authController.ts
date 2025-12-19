@@ -11,8 +11,8 @@ export const register = async (
   const authService = container.resolve<AuthService>("AuthService");
 
   try {
-    const { nickname, email, password } = req.body;
-    await authService.register(nickname, email, password);
+    const { email, password } = req.body;
+    await authService.register(email, password);
     res.status(201).json({ message: "User created" });
   } catch (error) {
     next(error);

@@ -1,6 +1,6 @@
 import { inject, injectable } from "tsyringe";
 import { User } from "../models/user";
-import { HttpException } from "../../utils/errors";
+import { HttpException } from "../errors/error";
 
 export interface UserService {
   me(): Promise<User>;

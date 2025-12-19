@@ -61,8 +61,8 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
               examples:
-                AUTH_WRONG_PASSWORD_FORMAT:
-                  $ref: "#/components/examples/AUTH_WRONG_PASSWORD_FORMAT"
+                WRONG_PASSWORD_FORMAT:
+                  $ref: "#/components/examples/WRONG_PASSWORD_FORMAT"
         401:
           description: Unauthorized
           content:
@@ -72,5 +72,5 @@ paths:
               examples:
                 USER_AUTHENTICATION_FAILED:
                   $ref: "#/components/examples/USER_AUTHENTICATION_FAILED"
-                USER_INCORRECT_CURRENT_PASSWORD:
-                  $ref: "#/components/examples/USER_INCORRECT_CURRENT_PASSWORD"
+                CURRENT_PASSWORD_NOT_MATCHED:
+                  $ref: "#/components/examples/CURRENT_PASSWORD_NOT_MATCHED"

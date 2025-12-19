@@ -1,16 +1,18 @@
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
-import { HttpException } from "../../utils/errors";
+import { HttpException } from "../errors/error";
 import { BcryptHelper } from "../../utils/bcryptHelper";
 import { EmailSender } from "../../utils/emailSender";
 import { inject, injectable } from "tsyringe";
 import { UserRepository } from "../repositories/userRepository";
 import { AuthRepository } from "../repositories/authRepository";
+import { Validator } from "../../utils/validator";
 
 dotenv.config();
 
 export interface AuthService {
-  register(nickname: string, email: string, password: string): Promise<void>;
+  // 회원가입
+  register(email: string, password: string): Promise<void>;
   login(email: string, password: string): Promise<string>;
   sendVerificationCode(email: string): Promise<void>;
   checkVerificationCode(email: string, code: string): Promise<void>;
@@ -27,15 +29,10 @@ export class AuthServiceImpl implements AuthService {
     @inject("AuthRepository") private authRepository: AuthRepository
   ) {}
 
-  async register(
-    nickname: string,
-    email: string,
-    password: string
-  ): Promise<void> {
-    /* 에러: 각 필드가 비었을 경우 */
-    if (!nickname || !email || !password) {
-      throw new HttpException(400, "Invalid input");
-    }
+  /* ================= 회원가입 ================= */
+  async register(email: string, password: string): Promise<void> {
+    /* [Error] input validation */
+    if (Validator.validateEmail(email)) throw new HttpException();
 
     /* 에러: 이미 존재하는 이메일인 경우 */
     const user = await this.userRepository.findUser(email);

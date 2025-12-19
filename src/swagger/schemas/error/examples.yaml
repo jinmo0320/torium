@@ -1,75 +1,73 @@
 components:
   examples:
     # ------------------------------------
-    # 인증 (AUTH) 관련 오류
-    # ------------------------------------
-    AUTH_EMAIL_ALREADY_REGISTERED:
+    EMAIL_ALREADY_REGISTERED:
       summary: 이미 가입된 이메일
       value:
         message: "This email address is already registered."
-        errorCode: "AUTH_EMAIL_ALREADY_REGISTERED"
+        errorCode: "EMAIL_ALREADY_REGISTERED"
         timestamp: "2025-12-14T15:00:00Z"
     # ------------------------------------
-    AUTH_EMAIL_NOT_VERIFIED:
+    EMAIL_NOT_VERIFIED:
       summary: 인증되지 않은 이메일
       value:
         message: "This email has not been verified."
-        errorCode: "AUTH_EMAIL_NOT_VERIFIED"
+        errorCode: "EMAIL_NOT_VERIFIED"
         timestamp: "2025-12-14T15:00:00Z"
     # ------------------------------------
-    AUTH_EMAIL_VERIFICATION_FAILED:
+    EMAIL_VERIFICATION_FAILED:
       summary: 이메일 인증 코드 불일치/만료
       value:
         message: "Email verification code is incorrect or expired."
-        errorCode: "AUTH_EMAIL_VERIFICATION_FAILED"
+        errorCode: "EMAIL_VERIFICATION_FAILED"
         timestamp: "2025-12-14T15:00:00Z"
     # ------------------------------------
-    AUTH_SIGN_IN_INVALID:
+    EMAIL_NOT_REGISTERED:
+      summary: 가입되지 않은 이메일로 비밀번호 찾기
+      value:
+        message: "You cannot retrieve your password with an unregistered email address."
+        errorCode: "EMAIL_NOT_REGISTERED"
+        timestamp: "2025-12-14T15:00:00Z"
+    # ------------------------------------
+    LOGIN_FAILED:
       summary: 로그인 정보 불일치
       value:
         message: "Invalid email or password."
-        errorCode: "AUTH_SIGN_IN_INVALID"
+        errorCode: "LOGIN_FAILED"
         timestamp: "2025-12-14T15:00:00Z"
     # ------------------------------------
-    AUTH_WRONG_EMAIL_FORMAT:
+    WRONG_EMAIL_FORMAT:
       summary: 이메일 형식 오류
       value:
         message: "The email format is incorrect."
-        errorCode: "AUTH_WRONG_EMAIL_FORMAT"
+        errorCode: "WRONG_EMAIL_FORMAT"
         timestamp: "2025-12-14T15:00:00Z"
     # ------------------------------------
-    AUTH_WRONG_PASSWORD_FORMAT:
+    WRONG_PASSWORD_FORMAT:
       summary: 비밀번호 형식 오류
       value:
         message: "The password format is incorrect."
-        errorCode: "AUTH_WRONG_PASSWORD_FORMAT"
-        timestamp: "2025-12-14T15:00:00Z"
-    # ------------------------------------
-    AUTH_WRONG_NICKNAME_FORMAT:
-      summary: 닉네임 형식 오류
-      value:
-        message: "The nickname format is incorrect."
-        errorCode: "AUTH_WRONG_NICKNAME_FORMAT"
+        errorCode: "WRONG_PASSWORD_FORMAT"
         timestamp: "2025-12-14T15:00:00Z"
     # ------------------------------------
     USER_AUTHENTICATION_FAILED:
-      summary: 일반 인증 실패
+      summary: 유저 토큰 인증 실패
       value:
         message: "Authentication failed. Check credentials or token."
-        errorCode: "AUTH_USER_AUTHENTICATION_FAILED"
+        errorCode: "USER_AUTHENTICATION_FAILED"
         timestamp: "2025-12-14T15:00:00Z"
     # ------------------------------------
     USER_NOT_FOUND:
       summary: 유저를 찾을 수 없음
       value:
         message: "User not found with the provided identifier."
-        errorCode: "AUTH_USER_NOT_FOUND"
+        errorCode: "USER_NOT_FOUND"
         timestamp: "2025-12-14T15:00:00Z"
     # ------------------------------------
-    USER_INCORRECT_CURRENT_PASSWORD:
+    CURRENT_PASSWORD_NOT_MATCHED:
       summary: 현재 비밀번호 불일치
       value:
         message: "Your current password is incorrect."
-        errorCode: "USER_INCORRECT_CURRENT_PASSWORD"
+        errorCode: "CURRENT_PASSWORD_NOT_MATCHED"
         timestamp: "2025-12-14T15:00:00Z"
     # ------------------------------------

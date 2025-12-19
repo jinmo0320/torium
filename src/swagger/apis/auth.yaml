@@ -18,38 +18,36 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Default"
+                $ref: "#/components/schemas/TokenResponse"
         400:
-          description: Bad Request (형식 오류)
+          description: Bad Request
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
               examples:
-                AUTH_WRONG_NICKNAME_FORMAT:
-                  $ref: "#/components/examples/AUTH_WRONG_NICKNAME_FORMAT"
-                AUTH_WRONG_EMAIL_FORMAT:
-                  $ref: "#/components/examples/AUTH_WRONG_EMAIL_FORMAT"
-                AUTH_WRONG_PASSWORD_FORMAT:
-                  $ref: "#/components/examples/AUTH_WRONG_PASSWORD_FORMAT"
+                WRONG_EMAIL_FORMAT:
+                  $ref: "#/components/examples/WRONG_EMAIL_FORMAT"
+                WRONG_PASSWORD_FORMAT:
+                  $ref: "#/components/examples/WRONG_PASSWORD_FORMAT"
         401:
-          description: Unauthorized (이메일 미인증 상태 등)
+          description: Unauthorized
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
               examples:
-                AUTH_EMAIL_NOT_VERIFIED:
-                  $ref: "#/components/examples/AUTH_EMAIL_NOT_VERIFIED"
+                EMAIL_NOT_VERIFIED:
+                  $ref: "#/components/examples/EMAIL_NOT_VERIFIED"
         409:
-          description: Conflict (중복)
+          description: Conflict
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
               examples:
-                AUTH_EMAIL_ALREADY_REGISTERED:
-                  $ref: "#/components/examples/AUTH_EMAIL_ALREADY_REGISTERED"
+                EMAIL_ALREADY_REGISTERED:
+                  $ref: "#/components/examples/EMAIL_ALREADY_REGISTERED"
 
   # ====================================
   # /auth/login (POST)
@@ -72,14 +70,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/TokenResponse"
         401:
-          description: Unauthorized (로그인 정보 불일치)
+          description: Unauthorized
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
               examples:
-                AUTH_SIGN_IN_INVALID:
-                  $ref: "#/components/examples/AUTH_SIGN_IN_INVALID"
+                LOGIN_FAILED:
+                  $ref: "#/components/examples/LOGIN_FAILED"
 
   # ====================================
   # /auth/verification/send (POST)
@@ -102,23 +100,23 @@ paths:
               schema:
                 $ref: "#/components/schemas/Default"
         400:
-          description: Bad Request (이메일 형식 오류)
+          description: Bad Request
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
               examples:
-                AUTH_WRONG_EMAIL_FORMAT:
-                  $ref: "#/components/examples/AUTH_WRONG_EMAIL_FORMAT"
+                WRONG_EMAIL_FORMAT:
+                  $ref: "#/components/examples/WRONG_EMAIL_FORMAT"
         409:
-          description: Conflict (이미 가입된 이메일)
+          description: Conflict
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
               examples:
-                AUTH_EMAIL_ALREADY_REGISTERED:
-                  $ref: "#/components/examples/AUTH_EMAIL_ALREADY_REGISTERED"
+                EMAIL_ALREADY_REGISTERED:
+                  $ref: "#/components/examples/EMAIL_ALREADY_REGISTERED"
 
   # ====================================
   # /auth/verification/verify (POST)
@@ -141,14 +139,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/Default"
         401:
-          description: Unauthorized (인증 실패)
+          description: Unauthorized
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
               examples:
-                AUTH_EMAIL_VERIFICATION_FAILED:
-                  $ref: "#/components/examples/AUTH_EMAIL_VERIFICATION_FAILED"
+                EMAIL_VERIFICATION_FAILED:
+                  $ref: "#/components/examples/EMAIL_VERIFICATION_FAILED"
 
   # ====================================
   # /auth/forgot-password/send (POST)
@@ -171,14 +169,23 @@ paths:
               schema:
                 $ref: "#/components/schemas/Default"
         400:
-          description: Bad Request (이메일 형식 오류)
+          description: Bad Request
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
               examples:
-                AUTH_WRONG_EMAIL_FORMAT:
-                  $ref: "#/components/examples/AUTH_WRONG_EMAIL_FORMAT"
+                WRONG_EMAIL_FORMAT:
+                  $ref: "#/components/examples/WRONG_EMAIL_FORMAT"
+        404:
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              examples:
+                EMAIL_NOT_REGISTERED:
+                  $ref: "#/components/examples/EMAIL_NOT_REGISTERED"
 
   # ====================================
   # /auth/forgot-password/verify (POST)
@@ -201,14 +208,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/Default"
         401:
-          description: Unauthorized (인증 실패)
+          description: Unauthorized
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
               examples:
-                AUTH_EMAIL_VERIFICATION_FAILED:
-                  $ref: "#/components/examples/AUTH_EMAIL_VERIFICATION_FAILED"
+                EMAIL_VERIFICATION_FAILED:
+                  $ref: "#/components/examples/EMAIL_VERIFICATION_FAILED"
 
   # ====================================
   # /auth/reset-password (POST)
@@ -231,22 +238,20 @@ paths:
               schema:
                 $ref: "#/components/schemas/Default"
         400:
-          description: Bad Request (형식 오류)
+          description: Bad Request
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
               examples:
-                AUTH_WRONG_EMAIL_FORMAT:
-                  $ref: "#/components/examples/AUTH_WRONG_EMAIL_FORMAT"
-                AUTH_WRONG_PASSWORD_FORMAT:
-                  $ref: "#/components/examples/AUTH_WRONG_PASSWORD_FORMAT"
+                WRONG_PASSWORD_FORMAT:
+                  $ref: "#/components/examples/WRONG_PASSWORD_FORMAT"
         401:
-          description: Unauthorized (인증되지 않은 이메일 등)
+          description: Unauthorized
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
               examples:
-                AUTH_EMAIL_NOT_VERIFIED:
-                  $ref: "#/components/examples/AUTH_EMAIL_NOT_VERIFIED"
+                EMAIL_NOT_VERIFIED:
+                  $ref: "#/components/examples/EMAIL_NOT_VERIFIED"
