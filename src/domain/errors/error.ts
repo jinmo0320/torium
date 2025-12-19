@@ -1,9 +1,15 @@
-export class HttpException extends Error {
-  status: number;
-  errorCode: ErrorCode;
-  timestamp: string;
+import { Timer } from "../../utils/timer";
+import { ErrorCode } from "./errorCodes";
 
-  constructor(status: number, code: ErrorCode, message: string) {
+export class HttpException extends Error {
+  readonly status: number;
+  readonly errorCode: ErrorCode;
+  readonly timestamp: string;
+
+  constructor(status: number, errorCode: ErrorCode, message: string) {
     super(message);
+    this.status = status;
+    this.errorCode = errorCode;
+    this.timestamp = Timer.getTimestampKST();
   }
 }
