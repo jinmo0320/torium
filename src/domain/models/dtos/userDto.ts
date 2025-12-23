@@ -19,4 +19,12 @@ export namespace UserDto {
       public readonly email: string
     ) {}
   }
+
+  export class PasswordResponse {
+    constructor(
+      public readonly id: UUID,
+      public readonly email: string,
+      public readonly hashedPassword: string
+    ) {}
+  }
 }

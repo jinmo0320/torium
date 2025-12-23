@@ -6,4 +6,5 @@ export interface UserRepository {
   findUserById(id: UUID): Promise<UserDto.Response | null>;
   findUserByEmail(email: string): Promise<UserDto.Response | null>;
   findUserByName(name: string, tag: string): Promise<UserDto.Response | null>;
+  getUserPassword(email: string): Promise<UserDto.PasswordResponse | null>;
 }

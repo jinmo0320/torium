@@ -88,6 +88,14 @@ export class AuthServiceImpl implements AuthService {
         "This email address is already registered."
       );
 
+    /* [Error] 인증되지 않은 이메일 */
+    if (await this.authRepository.isEmailVerified(email))
+      throw new HttpException(
+        401,
+        ErrorCode.EMAIL_NOT_VERIFIED,
+        "This email has not been verified."
+      );
+
     /* 0. 무작위 닉네임 생성 */
     const name = NameGenerator.generateName();
     const tag = NameGenerator.generateTag();
@@ -113,31 +121,51 @@ export class AuthServiceImpl implements AuthService {
   async login(
     email: string,
     password: string
-  ): Promise<{ accessToken: string; refreshToken: string }> {
-    /* 에러: 각 필드가 비었을 경우 */
-    if (!email || !password) {
-      throw new HttpException(400, "Invalid input");
-    }
+  ): Promise<{
+    accessToken: string;
+    refreshToken: string;
+    user: UserDto.Response;
+  }> {
+    /* [Error] input validation */
+    if (Validator.validateEmail(email))
+      throw new HttpException(
+        400,
+        ErrorCode.WRONG_EMAIL_FORMAT,
+        "The email format is incorrect."
+      );
+    if (Validator.validatePassword(password))
+      throw new HttpException(
+        400,
+        ErrorCode.WRONG_PASSWORD_FORMAT,
+        "The password format is incorrect."
+      );
 
-    /* 에러: 유저가 존재하지 않거나 비밀번호가 일치하지 않는 경우 */
-    const user = await this.userRepository.findUser(email);
+    /* [Error] Login failed */
+    const user = await this.userRepository.findUserByEmail(email);
+    const userPassword = await this.userRepository.getUserPassword(email);
     if (
       !user ||
-      !(await BcryptHelper.comparePassword(password, user.password))
+      !userPassword ||
+      !(await BcryptHelper.comparePassword(
+        password,
+        userPassword.hashedPassword
+      ))
     ) {
-      throw new HttpException(401, "Invalid credentials");
+      throw new HttpException(
+        401,
+        ErrorCode.LOGIN_FAILED,
+        "Invalid email or password."
+      );
     }
 
-    /* 토큰 생성 및 반환 */
-    const token = jwt.sign(
-      { id: user.id, name: user.nickname },
-      process.env.JWT_SECRET as string,
-      {
-        expiresIn: "1h",
-      }
-    );
+    /* 0. 토큰 생성 및 반환 */
+    const accessToken = TokenProvider.generateAccessToken({ userId: user.id });
+    const refreshToken = TokenProvider.generateRefreshToken({
+      userId: user.id,
+    });
+    await this.authRepository.saveRefreshToken(user.id, refreshToken);
 
-    return token;
+    return { accessToken, refreshToken, user };
   }
 
   async sendVerificationCode(email: string): Promise<void> {
