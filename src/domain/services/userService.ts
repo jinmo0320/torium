@@ -1,5 +1,5 @@
 import { inject, injectable } from "tsyringe";
-import { User } from "../models/user";
+import { User } from "../models/entities/user";
 import { HttpException } from "../errors/error";
 
 export interface UserService {

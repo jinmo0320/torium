@@ -2,15 +2,12 @@ import db from "../../data/config/db";
 import { RowDataPacket } from "mysql2";
 import { injectable } from "tsyringe";
 import { UserRepository } from "../../domain/repositories/userRepository";
-import { User } from "../../domain/models/user";
+import { User } from "../../domain/models/entities/user";
+import { UserDto } from "../../domain/models/dtos/userDto";
 
 @injectable()
 export class UserRepositoryImpl implements UserRepository {
-  async createUser(
-    nickname: string,
-    email: string,
-    hashedPassword: string
-  ): Promise<void> {
+  async createUser(user: UserDto.CreateRequest): Promise<UserDto.Response> {
     await db.query(
       "INSERT INTO users (nickname, email, password) VALUES (?, ?, ?)",
       [nickname, email, hashedPassword]

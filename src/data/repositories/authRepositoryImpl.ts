@@ -2,6 +2,7 @@ import { RowDataPacket } from "mysql2";
 import db from "../../data/config/db";
 import { injectable } from "tsyringe";
 import { AuthRepository } from "../../domain/repositories/authRepository";
+import { UUID } from "crypto";
 
 // 인증 코드 데이터 구조 정의 (TTL 관리를 위해 expires_at 포함)
 interface VerificationData {
@@ -20,7 +21,7 @@ export class AuthRepositoryImpl implements AuthRepository {
     verificationStore.set(email, { code, expiresAt });
   }
 
-  async checkVerificationCode(email: string, code: string): Promise<boolean> {
+  async findVerificationCode(email: string, code: string): Promise<boolean> {
     const storedData = verificationStore.get(email);
 
     if (!storedData) {
@@ -46,4 +47,8 @@ export class AuthRepositoryImpl implements AuthRepository {
   async deleteVerificationCode(email: string): Promise<void> {
     verificationStore.delete(email);
   }
+
+  async saveRefreshToken(userId: UUID, token: string): Promise<void> {}
+  async findRefreshToken(userId: UUID, token: string): Promise<boolean> {}
+  async deleteRefreshToken(userId: UUID): Promise<void> {}
 }

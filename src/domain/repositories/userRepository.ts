@@ -1,11 +1,9 @@
-import { User } from "../models/user";
+import { UUID } from "crypto";
+import { UserDto } from "../models/dtos/userDto";
 
 export interface UserRepository {
-  createUser(
-    nickname: string,
-    email: string,
-    hashedPassword: string
-  ): Promise<void>;
-
-  findUser(email: string): Promise<User | null>;
+  createUser(user: UserDto.CreateRequest): Promise<UserDto.Response>;
+  findUserById(id: UUID): Promise<UserDto.Response | null>;
+  findUserByEmail(email: string): Promise<UserDto.Response | null>;
+  findUserByName(name: string, tag: string): Promise<UserDto.Response | null>;
 }

@@ -8,7 +8,7 @@ export default function errorMiddleware(
   next: NextFunction
 ) {
   console.error(error);
-  const status = error.statusCode || 500;
+  const status = error.status || 500;
   const message = error.message || "internal server error";
   res.status(status).json({ message: message });
 }

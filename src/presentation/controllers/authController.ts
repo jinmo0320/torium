@@ -12,8 +12,25 @@ export const register = async (
 
   try {
     const { email, password } = req.body;
-    await authService.register(email, password);
-    res.status(201).json({ message: "User created" });
+    const { accessToken, refreshToken, user } = await authService.register(
+      email,
+      password
+    );
+
+    // 1. Refresh Token을 HttpOnly 쿠키에 설정
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true, // 자바스크립트에서 접근 불가 (XSS 방지)
+      secure: process.env.NODE_ENV === "production", // HTTPS에서만 전송(true)
+      sameSite: "strict", // CSRF 공격 방지
+      maxAge: 14 * 24 * 60 * 60 * 1000, // 쿠키 유효 기간
+    });
+
+    // 2. Access Token은 JSON Body로 응답
+    res.status(201).json({
+      message: "User created",
+      accessToken,
+      user,
+    });
   } catch (error) {
     next(error);
   }

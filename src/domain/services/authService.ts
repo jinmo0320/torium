@@ -1,5 +1,4 @@
 import dotenv from "dotenv";
-import jwt from "jsonwebtoken";
 import { HttpException } from "../errors/error";
 import { BcryptHelper } from "../../utils/bcryptHelper";
 import { EmailSender } from "../../utils/emailSender";
@@ -7,13 +6,42 @@ import { inject, injectable } from "tsyringe";
 import { UserRepository } from "../repositories/userRepository";
 import { AuthRepository } from "../repositories/authRepository";
 import { Validator } from "../../utils/validator";
+import { ErrorCode } from "../errors/errorCodes";
+import { TokenProvider } from "../../utils/tokenProvider";
+import { NameGenerator } from "../../utils/nameGenerator";
+import { UserDto } from "../models/dtos/userDto";
 
 dotenv.config();
 
 export interface AuthService {
-  // 회원가입
-  register(email: string, password: string): Promise<void>;
-  login(email: string, password: string): Promise<string>;
+  /**
+   * 회원가입
+   * @param email
+   * @param password
+   * @returns  JWT access token, refresh token and user data
+   */
+  register(
+    email: string,
+    password: string
+  ): Promise<{
+    accessToken: string;
+    refreshToken: string;
+    user: UserDto.Response;
+  }>;
+  /**
+   * 로그인
+   * @param email
+   * @param password
+   * @returns  JWT access token, refresh token and user data
+   */
+  login(
+    email: string,
+    password: string
+  ): Promise<{
+    accessToken: string;
+    refreshToken: string;
+    user: UserDto.Response;
+  }>;
   sendVerificationCode(email: string): Promise<void>;
   checkVerificationCode(email: string, code: string): Promise<void>;
   sendForgotCode(email: string): Promise<void>;
@@ -30,22 +58,62 @@ export class AuthServiceImpl implements AuthService {
   ) {}
 
   /* ================= 회원가입 ================= */
-  async register(email: string, password: string): Promise<void> {
+  async register(
+    email: string,
+    password: string
+  ): Promise<{
+    accessToken: string;
+    refreshToken: string;
+    user: UserDto.Response;
+  }> {
     /* [Error] input validation */
-    if (Validator.validateEmail(email)) throw new HttpException();
+    if (Validator.validateEmail(email))
+      throw new HttpException(
+        400,
+        ErrorCode.WRONG_EMAIL_FORMAT,
+        "The email format is incorrect."
+      );
+    if (Validator.validatePassword(password))
+      throw new HttpException(
+        400,
+        ErrorCode.WRONG_PASSWORD_FORMAT,
+        "The password format is incorrect."
+      );
 
-    /* 에러: 이미 존재하는 이메일인 경우 */
-    const user = await this.userRepository.findUser(email);
-    if (user) {
-      throw new HttpException(409, "User already exists");
-    }
+    /* [Error] 이미 가입된 이메일 */
+    if (await this.userRepository.findUserByEmail(email))
+      throw new HttpException(
+        409,
+        ErrorCode.EMAIL_ALREADY_REGISTERED,
+        "This email address is already registered."
+      );
 
-    /* 비밀번호 해싱 후 유저 생성 */
+    /* 0. 무작위 닉네임 생성 */
+    const name = NameGenerator.generateName();
+    const tag = NameGenerator.generateTag();
+    /* 1. 비밀번호 해싱 */
     const hashedPassword = await BcryptHelper.hashPassword(password);
-    await this.userRepository.createUser(nickname, email, hashedPassword);
+    /* 2. 유저 생성 */
+    const user = await this.userRepository.createUser({
+      name,
+      tag,
+      email,
+      hashedPassword,
+    });
+    /* 3. 토큰 생성 및 반환 */
+    const accessToken = TokenProvider.generateAccessToken({ userId: user.id });
+    const refreshToken = TokenProvider.generateRefreshToken({
+      userId: user.id,
+    });
+    await this.authRepository.saveRefreshToken(user.id, refreshToken);
+
+    return { accessToken, refreshToken, user };
   }
 
-  async login(email: string, password: string): Promise<string> {
+  async login(
+    email: string,
+    password: string
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     /* 에러: 각 필드가 비었을 경우 */
     if (!email || !password) {
       throw new HttpException(400, "Invalid input");
