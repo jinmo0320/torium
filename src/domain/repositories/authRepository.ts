@@ -9,6 +9,6 @@ export interface AuthRepository {
   isEmailVerified(email: string): Promise<boolean>;
 
   saveRefreshToken(userId: UUID, token: string): Promise<void>;
-  findRefreshToken(userId: UUID, token: string): Promise<string | null>;
+  checkRefreshToken(userId: UUID, token: string): Promise<boolean>;
   deleteRefreshToken(userId: UUID): Promise<void>;
 }

@@ -341,11 +341,11 @@ export class AuthServiceImpl implements AuthService {
     }
     /* [Error] Invalid refresh token */
     const userId = payload.userId;
-    const savedToken = await this.authRepository.findRefreshToken(
+    const isTokenValid = await this.authRepository.checkRefreshToken(
       userId,
       refreshToken
     );
-    if (!savedToken || savedToken !== refreshToken) {
+    if (!isTokenValid) {
       await this.authRepository.deleteRefreshToken(userId);
       throw new HttpException(
         401,
