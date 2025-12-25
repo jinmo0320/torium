@@ -15,7 +15,7 @@ const sesClient = new SESClient({
 });
 
 export class EmailSender {
-  static async sendMail(email: string, code: string): Promise<boolean> {
+  static async sendMail(email: string, code: string): Promise<void> {
     const senderEmail = process.env.SES_SENDER_EMAIL;
     const expirationMinutes = process.env.EXPIRATION_MINUTES || 5;
 
@@ -23,7 +23,6 @@ export class EmailSender {
       console.error(
         "SES_SENDER_EMAIL is not configured in environment variables."
       );
-      return false;
     }
 
     const params: SendEmailCommandInput = {
@@ -35,10 +34,14 @@ export class EmailSender {
           Html: {
             Charset: "UTF-8",
             Data: `
-              <html>
-                  <body style="font-family: Arial, sans-serif; line-height: 1.6;">
-                      <h2>인증 코드 안내</h2>
-                      <p>안녕하세요. 회원님의 인증 코드는 다음과 같습니다:</p>
+              <!DOCTYPE html>
+              <html lang="ko"> 
+                  <head>
+                      <meta charset="UTF-8">
+                  </head>
+                  <body style="font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', Arial, sans-serif; line-height: 1.6;">
+                      <h2>[Torium] 인증 코드 안내</h2>
+                      <p>회원님의 인증 코드는 다음과 같습니다:</p>
                       <div style="background-color: #f4f4f4; padding: 15px; border-radius: 5px; text-align: center;">
                           <h1 style="color: #333; margin: 0;">${code}</h1>
                       </div>
@@ -55,22 +58,16 @@ export class EmailSender {
         },
         Subject: {
           Charset: "UTF-8",
-          Data: "[Torium] 인증 코드 발송",
+          Data: `[Torium] 인증코드는 ${code} 입니다.`,
         },
       },
       Source: senderEmail,
     };
 
-    try {
-      const command = new SendEmailCommand(params);
-      const result = await sesClient.send(command);
-      console.log(
-        `Email sent successfully to ${email}. Message ID: ${result.MessageId}`
-      );
-      return true;
-    } catch (error) {
-      console.error(`Error sending email to ${email}:`, error);
-      return false;
-    }
+    const command = new SendEmailCommand(params);
+    const result = await sesClient.send(command);
+    console.log(
+      `Email sent successfully to ${email}. Message ID: ${result.MessageId}`
+    );
   }
 }

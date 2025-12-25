@@ -1,23 +1,84 @@
 import dotenv from "dotenv";
-import jwt from "jsonwebtoken";
-import { HttpException } from "../../utils/errors";
+import { HttpException } from "../errors/error";
 import { BcryptHelper } from "../../utils/bcryptHelper";
 import { EmailSender } from "../../utils/emailSender";
 import { inject, injectable } from "tsyringe";
 import { UserRepository } from "../repositories/userRepository";
 import { AuthRepository } from "../repositories/authRepository";
+import { Validator } from "../../utils/validator";
+import { ErrorCode } from "../errors/errorCodes";
+import { TokenProvider } from "../../utils/tokenProvider";
+import { NameGenerator } from "../../utils/nameGenerator";
+import { UserDto } from "../models/dtos/userDto";
 
 dotenv.config();
 
 export interface AuthService {
-  register(nickname: string, email: string, password: string): Promise<void>;
-  login(email: string, password: string): Promise<string>;
+  /**
+   * 회원가입
+   * @param email
+   * @param password
+   * @returns  JWT access token, refresh token and user data
+   */
+  register(
+    email: string,
+    password: string
+  ): Promise<{
+    accessToken: string;
+    refreshToken: string;
+    user: UserDto.Response;
+  }>;
+  /**
+   * 로그인
+   * @param email
+   * @param password
+   * @returns  JWT access token, refresh token and user data
+   */
+  login(
+    email: string,
+    password: string
+  ): Promise<{
+    accessToken: string;
+    refreshToken: string;
+    user: UserDto.Response;
+  }>;
+  /**
+   * 인증코드 이메일 전송
+   * @param email
+   */
   sendVerificationCode(email: string): Promise<void>;
+  /**
+   * 인증코드 검증
+   * @param email
+   * @param code
+   */
   checkVerificationCode(email: string, code: string): Promise<void>;
+  /**
+   * 비밀번호 찾기 인증코드 이메일 전송
+   * @param email
+   */
   sendForgotCode(email: string): Promise<void>;
+  /**
+   * 비밀번호 찾기 인증코드 검증
+   * @param email
+   * @param code
+   */
   checkForgotCode(email: string, code: string): Promise<void>;
+  /**
+   * 비밀번호 재설정
+   * @param email
+   * @param newPassword
+   */
   resetPassword(email: string, newPassword: string): Promise<void>;
-  refreshToken(): Promise<void>;
+  /**
+   * 토큰 재발급
+   * @param refreshToken
+   * @returns JWT access token and refresh token
+   */
+  refreshToken(refreshToken: string): Promise<{
+    accessToken: string;
+    refreshToken: string;
+  }>;
 }
 
 @injectable()
@@ -27,99 +88,282 @@ export class AuthServiceImpl implements AuthService {
     @inject("AuthRepository") private authRepository: AuthRepository
   ) {}
 
+  /* ================= 회원가입 ================= */
   async register(
-    nickname: string,
     email: string,
     password: string
-  ): Promise<void> {
-    /* 에러: 각 필드가 비었을 경우 */
-    if (!nickname || !email || !password) {
-      throw new HttpException(400, "Invalid input");
-    }
-
-    /* 에러: 이미 존재하는 이메일인 경우 */
-    const user = await this.userRepository.findUser(email);
-    if (user) {
-      throw new HttpException(409, "User already exists");
-    }
-
-    /* 비밀번호 해싱 후 유저 생성 */
-    const hashedPassword = await BcryptHelper.hashPassword(password);
-    await this.userRepository.createUser(nickname, email, hashedPassword);
-  }
-
-  async login(email: string, password: string): Promise<string> {
-    /* 에러: 각 필드가 비었을 경우 */
-    if (!email || !password) {
-      throw new HttpException(400, "Invalid input");
-    }
-
-    /* 에러: 유저가 존재하지 않거나 비밀번호가 일치하지 않는 경우 */
-    const user = await this.userRepository.findUser(email);
-    if (
-      !user ||
-      !(await BcryptHelper.comparePassword(password, user.password))
-    ) {
-      throw new HttpException(401, "Invalid credentials");
-    }
-
-    /* 토큰 생성 및 반환 */
-    const token = jwt.sign(
-      { id: user.id, name: user.nickname },
-      process.env.JWT_SECRET as string,
-      {
-        expiresIn: "1h",
-      }
-    );
-
-    return token;
-  }
-
-  async sendVerificationCode(email: string): Promise<void> {
-    /* 에러: 이메일이 비었을 경우 */
-    if (!email) {
-      throw new HttpException(400, "Invalid input");
-    }
-
-    /* 이메일 전송 */
-    const code = Array.from({ length: 6 }, () =>
-      Math.floor(Math.random() * 10)
-    ).join("");
-
-    const isEmailSended = await EmailSender.sendMail(email, code);
-    if (!isEmailSended) {
+  ): Promise<{
+    accessToken: string;
+    refreshToken: string;
+    user: UserDto.Response;
+  }> {
+    /* [Error] input validation */
+    if (!Validator.validateEmail(email))
       throw new HttpException(
-        500,
-        "Failed to send verification code email. Please try again later."
+        400,
+        ErrorCode.WRONG_EMAIL_FORMAT,
+        "The email format is incorrect."
+      );
+    if (!Validator.validatePassword(password))
+      throw new HttpException(
+        400,
+        ErrorCode.WRONG_PASSWORD_FORMAT,
+        "The password format is incorrect."
+      );
+
+    /* [Error] 이미 가입된 이메일 */
+    if (await this.userRepository.findUserByEmail(email))
+      throw new HttpException(
+        409,
+        ErrorCode.EMAIL_ALREADY_REGISTERED,
+        "This email address is already registered."
+      );
+
+    /* [Error] 인증되지 않은 이메일 */
+    if (!(await this.authRepository.isEmailVerified(email)))
+      throw new HttpException(
+        401,
+        ErrorCode.EMAIL_NOT_VERIFIED,
+        "This email has not been verified."
+      );
+
+    /* 0. 무작위 닉네임 생성 */
+    const name = NameGenerator.generateName();
+    const tag = NameGenerator.generateTag();
+    /* 1. 비밀번호 해싱 */
+    const hashedPassword = await BcryptHelper.hashPassword(password);
+    /* 2. 유저 생성 */
+    const user = await this.userRepository.createUser({
+      name,
+      tag,
+      email,
+      hashedPassword,
+    });
+    /* 3. 토큰 생성 및 반환 */
+    const accessToken = TokenProvider.generateAccessToken({ userId: user.id });
+    const refreshToken = TokenProvider.generateRefreshToken({
+      userId: user.id,
+    });
+    await this.authRepository.saveRefreshToken(user.id, refreshToken);
+
+    return { accessToken, refreshToken, user };
+  }
+
+  async login(
+    email: string,
+    password: string
+  ): Promise<{
+    accessToken: string;
+    refreshToken: string;
+    user: UserDto.Response;
+  }> {
+    /* [Error] input validation */
+    if (!Validator.validateEmail(email))
+      throw new HttpException(
+        400,
+        ErrorCode.WRONG_EMAIL_FORMAT,
+        "The email format is incorrect."
+      );
+    if (!Validator.validatePassword(password))
+      throw new HttpException(
+        400,
+        ErrorCode.WRONG_PASSWORD_FORMAT,
+        "The password format is incorrect."
+      );
+
+    /* [Error] Login failed */
+    const user = await this.userRepository.findUserByEmail(email);
+    if (!user) {
+      throw new HttpException(
+        401,
+        ErrorCode.LOGIN_FAILED,
+        "Invalid email or password."
+      );
+    }
+    const userPassword = await this.userRepository.getUserPassword(user.id);
+    if (
+      !userPassword ||
+      !(await BcryptHelper.comparePassword(
+        password,
+        userPassword.hashedPassword
+      ))
+    ) {
+      throw new HttpException(
+        401,
+        ErrorCode.LOGIN_FAILED,
+        "Invalid email or password."
       );
     }
 
-    /* 코드 저장 */
+    /* 0. 토큰 생성 및 반환 */
+    const accessToken = TokenProvider.generateAccessToken({ userId: user.id });
+    const refreshToken = TokenProvider.generateRefreshToken({
+      userId: user.id,
+    });
+    await this.authRepository.saveRefreshToken(user.id, refreshToken);
+
+    return { accessToken, refreshToken, user };
+  }
+
+  async sendVerificationCode(email: string): Promise<void> {
+    /* [Error] input validation */
+    if (!Validator.validateEmail(email))
+      throw new HttpException(
+        400,
+        ErrorCode.WRONG_EMAIL_FORMAT,
+        "The email format is incorrect."
+      );
+
+    /* [Error] 이미 가입된 이메일 */
+    if (await this.userRepository.findUserByEmail(email))
+      throw new HttpException(
+        409,
+        ErrorCode.EMAIL_ALREADY_REGISTERED,
+        "This email address is already registered."
+      );
+
+    /* 0. 인증코드 생성 */
+    const code = Array.from({ length: 6 }, () =>
+      Math.floor(Math.random() * 10)
+    ).join("");
+    /* 1. 이메일 전송 */
+    await EmailSender.sendMail(email, code);
+    /* 2. 인증 정보 초기화 및 코드 저장 */
+    await this.authRepository.setEmailUnverified(email);
     await this.authRepository.saveVerificationCode(email, code);
   }
 
   async checkVerificationCode(email: string, code: string): Promise<void> {
-    /* 에러: 이메일이 비었을 경우 */
-    if (!email || !code) {
-      throw new HttpException(400, "Invalid input");
-    }
-
+    /* [Error] verification failed */
     const isVerified = await this.authRepository.checkVerificationCode(
       email,
       code
     );
-
-    /* 에러: 코드가 일치하지 않는 경우 */
     if (!isVerified) {
-      throw new HttpException(401, "Invalid verification code");
+      throw new HttpException(
+        401,
+        ErrorCode.EMAIL_VERIFICATION_FAILED,
+        "Email verification code is incorrect or expired."
+      );
     }
 
-    /* 코드 삭제 */
+    /* 0. 코드 삭제 */
     await this.authRepository.deleteVerificationCode(email);
+    /* 1. 인증 정보 저장 */
+    await this.authRepository.setEmailVerified(email);
   }
 
-  async sendForgotCode(email: string): Promise<void> {}
-  async checkForgotCode(email: string, code: string): Promise<void> {}
-  async resetPassword(email: string, newPassword: string): Promise<void> {}
-  async refreshToken(): Promise<void> {}
+  async sendForgotCode(email: string): Promise<void> {
+    /* [Error] input validation */
+    if (!Validator.validateEmail(email))
+      throw new HttpException(
+        400,
+        ErrorCode.WRONG_EMAIL_FORMAT,
+        "The email format is incorrect."
+      );
+
+    /* [Error] 가입되지 않은 이메일 */
+    if (!(await this.userRepository.findUserByEmail(email)))
+      throw new HttpException(
+        404,
+        ErrorCode.EMAIL_NOT_REGISTERED,
+        "You cannot retrieve your password with an unregistered email address."
+      );
+
+    /* 0. 인증코드 생성 */
+    const code = Array.from({ length: 6 }, () =>
+      Math.floor(Math.random() * 10)
+    ).join("");
+    /* 1. 이메일 전송 */
+    await EmailSender.sendMail(email, code);
+    /* 2. 인증 정보 초기화 및 코드 저장 */
+    await this.authRepository.setEmailUnverified(email);
+    await this.authRepository.saveVerificationCode(email, code);
+  }
+
+  async checkForgotCode(email: string, code: string): Promise<void> {
+    /* [Error] verification failed */
+    const isVerified = await this.authRepository.checkVerificationCode(
+      email,
+      code
+    );
+    if (!isVerified) {
+      throw new HttpException(
+        401,
+        ErrorCode.EMAIL_VERIFICATION_FAILED,
+        "Email verification code is incorrect or expired."
+      );
+    }
+
+    /* 0. 코드 삭제 */
+    await this.authRepository.deleteVerificationCode(email);
+    /* 1. 인증 정보 저장 */
+    await this.authRepository.setEmailVerified(email);
+  }
+
+  async resetPassword(email: string, newPassword: string): Promise<void> {
+    /* [Error] input validation */
+    if (!Validator.validatePassword(newPassword))
+      throw new HttpException(
+        400,
+        ErrorCode.WRONG_PASSWORD_FORMAT,
+        "The password format is incorrect."
+      );
+
+    /* [Error] 인증되지 않은 이메일 */
+    if (!(await this.authRepository.isEmailVerified(email)))
+      throw new HttpException(
+        401,
+        ErrorCode.EMAIL_NOT_VERIFIED,
+        "This email has not been verified."
+      );
+
+    /* 0. 비밀번호 해싱 */
+    const hashedPassword = await BcryptHelper.hashPassword(newPassword);
+    /* 1. 비밀번호 재설정 */
+    const user = await this.userRepository.findUserByEmail(email);
+    if (!user) {
+      throw new HttpException(404, ErrorCode.USER_NOT_FOUND, "User not found");
+    }
+    await this.userRepository.updateUserPassword(user.id, hashedPassword);
+  }
+
+  async refreshToken(refreshToken: string): Promise<{
+    accessToken: string;
+    refreshToken: string;
+  }> {
+    /* [Error] Unverified tokens */
+    const payload = TokenProvider.verifyRefreshToken(refreshToken);
+    if (!payload) {
+      throw new HttpException(
+        401,
+        ErrorCode.TOKEN_INVALID,
+        "Invalid refresh token."
+      );
+    }
+    /* [Error] Invalid refresh token */
+    const userId = payload.userId;
+    const isTokenValid = await this.authRepository.checkRefreshToken(
+      userId,
+      refreshToken
+    );
+    if (!isTokenValid) {
+      await this.authRepository.deleteRefreshToken(userId);
+      throw new HttpException(
+        401,
+        ErrorCode.TOKEN_INVALID,
+        "Invalid refresh token."
+      );
+    }
+    /* 0. 토큰 생성 및 반환 */
+    const newAccessToken = TokenProvider.generateAccessToken({
+      userId,
+    });
+    const newRefreshToken = TokenProvider.generateRefreshToken({
+      userId,
+    });
+    await this.authRepository.saveRefreshToken(userId, newRefreshToken);
+
+    return { accessToken: newAccessToken, refreshToken: newRefreshToken };
+  }
 }

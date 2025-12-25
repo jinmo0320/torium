@@ -9,12 +9,9 @@ components:
     RegisterRequest:
       type: object
       required:
-        - nickname
         - email
         - password
       properties:
-        nickname:
-          type: string
         email:
           type: string
           format: email
@@ -22,7 +19,6 @@ components:
           type: string
           format: password
       example:
-        nickname: "홍길동"
         email: "hong@torium.kro.kr"
         password: "Secret0123#"
     # ------------------------------------

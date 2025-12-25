@@ -11,9 +11,17 @@ export const register = async (
   const authService = container.resolve<AuthService>("AuthService");
 
   try {
-    const { nickname, email, password } = req.body;
-    await authService.register(nickname, email, password);
-    res.status(201).json({ message: "User created" });
+    const { email, password } = req.body;
+    const { accessToken, refreshToken, user } = await authService.register(
+      email,
+      password
+    );
+    res.status(201).json({
+      message: "User created",
+      accessToken,
+      refreshToken,
+      user,
+    });
   } catch (error) {
     next(error);
   }
@@ -29,10 +37,15 @@ export const login = async (
 
   try {
     const { email, password } = req.body;
-    const token = await authService.login(email, password);
+    const { accessToken, refreshToken, user } = await authService.login(
+      email,
+      password
+    );
     res.status(200).json({
       message: "Login successful",
-      accessToken: token,
+      accessToken,
+      refreshToken,
+      user,
     });
   } catch (error) {
     next(error);
@@ -73,7 +86,7 @@ export const checkVerificationCode = async (
   }
 };
 
-/* ================= 비밀번호 재설정코드 전송 ================= */
+/* ================= 비밀번호 재설정 코드 전송 ================= */
 export const sendForgotCode = async (
   req: Request,
   res: Response,
@@ -90,7 +103,7 @@ export const sendForgotCode = async (
   }
 };
 
-/* ================= 비밀번호 재설정코드 검증 ================= */
+/* ================= 비밀번호 재설정 코드 검증 ================= */
 export const checkForgotCode = async (
   req: Request,
   res: Response,
@@ -133,8 +146,10 @@ export const refreshToken = async (
   const authService = container.resolve<AuthService>("AuthService");
 
   try {
-    authService.refreshToken();
-    res.status(200).json({ message: "Token refreshed" });
+    const { refreshToken } = req.body;
+    const { accessToken, refreshToken: newRefreshToken } =
+      await authService.refreshToken(refreshToken);
+    res.status(200).json({ accessToken, refreshToken: newRefreshToken });
   } catch (error) {
     next(error);
   }
