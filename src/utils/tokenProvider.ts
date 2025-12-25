@@ -21,11 +21,19 @@ export class TokenProvider {
     });
   }
 
-  static verifyAccessToken(token: string): JwtPayload {
-    return jwt.verify(token, this.accessSecret) as JwtPayload;
+  static verifyAccessToken(token: string): JwtPayload | null {
+    try {
+      return jwt.verify(token, this.accessSecret) as JwtPayload;
+    } catch (error) {
+      return null;
+    }
   }
 
-  static verifyRefreshToken(token: string): JwtPayload {
-    return jwt.verify(token, this.refreshSecret) as JwtPayload;
+  static verifyRefreshToken(token: string): JwtPayload | null {
+    try {
+      return jwt.verify(token, this.refreshSecret) as JwtPayload;
+    } catch (error) {
+      return null;
+    }
   }
 }

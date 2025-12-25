@@ -15,7 +15,7 @@ const sesClient = new SESClient({
 });
 
 export class EmailSender {
-  static async sendMail(email: string, code: string): Promise<boolean> {
+  static async sendMail(email: string, code: string): Promise<void> {
     const senderEmail = process.env.SES_SENDER_EMAIL;
     const expirationMinutes = process.env.EXPIRATION_MINUTES || 5;
 
@@ -23,7 +23,6 @@ export class EmailSender {
       console.error(
         "SES_SENDER_EMAIL is not configured in environment variables."
       );
-      return false;
     }
 
     const params: SendEmailCommandInput = {
@@ -65,16 +64,10 @@ export class EmailSender {
       Source: `"Torium 인증센터" ${senderEmail}`,
     };
 
-    try {
-      const command = new SendEmailCommand(params);
-      const result = await sesClient.send(command);
-      console.log(
-        `Email sent successfully to ${email}. Message ID: ${result.MessageId}`
-      );
-      return true;
-    } catch (error) {
-      console.error(`Error sending email to ${email}:`, error);
-      return false;
-    }
+    const command = new SendEmailCommand(params);
+    const result = await sesClient.send(command);
+    console.log(
+      `Email sent successfully to ${email}. Message ID: ${result.MessageId}`
+    );
   }
 }

@@ -16,19 +16,10 @@ export const register = async (
       email,
       password
     );
-
-    // 1. Refresh Token을 HttpOnly 쿠키에 설정
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true, // 자바스크립트에서 접근 불가 (XSS 방지)
-      secure: process.env.NODE_ENV === "production", // HTTPS에서만 전송(true)
-      sameSite: "strict", // CSRF 공격 방지
-      maxAge: 14 * 24 * 60 * 60 * 1000, // 쿠키 유효 기간
-    });
-
-    // 2. Access Token은 JSON Body로 응답
     res.status(201).json({
       message: "User created",
       accessToken,
+      refreshToken,
       user,
     });
   } catch (error) {
@@ -46,10 +37,15 @@ export const login = async (
 
   try {
     const { email, password } = req.body;
-    const token = await authService.login(email, password);
+    const { accessToken, refreshToken, user } = await authService.login(
+      email,
+      password
+    );
     res.status(200).json({
       message: "Login successful",
-      accessToken: token,
+      accessToken,
+      refreshToken,
+      user,
     });
   } catch (error) {
     next(error);
@@ -90,7 +86,7 @@ export const checkVerificationCode = async (
   }
 };
 
-/* ================= 비밀번호 재설정코드 전송 ================= */
+/* ================= 비밀번호 재설정 코드 전송 ================= */
 export const sendForgotCode = async (
   req: Request,
   res: Response,
@@ -107,7 +103,7 @@ export const sendForgotCode = async (
   }
 };
 
-/* ================= 비밀번호 재설정코드 검증 ================= */
+/* ================= 비밀번호 재설정 코드 검증 ================= */
 export const checkForgotCode = async (
   req: Request,
   res: Response,
