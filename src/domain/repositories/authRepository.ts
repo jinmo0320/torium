@@ -6,6 +6,7 @@ export interface AuthRepository {
   deleteVerificationCode(email: string): Promise<void>;
 
   setEmailVerified(email: string): Promise<void>;
+  setEmailUnverified(email: string): Promise<void>;
   isEmailVerified(email: string): Promise<boolean>;
 
   saveRefreshToken(userId: UUID, token: string): Promise<void>;

@@ -146,8 +146,10 @@ export const refreshToken = async (
   const authService = container.resolve<AuthService>("AuthService");
 
   try {
-    authService.refreshToken();
-    res.status(200).json({ message: "Token refreshed" });
+    const { refreshToken } = req.body;
+    const { accessToken, refreshToken: newRefreshToken } =
+      await authService.refreshToken(refreshToken);
+    res.status(200).json({ accessToken, refreshToken: newRefreshToken });
   } catch (error) {
     next(error);
   }

@@ -50,11 +50,11 @@ components:
         errorCode: "WRONG_PASSWORD_FORMAT"
         timestamp: "2025-12-14T15:00:00Z"
     # ------------------------------------
-    USER_AUTHENTICATION_FAILED:
+    TOKEN_INVALID:
       summary: 유저 토큰 인증 실패
       value:
-        message: "Authentication failed. Check credentials or token."
-        errorCode: "USER_AUTHENTICATION_FAILED"
+        message: "Invalid access token."
+        errorCode: "TOKEN_INVALID"
         timestamp: "2025-12-14T15:00:00Z"
     # ------------------------------------
     USER_NOT_FOUND:

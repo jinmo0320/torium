@@ -16,7 +16,6 @@ export const me = async (req: Request, res: Response, next: NextFunction) => {
     next(error);
   }
 };
-
 /* ================= 비밀번호 변경 (로그인 상태) ================= */
 export const changePassword = async (
   req: Request,

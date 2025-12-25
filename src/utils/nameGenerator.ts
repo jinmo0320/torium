@@ -53,7 +53,7 @@ export class NameGenerator {
     const adj =
       this.adjectives[Math.floor(Math.random() * this.adjectives.length)];
     const noun = this.nouns[Math.floor(Math.random() * this.nouns.length)];
-    return `${adj}${noun}`;
+    return `${adj} ${noun}`;
   }
 
   /**

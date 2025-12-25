@@ -12,7 +12,7 @@ export const authenticate = (
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     throw new HttpException(
-      401,
+      400,
       ErrorCode.TOKEN_REQUIRED,
       "Access token is required."
     );
@@ -20,7 +20,7 @@ export const authenticate = (
   const token = authHeader.split(" ")[1];
   if (!token) {
     throw new HttpException(
-      401,
+      400,
       ErrorCode.TOKEN_REQUIRED,
       "Access token is required."
     );

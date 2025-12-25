@@ -228,7 +228,8 @@ export class AuthServiceImpl implements AuthService {
     ).join("");
     /* 1. 이메일 전송 */
     await EmailSender.sendMail(email, code);
-    /* 2. 인증 정보 저장 */
+    /* 2. 인증 정보 초기화 및 코드 저장 */
+    await this.authRepository.setEmailUnverified(email);
     await this.authRepository.saveVerificationCode(email, code);
   }
 
@@ -275,7 +276,8 @@ export class AuthServiceImpl implements AuthService {
     ).join("");
     /* 1. 이메일 전송 */
     await EmailSender.sendMail(email, code);
-    /* 2. 인증 정보 저장 */
+    /* 2. 인증 정보 초기화 및 코드 저장 */
+    await this.authRepository.setEmailUnverified(email);
     await this.authRepository.saveVerificationCode(email, code);
   }
 

@@ -40,8 +40,8 @@ export class EmailSender {
                       <meta charset="UTF-8">
                   </head>
                   <body style="font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', Arial, sans-serif; line-height: 1.6;">
-                      <h2>인증 코드 안내</h2>
-                      <p>안녕하세요. 회원님의 인증 코드는 다음과 같습니다:</p>
+                      <h2>[Torium] 인증 코드 안내</h2>
+                      <p>회원님의 인증 코드는 다음과 같습니다:</p>
                       <div style="background-color: #f4f4f4; padding: 15px; border-radius: 5px; text-align: center;">
                           <h1 style="color: #333; margin: 0;">${code}</h1>
                       </div>
@@ -58,10 +58,10 @@ export class EmailSender {
         },
         Subject: {
           Charset: "UTF-8",
-          Data: "[Torium] 인증 코드 발송",
+          Data: `[Torium] 인증코드는 ${code} 입니다.`,
         },
       },
-      Source: `"Torium 인증센터" ${senderEmail}`,
+      Source: senderEmail,
     };
 
     const command = new SendEmailCommand(params);

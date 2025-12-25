@@ -8,14 +8,14 @@ import { UUID } from "crypto";
 export class AuthRepositoryImpl implements AuthRepository {
   async saveVerificationCode(email: string, code: string): Promise<void> {
     await db.query(
-      "INSERT INTO verification_codes (email, code) VALUES (?, ?) ON DUPLICATE KEY UPDATE code = ?",
+      "INSERT INTO verification_codes (email, verification_code) VALUES (?, ?) ON DUPLICATE KEY UPDATE verification_code = ?",
       [email, code, code]
     );
   }
 
   async checkVerificationCode(email: string, code: string): Promise<boolean> {
     const [rows] = await db.query<RowDataPacket[]>(
-      "SELECT * FROM verification_codes WHERE email = ? AND code = ? AND expires_at > NOW()",
+      "SELECT * FROM verification_codes WHERE email = ? AND verification_code = ? AND expires_at > NOW()",
       [email, code]
     );
 
@@ -28,7 +28,14 @@ export class AuthRepositoryImpl implements AuthRepository {
 
   async setEmailVerified(email: string): Promise<void> {
     await db.query(
-      "UPDATE email_verification_status SET is_email_verified = TRUE WHERE email = ?",
+      "INSERT INTO email_verification_status (email, is_email_verified) VALUES (?, TRUE) ON DUPLICATE KEY UPDATE is_email_verified = TRUE",
+      [email]
+    );
+  }
+
+  async setEmailUnverified(email: string): Promise<void> {
+    await db.query(
+      "UPDATE email_verification_status SET is_email_verified = FALSE WHERE email = ?",
       [email]
     );
   }

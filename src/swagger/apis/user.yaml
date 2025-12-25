@@ -21,8 +21,8 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
               examples:
-                USER_AUTHENTICATION_FAILED:
-                  $ref: "#/components/examples/USER_AUTHENTICATION_FAILED"
+                TOKEN_INVALID:
+                  $ref: "#/components/examples/TOKEN_INVALID"
         404:
           description: Not Found
           content:
@@ -70,7 +70,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
               examples:
-                USER_AUTHENTICATION_FAILED:
-                  $ref: "#/components/examples/USER_AUTHENTICATION_FAILED"
+                TOKEN_INVALID:
+                  $ref: "#/components/examples/TOKEN_INVALID"
                 CURRENT_PASSWORD_NOT_MATCHED:
                   $ref: "#/components/examples/CURRENT_PASSWORD_NOT_MATCHED"
