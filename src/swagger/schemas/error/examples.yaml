@@ -50,6 +50,13 @@ components:
         errorCode: "WRONG_PASSWORD_FORMAT"
         timestamp: "2025-12-14T15:00:00Z"
     # ------------------------------------
+    TOKEN_REQUIRED:
+      summary: 유저 토큰 인증 실패
+      value:
+        message: "Access token is required."
+        errorCode: "TOKEN_REQUIRED"
+        timestamp: "2025-12-14T15:00:00Z"
+    # ------------------------------------
     TOKEN_INVALID:
       summary: 유저 토큰 인증 실패
       value:
