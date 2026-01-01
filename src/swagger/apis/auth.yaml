@@ -220,7 +220,7 @@ paths:
   # ====================================
   # /auth/refresh(POST)
   # ====================================
-  /auth/reset:
+  /auth/refresh:
     post:
       summary: 액세스 토큰 재발급
       tags: [Auth]
