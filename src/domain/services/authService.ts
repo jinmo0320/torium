@@ -16,9 +16,10 @@ dotenv.config();
 export interface AuthService {
   /**
    * 회원가입
-   * @param email
-   * @param password
-   * @returns  JWT access token, refresh token and user data
+   * @param   email
+   * @param   password
+   * @errors  EMAIL_ALREADY_REGISTERED, EMAIL_NOT_VERIFIED, WRONG_EMAIL_FORMAT, WRONG_PASSWORD_FORMAT
+   * @returns JWT access token, refresh token and user data
    */
   register(
     email: string,
@@ -30,9 +31,10 @@ export interface AuthService {
   }>;
   /**
    * 로그인
-   * @param email
-   * @param password
-   * @returns  JWT access token, refresh token and user data
+   * @param   email
+   * @param   password
+   * @errors  LOGIN_FAILED, WRONG_EMAIL_FORMAT, WRONG_PASSWORD_FORMAT
+   * @returns JWT access token, refresh token and user data
    */
   login(
     email: string,
@@ -44,24 +46,28 @@ export interface AuthService {
   }>;
   /**
    * 인증코드 이메일 전송
-   * @param email
+   * @param   email
+   * @errors  EMAIL_ALREADY_REGISTERED, WRONG_EMAIL_FORMAT
    */
   sendVerificationCode(email: string): Promise<void>;
   /**
    * 인증코드 검증
-   * @param email
-   * @param code
+   * @param   email
+   * @param   code
+   * @errors  EMAIL_VERIFICATION_FAILED
    */
   checkVerificationCode(email: string, code: string): Promise<void>;
   /**
    * 비밀번호 찾기 인증코드 이메일 전송
-   * @param email
+   * @param   email
+   * @errors  EMAIL_NOT_REGISTERED, WRONG_EMAIL_FORMAT
    */
   sendForgotCode(email: string): Promise<void>;
   /**
    * 비밀번호 찾기 인증코드 검증
-   * @param email
-   * @param code
+   * @param   email
+   * @param   code
+   * @errors  EMAIL_VERIFICATION_FAILED
    */
   checkForgotCode(email: string, code: string): Promise<void>;
   /**
@@ -72,7 +78,8 @@ export interface AuthService {
   resetPassword(email: string, newPassword: string): Promise<void>;
   /**
    * 토큰 재발급
-   * @param refreshToken
+   * @param   refreshToken
+   * @errors  TOKEN_INVALID
    * @returns JWT access token and refresh token
    */
   refreshToken(refreshToken: string): Promise<{
