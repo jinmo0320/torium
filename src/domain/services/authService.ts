@@ -74,6 +74,7 @@ export interface AuthService {
    * 비밀번호 재설정
    * @param email
    * @param newPassword
+   * @errors  EMAIL_NOT_VERIFIED, WRONG_PASSWORD_FORMAT, USER_NOT_FOUND
    */
   resetPassword(email: string, newPassword: string): Promise<void>;
   /**

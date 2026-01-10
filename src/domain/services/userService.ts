@@ -10,15 +10,17 @@ import { BcryptHelper } from "../../utils/bcryptHelper";
 export interface UserService {
   /**
    * 내 정보 조회
-   * @param userId 유저 id
-   * @returns user data
+   * @param userId  유저 id
+   * @errors        USER_NOT_FOUND
+   * @returns       user data
    */
   me(userId: UUID): Promise<UserDto.Response>;
   /**
    * 비밀번호 바꾸기
-   * @param userId 유저 id
+   * @param userId      유저 id
    * @param oldPassword 기존 비밀번호
    * @param newPassword 새 비밀번호
+   * @errors            WRONG_PASSWORD_FORMAT, CURRENT_PASSWORD_NOT_MATCHED
    */
   changePassword(
     userId: UUID,

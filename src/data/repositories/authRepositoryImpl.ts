@@ -8,8 +8,14 @@ import { UUID } from "crypto";
 export class AuthRepositoryImpl implements AuthRepository {
   async saveVerificationCode(email: string, code: string): Promise<void> {
     await db.query(
-      "INSERT INTO verification_codes (email, verification_code) VALUES (?, ?) ON DUPLICATE KEY UPDATE verification_code = ?",
-      [email, code, code]
+      `
+      INSERT INTO verification_codes (email, verification_code) 
+      VALUES (?, ?) 
+      ON DUPLICATE KEY UPDATE 
+        verification_code = VALUES(verification_code),
+        expires_at = NOW() + INTERVAL 5 MINUTE,
+        created_at = NOW()`,
+      [email, code]
     );
   }
 
@@ -28,14 +34,21 @@ export class AuthRepositoryImpl implements AuthRepository {
 
   async setEmailVerified(email: string): Promise<void> {
     await db.query(
-      "INSERT INTO email_verification_status (email, is_email_verified) VALUES (?, TRUE) ON DUPLICATE KEY UPDATE is_email_verified = TRUE",
+      `
+      INSERT INTO email_verification_status (email, is_email_verified) 
+      VALUES (?, TRUE) 
+      ON DUPLICATE KEY UPDATE 
+        is_email_verified = TRUE`,
       [email]
     );
   }
 
   async setEmailUnverified(email: string): Promise<void> {
     await db.query(
-      "UPDATE email_verification_status SET is_email_verified = FALSE WHERE email = ?",
+      `
+      UPDATE email_verification_status 
+      SET is_email_verified = FALSE 
+      WHERE email = ?`,
       [email]
     );
   }
@@ -51,14 +64,26 @@ export class AuthRepositoryImpl implements AuthRepository {
 
   async saveRefreshToken(userId: UUID, token: string): Promise<void> {
     await db.query(
-      "INSERT INTO refresh_tokens (user_id, token_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE token_value = ?",
+      `
+      INSERT INTO refresh_tokens (user_id, token_value) 
+      VALUES (?, ?) 
+      ON DUPLICATE KEY UPDATE
+        token_value = ?,
+        expires_at = NOW() + INTERVAL 14 DAY,
+        created_at = NOW()`,
       [userId, token, token]
     );
   }
 
   async checkRefreshToken(userId: UUID, token: string): Promise<boolean> {
     const [rows] = await db.query<RowDataPacket[]>(
-      "SELECT * FROM refresh_tokens WHERE user_id = ? AND token_value = ? AND expires_at > NOW() AND is_revoked = FALSE",
+      `
+      SELECT * FROM refresh_tokens 
+      WHERE 
+        user_id = ? AND 
+        token_value = ? AND 
+        expires_at > NOW() AND 
+        is_revoked = FALSE`,
       [userId, token]
     );
 
