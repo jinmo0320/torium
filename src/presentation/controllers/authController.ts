@@ -149,7 +149,13 @@ export const refreshToken = async (
     const { refreshToken } = req.body;
     const { accessToken, refreshToken: newRefreshToken } =
       await authService.refreshToken(refreshToken);
-    res.status(200).json({ accessToken, refreshToken: newRefreshToken });
+    res
+      .status(200)
+      .json({
+        message: "Token refreshed successfully",
+        accessToken,
+        refreshToken: newRefreshToken,
+      });
   } catch (error) {
     next(error);
   }

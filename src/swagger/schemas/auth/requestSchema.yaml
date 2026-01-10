@@ -87,3 +87,15 @@ components:
       example:
         email: "hong@torium.kro.kr"
         newPassword: "Secret0123#"
+    # ------------------------------------
+    # 6. refresh token
+    # ------------------------------------
+    RefreshRequest:
+      type: object
+      required:
+        - refreshToken
+      properties:
+        refreshToken:
+          type: string
+      example:
+        refreshToken: "I6MSwibmFtZSI6Imppbm1vIiwiaWF0IjoxNzY1"

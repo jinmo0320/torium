@@ -21,6 +21,8 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
               examples:
+                TOKEN_REQUIRED:
+                  $ref: "#/components/examples/TOKEN_REQUIRED"
                 TOKEN_INVALID:
                   $ref: "#/components/examples/TOKEN_INVALID"
         404:
@@ -70,6 +72,8 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
               examples:
+                TOKEN_REQUIRED:
+                  $ref: "#/components/examples/TOKEN_REQUIRED"
                 TOKEN_INVALID:
                   $ref: "#/components/examples/TOKEN_INVALID"
                 CURRENT_PASSWORD_NOT_MATCHED:

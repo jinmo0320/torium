@@ -6,6 +6,44 @@ components:
     # ------------------------------------
     # 1. login or register
     # ------------------------------------
+    AuthResponse:
+      type: object
+      description: return jwt access token
+      properties:
+        message:
+          type: string
+        accessToken:
+          type: string
+          description: jwt access token
+        refreshToken:
+          type: string
+          description: jwt refresh token
+        user:
+          type: object
+          description: user object
+          properties:
+            id:
+              type: string
+              format: uuid
+            name:
+              type: string
+            tag:
+              type: string
+            email:
+              type: string
+              format: email
+      example:
+        message: "string"
+        accessToken: "oqLSyTa_bdl3FPwfDbIYP5bsZYdb6u-5CK1r"
+        refreshToken: "I6MSwibmFtZSI6Imppbm1vIiwiaWF0IjoxNzY1"
+        user:
+          id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+          name: "홍길동"
+          tag: "012345"
+          email: "hong@torium.kro.kr"
+    # ------------------------------------
+    # 2. refresh token
+    # ------------------------------------
     TokenResponse:
       type: object
       description: return jwt access token
