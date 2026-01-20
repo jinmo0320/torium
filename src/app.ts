@@ -4,6 +4,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import authRoutes from "./presentation/routes/authRoutes";
 import userRoutes from "./presentation/routes/userRoutes";
+import surveyRoutes from "./presentation/routes/surveyRoutes";
 import errorMiddleware from "./presentation/middlewares/errorMiddleware";
 import "./di/diContainer";
 import swaggerUi from "swagger-ui-express";
@@ -33,13 +34,14 @@ app.use(
   swaggerUi.serve,
   swaggerUi.setup(swaggerSpecs, {
     explorer: true, // 검색창 활성화 여부
-  })
+  }),
 );
 
 /** api */
 const router = express.Router();
 router.use("/auth", authRoutes);
 router.use("/user", userRoutes);
+router.use("/survey", surveyRoutes);
 app.use("/api/v1", router);
 
 /** error handler */

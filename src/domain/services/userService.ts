@@ -25,14 +25,14 @@ export interface UserService {
   changePassword(
     userId: UUID,
     oldPassword: string,
-    newPassword: string
+    newPassword: string,
   ): Promise<void>;
 }
 
 @injectable()
 export class UserServiceImpl implements UserService {
   constructor(
-    @inject("UserRepository") private userRepository: UserRepository
+    @inject("UserRepository") private userRepository: UserRepository,
   ) {}
 
   async me(userId: UUID): Promise<UserDto.Response> {
@@ -48,7 +48,7 @@ export class UserServiceImpl implements UserService {
   async changePassword(
     userId: UUID,
     oldPassword: string,
-    newPassword: string
+    newPassword: string,
   ): Promise<void> {
     /* [Error] input validation */
     if (
@@ -58,7 +58,7 @@ export class UserServiceImpl implements UserService {
       throw new HttpException(
         400,
         ErrorCode.WRONG_PASSWORD_FORMAT,
-        "The password format is incorrect."
+        "The password format is incorrect.",
       );
 
     /* [Error] Password mismatch */
@@ -67,13 +67,13 @@ export class UserServiceImpl implements UserService {
       !userPassword ||
       !(await BcryptHelper.comparePassword(
         oldPassword,
-        userPassword.hashedPassword
+        userPassword.hashedPassword,
       ))
     )
       throw new HttpException(
         401,
         ErrorCode.CURRENT_PASSWORD_NOT_MATCHED,
-        "Your current password is incorrect."
+        "Your current password is incorrect.",
       );
 
     /* 0. 새 비밀번호 해싱 */

@@ -23,7 +23,7 @@ export interface AuthService {
    */
   register(
     email: string,
-    password: string
+    password: string,
   ): Promise<{
     accessToken: string;
     refreshToken: string;
@@ -38,7 +38,7 @@ export interface AuthService {
    */
   login(
     email: string,
-    password: string
+    password: string,
   ): Promise<{
     accessToken: string;
     refreshToken: string;
@@ -93,13 +93,13 @@ export interface AuthService {
 export class AuthServiceImpl implements AuthService {
   constructor(
     @inject("UserRepository") private userRepository: UserRepository,
-    @inject("AuthRepository") private authRepository: AuthRepository
+    @inject("AuthRepository") private authRepository: AuthRepository,
   ) {}
 
   /* ================= 회원가입 ================= */
   async register(
     email: string,
-    password: string
+    password: string,
   ): Promise<{
     accessToken: string;
     refreshToken: string;
@@ -110,13 +110,13 @@ export class AuthServiceImpl implements AuthService {
       throw new HttpException(
         400,
         ErrorCode.WRONG_EMAIL_FORMAT,
-        "The email format is incorrect."
+        "The email format is incorrect.",
       );
     if (!Validator.validatePassword(password))
       throw new HttpException(
         400,
         ErrorCode.WRONG_PASSWORD_FORMAT,
-        "The password format is incorrect."
+        "The password format is incorrect.",
       );
 
     /* [Error] 이미 가입된 이메일 */
@@ -124,7 +124,7 @@ export class AuthServiceImpl implements AuthService {
       throw new HttpException(
         409,
         ErrorCode.EMAIL_ALREADY_REGISTERED,
-        "This email address is already registered."
+        "This email address is already registered.",
       );
 
     /* [Error] 인증되지 않은 이메일 */
@@ -132,7 +132,7 @@ export class AuthServiceImpl implements AuthService {
       throw new HttpException(
         401,
         ErrorCode.EMAIL_NOT_VERIFIED,
-        "This email has not been verified."
+        "This email has not been verified.",
       );
 
     /* 0. 무작위 닉네임 생성 */
@@ -159,7 +159,7 @@ export class AuthServiceImpl implements AuthService {
 
   async login(
     email: string,
-    password: string
+    password: string,
   ): Promise<{
     accessToken: string;
     refreshToken: string;
@@ -170,13 +170,13 @@ export class AuthServiceImpl implements AuthService {
       throw new HttpException(
         400,
         ErrorCode.WRONG_EMAIL_FORMAT,
-        "The email format is incorrect."
+        "The email format is incorrect.",
       );
     if (!Validator.validatePassword(password))
       throw new HttpException(
         400,
         ErrorCode.WRONG_PASSWORD_FORMAT,
-        "The password format is incorrect."
+        "The password format is incorrect.",
       );
 
     /* [Error] Login failed */
@@ -185,7 +185,7 @@ export class AuthServiceImpl implements AuthService {
       throw new HttpException(
         401,
         ErrorCode.LOGIN_FAILED,
-        "Invalid email or password."
+        "Invalid email or password.",
       );
     }
     const userPassword = await this.userRepository.getUserPassword(user.id);
@@ -193,13 +193,13 @@ export class AuthServiceImpl implements AuthService {
       !userPassword ||
       !(await BcryptHelper.comparePassword(
         password,
-        userPassword.hashedPassword
+        userPassword.hashedPassword,
       ))
     ) {
       throw new HttpException(
         401,
         ErrorCode.LOGIN_FAILED,
-        "Invalid email or password."
+        "Invalid email or password.",
       );
     }
 
@@ -219,7 +219,7 @@ export class AuthServiceImpl implements AuthService {
       throw new HttpException(
         400,
         ErrorCode.WRONG_EMAIL_FORMAT,
-        "The email format is incorrect."
+        "The email format is incorrect.",
       );
 
     /* [Error] 이미 가입된 이메일 */
@@ -227,12 +227,12 @@ export class AuthServiceImpl implements AuthService {
       throw new HttpException(
         409,
         ErrorCode.EMAIL_ALREADY_REGISTERED,
-        "This email address is already registered."
+        "This email address is already registered.",
       );
 
     /* 0. 인증코드 생성 */
     const code = Array.from({ length: 6 }, () =>
-      Math.floor(Math.random() * 10)
+      Math.floor(Math.random() * 10),
     ).join("");
     /* 1. 이메일 전송 */
     await EmailSender.sendMail(email, code);
@@ -245,13 +245,13 @@ export class AuthServiceImpl implements AuthService {
     /* [Error] verification failed */
     const isVerified = await this.authRepository.checkVerificationCode(
       email,
-      code
+      code,
     );
     if (!isVerified) {
       throw new HttpException(
         401,
         ErrorCode.EMAIL_VERIFICATION_FAILED,
-        "Email verification code is incorrect or expired."
+        "Email verification code is incorrect or expired.",
       );
     }
 
@@ -267,7 +267,7 @@ export class AuthServiceImpl implements AuthService {
       throw new HttpException(
         400,
         ErrorCode.WRONG_EMAIL_FORMAT,
-        "The email format is incorrect."
+        "The email format is incorrect.",
       );
 
     /* [Error] 가입되지 않은 이메일 */
@@ -275,12 +275,12 @@ export class AuthServiceImpl implements AuthService {
       throw new HttpException(
         404,
         ErrorCode.EMAIL_NOT_REGISTERED,
-        "You cannot retrieve your password with an unregistered email address."
+        "You cannot retrieve your password with an unregistered email address.",
       );
 
     /* 0. 인증코드 생성 */
     const code = Array.from({ length: 6 }, () =>
-      Math.floor(Math.random() * 10)
+      Math.floor(Math.random() * 10),
     ).join("");
     /* 1. 이메일 전송 */
     await EmailSender.sendMail(email, code);
@@ -293,13 +293,13 @@ export class AuthServiceImpl implements AuthService {
     /* [Error] verification failed */
     const isVerified = await this.authRepository.checkVerificationCode(
       email,
-      code
+      code,
     );
     if (!isVerified) {
       throw new HttpException(
         401,
         ErrorCode.EMAIL_VERIFICATION_FAILED,
-        "Email verification code is incorrect or expired."
+        "Email verification code is incorrect or expired.",
       );
     }
 
@@ -315,7 +315,7 @@ export class AuthServiceImpl implements AuthService {
       throw new HttpException(
         400,
         ErrorCode.WRONG_PASSWORD_FORMAT,
-        "The password format is incorrect."
+        "The password format is incorrect.",
       );
 
     /* [Error] 인증되지 않은 이메일 */
@@ -323,7 +323,7 @@ export class AuthServiceImpl implements AuthService {
       throw new HttpException(
         401,
         ErrorCode.EMAIL_NOT_VERIFIED,
-        "This email has not been verified."
+        "This email has not been verified.",
       );
 
     /* 0. 비밀번호 해싱 */
@@ -346,21 +346,21 @@ export class AuthServiceImpl implements AuthService {
       throw new HttpException(
         401,
         ErrorCode.TOKEN_INVALID,
-        "Invalid refresh token."
+        "Invalid refresh token.",
       );
     }
     /* [Error] Invalid refresh token */
     const userId = payload.userId;
     const isTokenValid = await this.authRepository.checkRefreshToken(
       userId,
-      refreshToken
+      refreshToken,
     );
     if (!isTokenValid) {
       await this.authRepository.deleteRefreshToken(userId);
       throw new HttpException(
         401,
         ErrorCode.TOKEN_INVALID,
-        "Invalid refresh token."
+        "Invalid refresh token.",
       );
     }
     /* 0. 토큰 생성 및 반환 */
