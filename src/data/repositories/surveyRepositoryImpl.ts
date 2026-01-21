@@ -3,6 +3,8 @@ import { RowDataPacket } from "mysql2";
 import { injectable } from "tsyringe";
 import { SurveyRepository } from "../../domain/repositories/surveyRepository";
 import { SurveyDto } from "../../domain/models/dtos/surveyDto";
+import { UUID } from "crypto";
+import { InvestmentType } from "../../utils/investmentType";
 
 @injectable()
 export class SurveyRepositoryImpl implements SurveyRepository {
@@ -32,5 +34,12 @@ export class SurveyRepositoryImpl implements SurveyRepository {
     }
 
     return { questions };
+  }
+
+  async submitAnswers(userId: UUID, type: InvestmentType): Promise<void> {
+    await db.query(`UPDATE users SET investment_type = ? WHERE id = ?`, [
+      type,
+      userId,
+    ]);
   }
 }

@@ -15,3 +15,20 @@ export const questions = async (
     next(error);
   }
 };
+
+export const answers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const surveyService = container.resolve<SurveyService>("SurveyService");
+
+  try {
+    const userId = req.user!.id;
+    const { score } = req.body;
+    await surveyService.answers(userId, Number(score));
+    res.status(200).json({ message: "Updated investment type." });
+  } catch (error) {
+    next(error);
+  }
+};
