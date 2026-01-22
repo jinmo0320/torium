@@ -1,10 +1,10 @@
-import { HttpException } from "../errors/error";
-import { UserDto } from "../models/dtos/userDto";
 import { UUID } from "crypto";
 import { UserRepository } from "../repositories/userRepository";
+import { UserDto } from "../models/dtos/userDto";
+import { HttpException } from "../errors/error";
 import { ErrorCode } from "../errors/errorCodes";
-import { Validator } from "../../utils/validator";
-import { BcryptHelper } from "../../utils/bcryptHelper";
+import { Validator } from "src/utils/validator";
+import { BcryptHelper } from "src/utils/bcryptHelper";
 
 export type UserService = {
   /**

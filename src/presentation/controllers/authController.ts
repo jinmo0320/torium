@@ -1,7 +1,12 @@
 import { NextFunction, Request, Response } from "express";
-import { createAuthService } from "../../domain/services/authService";
-import { createUserRepository } from "../../data/repositories/userRepositoryImpl";
-import { createAuthRepository } from "../../data/repositories/authRepositoryImpl";
+import { createAuthService } from "src/domain/services/authService";
+import { createUserRepository } from "src/data/repositories/userRepositoryImpl";
+import { createAuthRepository } from "src/data/repositories/authRepositoryImpl";
+
+const authService = createAuthService(
+  createUserRepository(),
+  createAuthRepository(),
+);
 
 /* ================= 회원가입 ================= */
 export const register = async (
@@ -9,11 +14,6 @@ export const register = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const authService = createAuthService(
-    createUserRepository(),
-    createAuthRepository(),
-  );
-
   try {
     const { email, password } = req.body;
     const { accessToken, refreshToken, user } = await authService.register(
@@ -37,11 +37,6 @@ export const login = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const authService = createAuthService(
-    createUserRepository(),
-    createAuthRepository(),
-  );
-
   try {
     const { email, password } = req.body;
     const { accessToken, refreshToken, user } = await authService.login(
@@ -65,11 +60,6 @@ export const sendVerificationCode = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const authService = createAuthService(
-    createUserRepository(),
-    createAuthRepository(),
-  );
-
   try {
     const { email } = req.body;
     await authService.sendVerificationCode(email);
@@ -85,11 +75,6 @@ export const checkVerificationCode = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const authService = createAuthService(
-    createUserRepository(),
-    createAuthRepository(),
-  );
-
   try {
     const { email, code } = req.body;
     await authService.checkVerificationCode(email, code);
@@ -105,11 +90,6 @@ export const sendForgotCode = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const authService = createAuthService(
-    createUserRepository(),
-    createAuthRepository(),
-  );
-
   try {
     const { email } = req.body;
     await authService.sendForgotCode(email);
@@ -125,11 +105,6 @@ export const checkForgotCode = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const authService = createAuthService(
-    createUserRepository(),
-    createAuthRepository(),
-  );
-
   try {
     const { email, code } = req.body;
     await authService.checkForgotCode(email, code);
@@ -145,11 +120,6 @@ export const resetPassword = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const authService = createAuthService(
-    createUserRepository(),
-    createAuthRepository(),
-  );
-
   try {
     const { email, newPassword } = req.body;
     await authService.resetPassword(email, newPassword);
@@ -165,11 +135,6 @@ export const refreshToken = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const authService = createAuthService(
-    createUserRepository(),
-    createAuthRepository(),
-  );
-
   try {
     const { refreshToken } = req.body;
     const { accessToken, refreshToken: newRefreshToken } =

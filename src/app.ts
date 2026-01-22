@@ -1,11 +1,11 @@
 import express from "express";
 import dotenv from "dotenv";
+import swaggerUi from "swagger-ui-express";
+import swaggerSpecs from "./swagger/config/swagger";
 import authRoutes from "./presentation/routes/authRoutes";
 import userRoutes from "./presentation/routes/userRoutes";
 import surveyRoutes from "./presentation/routes/surveyRoutes";
 import errorMiddleware from "./presentation/middlewares/errorMiddleware";
-import swaggerUi from "swagger-ui-express";
-import swaggerSpecs from "./swagger/config/swagger";
 
 dotenv.config();
 
@@ -37,8 +37,8 @@ app.use(
 /** api */
 const router = express.Router();
 router.use("/auth", authRoutes);
-router.use("/user", userRoutes);
-router.use("/survey", surveyRoutes);
+router.use("/users/me", userRoutes);
+router.use("/surveys", surveyRoutes);
 app.use("/api/v1", router);
 
 /** error handler */

@@ -1,10 +1,8 @@
 import { Router } from "express";
-import { questions, answers, plan } from "../controllers/surveyController";
+import { getInvestmentQuestions } from "../controllers/surveyController";
 
 const router = Router();
 
-router.get("/questions", questions);
-router.post("/answers", answers);
-router.post("/asset-plan", plan);
+router.get("/investment/questions", getInvestmentQuestions);
 
 export default router;

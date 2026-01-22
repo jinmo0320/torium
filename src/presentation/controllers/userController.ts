@@ -1,11 +1,11 @@
 import { NextFunction, Request, Response } from "express";
-import { createUserService } from "../../domain/services/userService";
-import { createUserRepository } from "../../data/repositories/userRepositoryImpl";
+import { createUserService } from "src/domain/services/userService";
+import { createUserRepository } from "src/data/repositories/userRepositoryImpl";
+
+const userService = createUserService(createUserRepository());
 
 /* ================= 내 정보 조회 ================= */
 export const me = async (req: Request, res: Response, next: NextFunction) => {
-  const userService = createUserService(createUserRepository());
-
   try {
     const userId = req.user!.id;
     const user = await userService.me(userId);
@@ -16,14 +16,13 @@ export const me = async (req: Request, res: Response, next: NextFunction) => {
     next(error);
   }
 };
+
 /* ================= 비밀번호 변경 (로그인 상태) ================= */
 export const changePassword = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ) => {
-  const userService = createUserService(createUserRepository());
-
   try {
     const userId = req.user!.id;
     const { oldPassword, newPassword } = req.body;

@@ -1,14 +1,14 @@
 import dotenv from "dotenv";
-import { HttpException } from "../errors/error";
-import { BcryptHelper } from "../../utils/bcryptHelper";
-import { EmailSender } from "../../utils/emailSender";
 import { UserRepository } from "../repositories/userRepository";
 import { AuthRepository } from "../repositories/authRepository";
-import { Validator } from "../../utils/validator";
-import { ErrorCode } from "../errors/errorCodes";
-import { TokenProvider } from "../../utils/tokenProvider";
-import { NameGenerator } from "../../utils/nameGenerator";
 import { UserDto } from "../models/dtos/userDto";
+import { HttpException } from "../errors/error";
+import { ErrorCode } from "../errors/errorCodes";
+import { TokenProvider } from "src/utils/tokenProvider";
+import { NameGenerator } from "src/utils/nameGenerator";
+import { BcryptHelper } from "src/utils/bcryptHelper";
+import { EmailSender } from "src/utils/emailSender";
+import { Validator } from "src/utils/validator";
 
 dotenv.config();
 

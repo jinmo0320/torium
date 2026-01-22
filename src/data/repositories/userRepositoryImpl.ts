@@ -1,19 +1,19 @@
-import db from "../../data/config/db";
 import { RowDataPacket } from "mysql2";
-import { UserRepository } from "../../domain/repositories/userRepository";
-import { UserDto } from "../../domain/models/dtos/userDto";
 import { UUID } from "crypto";
+import db from "src/data/config/db";
+import { UserRepository } from "src/domain/repositories/userRepository";
+import { UserDto } from "src/domain/models/dtos/userDto";
 
 export const createUserRepository = (): UserRepository => ({
   createUser: async (
     user: UserDto.CreateRequest,
   ): Promise<UserDto.Response> => {
-    await db.query(
+    await db.execute(
       "INSERT INTO users (name, tag, email, password) VALUES (?, ?, ?, ?)",
       [user.name, user.tag, user.email, user.hashedPassword],
     );
 
-    const [rows] = await db.query<RowDataPacket[]>(
+    const [rows] = await db.execute<RowDataPacket[]>(
       "SELECT * FROM users WHERE email = ?",
       [user.email],
     );
@@ -23,7 +23,7 @@ export const createUserRepository = (): UserRepository => ({
   },
 
   findUserById: async (id: UUID): Promise<UserDto.Response | null> => {
-    const [rows] = await db.query<RowDataPacket[]>(
+    const [rows] = await db.execute<RowDataPacket[]>(
       "SELECT * FROM users WHERE id = ?",
       [id],
     );
@@ -37,7 +37,7 @@ export const createUserRepository = (): UserRepository => ({
   },
 
   findUserByEmail: async (email: string): Promise<UserDto.Response | null> => {
-    const [rows] = await db.query<RowDataPacket[]>(
+    const [rows] = await db.execute<RowDataPacket[]>(
       "SELECT * FROM users WHERE email = ?",
       [email],
     );
@@ -54,7 +54,7 @@ export const createUserRepository = (): UserRepository => ({
     name: string,
     tag: string,
   ): Promise<UserDto.Response | null> => {
-    const [rows] = await db.query<RowDataPacket[]>(
+    const [rows] = await db.execute<RowDataPacket[]>(
       "SELECT * FROM users WHERE name = ? AND tag = ?",
       [name, tag],
     );
@@ -70,7 +70,7 @@ export const createUserRepository = (): UserRepository => ({
   getUserPassword: async (
     id: UUID,
   ): Promise<UserDto.PasswordResponse | null> => {
-    const [rows] = await db.query<RowDataPacket[]>(
+    const [rows] = await db.execute<RowDataPacket[]>(
       "SELECT id, email, password FROM users WHERE id = ?",
       [id],
     );

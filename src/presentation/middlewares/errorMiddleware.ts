@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction } from "express";
-import { HttpException } from "../../domain/errors/error";
-import { Timer } from "../../utils/timer";
+import { HttpException } from "src/domain/errors/error";
+import { Timer } from "src/utils/timer";
 
 export default function errorMiddleware(
   error: HttpException,
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   console.error(error);
   const status = error.status || 500;
