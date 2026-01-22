@@ -9,4 +9,13 @@ export namespace SurveyDto {
   export class Response {
     constructor(public readonly questions: Array<Question>) {}
   }
+
+  export class Profile {
+    constructor(
+      public readonly monthlyAmount: number,
+      public readonly years: number,
+      public readonly returnRate: number,
+      public readonly targetAmount: number,
+    ) {}
+  }
 }

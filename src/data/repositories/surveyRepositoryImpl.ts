@@ -40,4 +40,21 @@ export const createSurveyRepository = (): SurveyRepository => ({
       userId,
     ]);
   },
+
+  plan: async (userId: UUID, profile: SurveyDto.Profile): Promise<void> => {
+    const { monthlyAmount, years, returnRate, targetAmount } = profile;
+    await db.query(
+      `
+      INSERT INTO investment_profiles
+        (user_id, monthly_amount, investment_years, expected_return_rate, target_amount)
+      VALUES (?, ?, ?, ?, ?)
+      ON DUPLICATE KEY UPDATE
+        monthly_amount = VALUES(monthly_amount),
+        investment_years = VALUES(investment_years),
+        expected_return_rate = VALUES(expected_return_rate),
+        target_amount = VALUES(target_amount)
+      `,
+      [userId, monthlyAmount, years, returnRate, targetAmount],
+    );
+  },
 });

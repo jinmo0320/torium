@@ -33,3 +33,16 @@ export const answers = async (
     next(error);
   }
 };
+
+export const plan = async (req: Request, res: Response, next: NextFunction) => {
+  const surveyService = createSurveyService(createSurveyRepository());
+
+  try {
+    const userId = req.user!.id;
+    const { profile } = req.body;
+    await surveyService.plan(userId, profile);
+    res.status(200).json({ message: "Updated investment profile." });
+  } catch (error) {
+    next(error);
+  }
+};

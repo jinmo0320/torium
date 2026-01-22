@@ -15,10 +15,17 @@ export type SurveyService = {
   /**
    * 설문 점수로 유저의 투자 성향 업데이트 하기
    * @param userId   user id
-   * @param score   투자 성향 총점
+   * @param score    투자 성향 총점
    * @errors        INVALID_INVESTMENT_SCORE
    */
   answers: (userId: UUID, score: number) => Promise<void>;
+  /**
+   * 예산 계획 업데이트
+   * @param userId   user id
+   * @param profile  투자 계획 요소
+   * @errors         INVALID_INVESTMENT_PROFILE
+   */
+  plan: (userId: UUID, profile: SurveyDto.Profile) => Promise<void>;
 };
 
 export const createSurveyService = (
@@ -51,5 +58,16 @@ export const createSurveyService = (
     }
 
     await surveyRepository.submitAnswers(userId, type);
+  },
+
+  plan: async (userId: UUID, profile: SurveyDto.Profile): Promise<void> => {
+    // if (!validateProfile(profile)) {
+    //         throw new HttpException(
+    //     400,
+    //     ErrorCode.INVALID_INVESTMENT_PROFILE,
+    //     "Invalid investment profile",
+    //   );
+    // }
+    await surveyRepository.plan(userId, profile);
   },
 });
