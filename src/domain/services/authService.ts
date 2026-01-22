@@ -2,7 +2,6 @@ import dotenv from "dotenv";
 import { HttpException } from "../errors/error";
 import { BcryptHelper } from "../../utils/bcryptHelper";
 import { EmailSender } from "../../utils/emailSender";
-import { inject, injectable } from "tsyringe";
 import { UserRepository } from "../repositories/userRepository";
 import { AuthRepository } from "../repositories/authRepository";
 import { Validator } from "../../utils/validator";
@@ -13,7 +12,7 @@ import { UserDto } from "../models/dtos/userDto";
 
 dotenv.config();
 
-export interface AuthService {
+export type AuthService = {
   /**
    * 회원가입
    * @param   email
@@ -21,10 +20,10 @@ export interface AuthService {
    * @errors  EMAIL_ALREADY_REGISTERED, EMAIL_NOT_VERIFIED, WRONG_EMAIL_FORMAT, WRONG_PASSWORD_FORMAT
    * @returns JWT access token, refresh token and user data
    */
-  register(
+  register: (
     email: string,
     password: string,
-  ): Promise<{
+  ) => Promise<{
     accessToken: string;
     refreshToken: string;
     user: UserDto.Response;
@@ -36,10 +35,10 @@ export interface AuthService {
    * @errors  LOGIN_FAILED, WRONG_EMAIL_FORMAT, WRONG_PASSWORD_FORMAT
    * @returns JWT access token, refresh token and user data
    */
-  login(
+  login: (
     email: string,
     password: string,
-  ): Promise<{
+  ) => Promise<{
     accessToken: string;
     refreshToken: string;
     user: UserDto.Response;
@@ -49,62 +48,59 @@ export interface AuthService {
    * @param   email
    * @errors  EMAIL_ALREADY_REGISTERED, WRONG_EMAIL_FORMAT
    */
-  sendVerificationCode(email: string): Promise<void>;
+  sendVerificationCode: (email: string) => Promise<void>;
   /**
    * 인증코드 검증
    * @param   email
    * @param   code
    * @errors  EMAIL_VERIFICATION_FAILED
    */
-  checkVerificationCode(email: string, code: string): Promise<void>;
+  checkVerificationCode: (email: string, code: string) => Promise<void>;
   /**
    * 비밀번호 찾기 인증코드 이메일 전송
    * @param   email
    * @errors  EMAIL_NOT_REGISTERED, WRONG_EMAIL_FORMAT
    */
-  sendForgotCode(email: string): Promise<void>;
+  sendForgotCode: (email: string) => Promise<void>;
   /**
    * 비밀번호 찾기 인증코드 검증
    * @param   email
    * @param   code
    * @errors  EMAIL_VERIFICATION_FAILED
    */
-  checkForgotCode(email: string, code: string): Promise<void>;
+  checkForgotCode: (email: string, code: string) => Promise<void>;
   /**
    * 비밀번호 재설정
    * @param email
    * @param newPassword
    * @errors  EMAIL_NOT_VERIFIED, WRONG_PASSWORD_FORMAT, USER_NOT_FOUND
    */
-  resetPassword(email: string, newPassword: string): Promise<void>;
+  resetPassword: (email: string, newPassword: string) => Promise<void>;
   /**
    * 토큰 재발급
    * @param   refreshToken
    * @errors  TOKEN_INVALID
    * @returns JWT access token and refresh token
    */
-  refreshToken(refreshToken: string): Promise<{
+  refreshToken: (refreshToken: string) => Promise<{
     accessToken: string;
     refreshToken: string;
   }>;
-}
+};
 
-@injectable()
-export class AuthServiceImpl implements AuthService {
-  constructor(
-    @inject("UserRepository") private userRepository: UserRepository,
-    @inject("AuthRepository") private authRepository: AuthRepository,
-  ) {}
-
+export const createAuthService = (
+  userRepository: UserRepository,
+  authRepository: AuthRepository,
+): AuthService => ({
   /* ================= 회원가입 ================= */
-  async register(
+  register: async (
     email: string,
     password: string,
   ): Promise<{
     accessToken: string;
     refreshToken: string;
     user: UserDto.Response;
-  }> {
+  }> => {
     /* [Error] input validation */
     if (!Validator.validateEmail(email))
       throw new HttpException(
@@ -120,7 +116,7 @@ export class AuthServiceImpl implements AuthService {
       );
 
     /* [Error] 이미 가입된 이메일 */
-    if (await this.userRepository.findUserByEmail(email))
+    if (await userRepository.findUserByEmail(email))
       throw new HttpException(
         409,
         ErrorCode.EMAIL_ALREADY_REGISTERED,
@@ -128,7 +124,7 @@ export class AuthServiceImpl implements AuthService {
       );
 
     /* [Error] 인증되지 않은 이메일 */
-    if (!(await this.authRepository.isEmailVerified(email)))
+    if (!(await authRepository.isEmailVerified(email)))
       throw new HttpException(
         401,
         ErrorCode.EMAIL_NOT_VERIFIED,
@@ -141,7 +137,7 @@ export class AuthServiceImpl implements AuthService {
     /* 1. 비밀번호 해싱 */
     const hashedPassword = await BcryptHelper.hashPassword(password);
     /* 2. 유저 생성 */
-    const user = await this.userRepository.createUser({
+    const user = await userRepository.createUser({
       name,
       tag,
       email,
@@ -152,19 +148,19 @@ export class AuthServiceImpl implements AuthService {
     const refreshToken = TokenProvider.generateRefreshToken({
       userId: user.id,
     });
-    await this.authRepository.saveRefreshToken(user.id, refreshToken);
+    await authRepository.saveRefreshToken(user.id, refreshToken);
 
     return { accessToken, refreshToken, user };
-  }
+  },
 
-  async login(
+  login: async (
     email: string,
     password: string,
   ): Promise<{
     accessToken: string;
     refreshToken: string;
     user: UserDto.Response;
-  }> {
+  }> => {
     /* [Error] input validation */
     if (!Validator.validateEmail(email))
       throw new HttpException(
@@ -180,7 +176,7 @@ export class AuthServiceImpl implements AuthService {
       );
 
     /* [Error] Login failed */
-    const user = await this.userRepository.findUserByEmail(email);
+    const user = await userRepository.findUserByEmail(email);
     if (!user) {
       throw new HttpException(
         401,
@@ -188,7 +184,7 @@ export class AuthServiceImpl implements AuthService {
         "Invalid email or password.",
       );
     }
-    const userPassword = await this.userRepository.getUserPassword(user.id);
+    const userPassword = await userRepository.getUserPassword(user.id);
     if (
       !userPassword ||
       !(await BcryptHelper.comparePassword(
@@ -208,12 +204,12 @@ export class AuthServiceImpl implements AuthService {
     const refreshToken = TokenProvider.generateRefreshToken({
       userId: user.id,
     });
-    await this.authRepository.saveRefreshToken(user.id, refreshToken);
+    await authRepository.saveRefreshToken(user.id, refreshToken);
 
     return { accessToken, refreshToken, user };
-  }
+  },
 
-  async sendVerificationCode(email: string): Promise<void> {
+  sendVerificationCode: async (email: string): Promise<void> => {
     /* [Error] input validation */
     if (!Validator.validateEmail(email))
       throw new HttpException(
@@ -223,7 +219,7 @@ export class AuthServiceImpl implements AuthService {
       );
 
     /* [Error] 이미 가입된 이메일 */
-    if (await this.userRepository.findUserByEmail(email))
+    if (await userRepository.findUserByEmail(email))
       throw new HttpException(
         409,
         ErrorCode.EMAIL_ALREADY_REGISTERED,
@@ -237,16 +233,13 @@ export class AuthServiceImpl implements AuthService {
     /* 1. 이메일 전송 */
     await EmailSender.sendMail(email, code);
     /* 2. 인증 정보 초기화 및 코드 저장 */
-    await this.authRepository.setEmailUnverified(email);
-    await this.authRepository.saveVerificationCode(email, code);
-  }
+    await authRepository.setEmailUnverified(email);
+    await authRepository.saveVerificationCode(email, code);
+  },
 
-  async checkVerificationCode(email: string, code: string): Promise<void> {
+  checkVerificationCode: async (email: string, code: string): Promise<void> => {
     /* [Error] verification failed */
-    const isVerified = await this.authRepository.checkVerificationCode(
-      email,
-      code,
-    );
+    const isVerified = await authRepository.checkVerificationCode(email, code);
     if (!isVerified) {
       throw new HttpException(
         401,
@@ -256,12 +249,12 @@ export class AuthServiceImpl implements AuthService {
     }
 
     /* 0. 코드 삭제 */
-    await this.authRepository.deleteVerificationCode(email);
+    await authRepository.deleteVerificationCode(email);
     /* 1. 인증 정보 저장 */
-    await this.authRepository.setEmailVerified(email);
-  }
+    await authRepository.setEmailVerified(email);
+  },
 
-  async sendForgotCode(email: string): Promise<void> {
+  sendForgotCode: async (email: string): Promise<void> => {
     /* [Error] input validation */
     if (!Validator.validateEmail(email))
       throw new HttpException(
@@ -271,7 +264,7 @@ export class AuthServiceImpl implements AuthService {
       );
 
     /* [Error] 가입되지 않은 이메일 */
-    if (!(await this.userRepository.findUserByEmail(email)))
+    if (!(await userRepository.findUserByEmail(email)))
       throw new HttpException(
         404,
         ErrorCode.EMAIL_NOT_REGISTERED,
@@ -285,16 +278,13 @@ export class AuthServiceImpl implements AuthService {
     /* 1. 이메일 전송 */
     await EmailSender.sendMail(email, code);
     /* 2. 인증 정보 초기화 및 코드 저장 */
-    await this.authRepository.setEmailUnverified(email);
-    await this.authRepository.saveVerificationCode(email, code);
-  }
+    await authRepository.setEmailUnverified(email);
+    await authRepository.saveVerificationCode(email, code);
+  },
 
-  async checkForgotCode(email: string, code: string): Promise<void> {
+  checkForgotCode: async (email: string, code: string): Promise<void> => {
     /* [Error] verification failed */
-    const isVerified = await this.authRepository.checkVerificationCode(
-      email,
-      code,
-    );
+    const isVerified = await authRepository.checkVerificationCode(email, code);
     if (!isVerified) {
       throw new HttpException(
         401,
@@ -304,12 +294,12 @@ export class AuthServiceImpl implements AuthService {
     }
 
     /* 0. 코드 삭제 */
-    await this.authRepository.deleteVerificationCode(email);
+    await authRepository.deleteVerificationCode(email);
     /* 1. 인증 정보 저장 */
-    await this.authRepository.setEmailVerified(email);
-  }
+    await authRepository.setEmailVerified(email);
+  },
 
-  async resetPassword(email: string, newPassword: string): Promise<void> {
+  resetPassword: async (email: string, newPassword: string): Promise<void> => {
     /* [Error] input validation */
     if (!Validator.validatePassword(newPassword))
       throw new HttpException(
@@ -319,7 +309,7 @@ export class AuthServiceImpl implements AuthService {
       );
 
     /* [Error] 인증되지 않은 이메일 */
-    if (!(await this.authRepository.isEmailVerified(email)))
+    if (!(await authRepository.isEmailVerified(email)))
       throw new HttpException(
         401,
         ErrorCode.EMAIL_NOT_VERIFIED,
@@ -329,17 +319,19 @@ export class AuthServiceImpl implements AuthService {
     /* 0. 비밀번호 해싱 */
     const hashedPassword = await BcryptHelper.hashPassword(newPassword);
     /* 1. 비밀번호 재설정 */
-    const user = await this.userRepository.findUserByEmail(email);
+    const user = await userRepository.findUserByEmail(email);
     if (!user) {
       throw new HttpException(404, ErrorCode.USER_NOT_FOUND, "User not found");
     }
-    await this.userRepository.updateUserPassword(user.id, hashedPassword);
-  }
+    await userRepository.updateUserPassword(user.id, hashedPassword);
+  },
 
-  async refreshToken(refreshToken: string): Promise<{
+  refreshToken: async (
+    refreshToken: string,
+  ): Promise<{
     accessToken: string;
     refreshToken: string;
-  }> {
+  }> => {
     /* [Error] Unverified tokens */
     const payload = TokenProvider.verifyRefreshToken(refreshToken);
     if (!payload) {
@@ -351,12 +343,12 @@ export class AuthServiceImpl implements AuthService {
     }
     /* [Error] Invalid refresh token */
     const userId = payload.userId;
-    const isTokenValid = await this.authRepository.checkRefreshToken(
+    const isTokenValid = await authRepository.checkRefreshToken(
       userId,
       refreshToken,
     );
     if (!isTokenValid) {
-      await this.authRepository.deleteRefreshToken(userId);
+      await authRepository.deleteRefreshToken(userId);
       throw new HttpException(
         401,
         ErrorCode.TOKEN_INVALID,
@@ -370,8 +362,8 @@ export class AuthServiceImpl implements AuthService {
     const newRefreshToken = TokenProvider.generateRefreshToken({
       userId,
     });
-    await this.authRepository.saveRefreshToken(userId, newRefreshToken);
+    await authRepository.saveRefreshToken(userId, newRefreshToken);
 
     return { accessToken: newAccessToken, refreshToken: newRefreshToken };
-  }
-}
+  },
+});

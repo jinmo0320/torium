@@ -1,14 +1,12 @@
 import db from "../../data/config/db";
 import { RowDataPacket } from "mysql2";
-import { injectable } from "tsyringe";
 import { SurveyRepository } from "../../domain/repositories/surveyRepository";
 import { SurveyDto } from "../../domain/models/dtos/surveyDto";
 import { UUID } from "crypto";
 import { InvestmentType } from "../../utils/investmentType";
 
-@injectable()
-export class SurveyRepositoryImpl implements SurveyRepository {
-  async getSurvey(): Promise<SurveyDto.Response> {
+export const createSurveyRepository = (): SurveyRepository => ({
+  getSurvey: async (): Promise<SurveyDto.Response> => {
     const [rows] = await db.query<RowDataPacket[]>(`
       SELECT
         q.id AS question_id,
@@ -34,12 +32,12 @@ export class SurveyRepositoryImpl implements SurveyRepository {
     }
 
     return { questions };
-  }
+  },
 
-  async submitAnswers(userId: UUID, type: InvestmentType): Promise<void> {
+  submitAnswers: async (userId: UUID, type: InvestmentType): Promise<void> => {
     await db.query(`UPDATE users SET investment_type = ? WHERE id = ?`, [
       type,
       userId,
     ]);
-  }
-}
+  },
+});

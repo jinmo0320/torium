@@ -1,13 +1,14 @@
 import { NextFunction, Request, Response } from "express";
-import { SurveyService } from "../../domain/services/surveyService";
-import { container } from "tsyringe";
+import { createSurveyService } from "../../domain/services/surveyService";
+import { createSurveyRepository } from "../../data/repositories/surveyRepositoryImpl";
 
 export const questions = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ) => {
-  const surveyService = container.resolve<SurveyService>("SurveyService");
+  const surveyService = createSurveyService(createSurveyRepository());
+
   try {
     const questions = await surveyService.questions();
     res.status(200).json(questions);
@@ -21,7 +22,7 @@ export const answers = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const surveyService = container.resolve<SurveyService>("SurveyService");
+  const surveyService = createSurveyService(createSurveyRepository());
 
   try {
     const userId = req.user!.id;

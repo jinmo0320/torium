@@ -7,7 +7,7 @@ export namespace UserDto {
       public readonly name: string,
       public readonly tag: string,
       public readonly email: string,
-      public readonly hashedPassword: string
+      public readonly hashedPassword: string,
     ) {}
   }
 
@@ -16,7 +16,7 @@ export namespace UserDto {
       public readonly id: UUID,
       public readonly name: string,
       public readonly tag: string,
-      public readonly email: string
+      public readonly email: string,
     ) {}
   }
 
@@ -24,7 +24,7 @@ export namespace UserDto {
     constructor(
       public readonly id: UUID,
       public readonly email: string,
-      public readonly hashedPassword: string
+      public readonly hashedPassword: string,
     ) {}
   }
 }

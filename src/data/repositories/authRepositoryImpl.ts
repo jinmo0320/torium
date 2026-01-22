@@ -1,12 +1,10 @@
 import { RowDataPacket } from "mysql2";
 import db from "../../data/config/db";
-import { injectable } from "tsyringe";
 import { AuthRepository } from "../../domain/repositories/authRepository";
 import { UUID } from "crypto";
 
-@injectable()
-export class AuthRepositoryImpl implements AuthRepository {
-  async saveVerificationCode(email: string, code: string): Promise<void> {
+export const createAuthRepository = (): AuthRepository => ({
+  saveVerificationCode: async (email: string, code: string): Promise<void> => {
     await db.query(
       `
       INSERT INTO verification_codes (email, verification_code) 
@@ -15,54 +13,57 @@ export class AuthRepositoryImpl implements AuthRepository {
         verification_code = VALUES(verification_code),
         expires_at = NOW() + INTERVAL 5 MINUTE,
         created_at = NOW()`,
-      [email, code]
+      [email, code],
     );
-  }
+  },
 
-  async checkVerificationCode(email: string, code: string): Promise<boolean> {
+  checkVerificationCode: async (
+    email: string,
+    code: string,
+  ): Promise<boolean> => {
     const [rows] = await db.query<RowDataPacket[]>(
       "SELECT * FROM verification_codes WHERE email = ? AND verification_code = ? AND expires_at > NOW()",
-      [email, code]
+      [email, code],
     );
 
     return rows.length > 0;
-  }
+  },
 
-  async deleteVerificationCode(email: string): Promise<void> {
+  deleteVerificationCode: async (email: string): Promise<void> => {
     await db.query("DELETE FROM verification_codes WHERE email = ?", [email]);
-  }
+  },
 
-  async setEmailVerified(email: string): Promise<void> {
+  setEmailVerified: async (email: string): Promise<void> => {
     await db.query(
       `
       INSERT INTO email_verification_status (email, is_email_verified) 
       VALUES (?, TRUE) 
       ON DUPLICATE KEY UPDATE 
         is_email_verified = TRUE`,
-      [email]
+      [email],
     );
-  }
+  },
 
-  async setEmailUnverified(email: string): Promise<void> {
+  setEmailUnverified: async (email: string): Promise<void> => {
     await db.query(
       `
       UPDATE email_verification_status 
       SET is_email_verified = FALSE 
       WHERE email = ?`,
-      [email]
+      [email],
     );
-  }
+  },
 
-  async isEmailVerified(email: string): Promise<boolean> {
+  isEmailVerified: async (email: string): Promise<boolean> => {
     const [rows] = await db.query<RowDataPacket[]>(
       "SELECT is_email_verified FROM email_verification_status WHERE email = ?",
-      [email]
+      [email],
     );
 
     return rows.length > 0 && rows[0].is_email_verified;
-  }
+  },
 
-  async saveRefreshToken(userId: UUID, token: string): Promise<void> {
+  saveRefreshToken: async (userId: UUID, token: string): Promise<void> => {
     await db.query(
       `
       INSERT INTO refresh_tokens (user_id, token_value) 
@@ -71,11 +72,11 @@ export class AuthRepositoryImpl implements AuthRepository {
         token_value = ?,
         expires_at = NOW() + INTERVAL 14 DAY,
         created_at = NOW()`,
-      [userId, token, token]
+      [userId, token, token],
     );
-  }
+  },
 
-  async checkRefreshToken(userId: UUID, token: string): Promise<boolean> {
+  checkRefreshToken: async (userId: UUID, token: string): Promise<boolean> => {
     const [rows] = await db.query<RowDataPacket[]>(
       `
       SELECT * FROM refresh_tokens 
@@ -84,13 +85,13 @@ export class AuthRepositoryImpl implements AuthRepository {
         token_value = ? AND 
         expires_at > NOW() AND 
         is_revoked = FALSE`,
-      [userId, token]
+      [userId, token],
     );
 
     return rows.length > 0;
-  }
+  },
 
-  async deleteRefreshToken(userId: UUID): Promise<void> {
+  deleteRefreshToken: async (userId: UUID): Promise<void> => {
     await db.query("DELETE FROM refresh_tokens WHERE user_id = ?", [userId]);
-  }
-}
+  },
+});

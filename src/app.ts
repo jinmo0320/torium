@@ -1,12 +1,9 @@
-import "reflect-metadata";
 import express from "express";
-import cors from "cors";
 import dotenv from "dotenv";
 import authRoutes from "./presentation/routes/authRoutes";
 import userRoutes from "./presentation/routes/userRoutes";
 import surveyRoutes from "./presentation/routes/surveyRoutes";
 import errorMiddleware from "./presentation/middlewares/errorMiddleware";
-import "./di/diContainer";
 import swaggerUi from "swagger-ui-express";
 import swaggerSpecs from "./swagger/config/swagger";
 

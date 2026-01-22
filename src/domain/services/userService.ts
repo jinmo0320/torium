@@ -1,4 +1,3 @@
-import { inject, injectable } from "tsyringe";
 import { HttpException } from "../errors/error";
 import { UserDto } from "../models/dtos/userDto";
 import { UUID } from "crypto";
@@ -7,14 +6,14 @@ import { ErrorCode } from "../errors/errorCodes";
 import { Validator } from "../../utils/validator";
 import { BcryptHelper } from "../../utils/bcryptHelper";
 
-export interface UserService {
+export type UserService = {
   /**
    * 내 정보 조회
    * @param userId  유저 id
    * @errors        USER_NOT_FOUND
    * @returns       user data
    */
-  me(userId: UUID): Promise<UserDto.Response>;
+  me: (userId: UUID) => Promise<UserDto.Response>;
   /**
    * 비밀번호 바꾸기
    * @param userId      유저 id
@@ -22,34 +21,31 @@ export interface UserService {
    * @param newPassword 새 비밀번호
    * @errors            WRONG_PASSWORD_FORMAT, CURRENT_PASSWORD_NOT_MATCHED
    */
-  changePassword(
+  changePassword: (
     userId: UUID,
     oldPassword: string,
     newPassword: string,
-  ): Promise<void>;
-}
+  ) => Promise<void>;
+};
 
-@injectable()
-export class UserServiceImpl implements UserService {
-  constructor(
-    @inject("UserRepository") private userRepository: UserRepository,
-  ) {}
-
-  async me(userId: UUID): Promise<UserDto.Response> {
+export const createUserService = (
+  userRepository: UserRepository,
+): UserService => ({
+  me: async (userId: UUID): Promise<UserDto.Response> => {
     /* 0. User 조회 */
-    const user = await this.userRepository.findUserById(userId);
+    const user = await userRepository.findUserById(userId);
     if (!user) {
       throw new HttpException(404, ErrorCode.USER_NOT_FOUND, "User not found");
     }
 
     return user;
-  }
+  },
 
-  async changePassword(
+  changePassword: async (
     userId: UUID,
     oldPassword: string,
     newPassword: string,
-  ): Promise<void> {
+  ): Promise<void> => {
     /* [Error] input validation */
     if (
       Validator.validatePassword(oldPassword) ||
@@ -62,7 +58,7 @@ export class UserServiceImpl implements UserService {
       );
 
     /* [Error] Password mismatch */
-    const userPassword = await this.userRepository.getUserPassword(userId);
+    const userPassword = await userRepository.getUserPassword(userId);
     if (
       !userPassword ||
       !(await BcryptHelper.comparePassword(
@@ -79,6 +75,6 @@ export class UserServiceImpl implements UserService {
     /* 0. 새 비밀번호 해싱 */
     const hashedNewPassword = await BcryptHelper.hashPassword(newPassword);
     /* 1. 비밀번호 업데이트 */
-    await this.userRepository.updateUserPassword(userId, hashedNewPassword);
-  }
-}
+    await userRepository.updateUserPassword(userId, hashedNewPassword);
+  },
+});

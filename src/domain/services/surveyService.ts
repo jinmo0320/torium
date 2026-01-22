@@ -1,4 +1,3 @@
-import { inject, injectable } from "tsyringe";
 import { HttpException } from "../errors/error";
 import { UUID } from "crypto";
 import { SurveyDto } from "../models/dtos/surveyDto";
@@ -6,31 +5,27 @@ import { SurveyRepository } from "../repositories/surveyRepository";
 import { ErrorCode } from "../errors/errorCodes";
 import { determineInvestmentType } from "../../utils/investmentType";
 
-export interface SurveyService {
+export type SurveyService = {
   /**
    * 질문 가져오기
    * @errors        QUESTIONS_NOT_FOUND
    * @returns       question data
    */
-  questions(): Promise<SurveyDto.Response>;
+  questions: () => Promise<SurveyDto.Response>;
   /**
    * 설문 점수로 유저의 투자 성향 업데이트 하기
    * @param userId   user id
    * @param score   투자 성향 총점
-   * @errors        QUESTIONS_NOT_FOUND
-   * @returns       question data
+   * @errors        INVALID_INVESTMENT_SCORE
    */
-  answers(userId: UUID, score: number): Promise<void>;
-}
+  answers: (userId: UUID, score: number) => Promise<void>;
+};
 
-@injectable()
-export class SurveyServiceImpl implements SurveyService {
-  constructor(
-    @inject("SurveyRepository") private surveyRepository: SurveyRepository,
-  ) {}
-
-  async questions(): Promise<SurveyDto.Response> {
-    const questions = await this.surveyRepository.getSurvey();
+export const createSurveyService = (
+  surveyRepository: SurveyRepository,
+): SurveyService => ({
+  questions: async (): Promise<SurveyDto.Response> => {
+    const questions = await surveyRepository.getSurvey();
     if (!questions) {
       throw new HttpException(
         404,
@@ -40,9 +35,9 @@ export class SurveyServiceImpl implements SurveyService {
     }
 
     return questions;
-  }
+  },
 
-  async answers(userId: UUID, score: number): Promise<void> {
+  answers: async (userId: UUID, score: number): Promise<void> => {
     const type = determineInvestmentType(score);
 
     // 필요한 핸들링인가
@@ -55,6 +50,6 @@ export class SurveyServiceImpl implements SurveyService {
       );
     }
 
-    await this.surveyRepository.submitAnswers(userId, type);
-  }
-}
+    await surveyRepository.submitAnswers(userId, type);
+  },
+});

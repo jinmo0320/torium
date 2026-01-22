@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response } from "express";
-import { container } from "tsyringe";
-import { UserService } from "../../domain/services/userService";
+import { createUserService } from "../../domain/services/userService";
+import { createUserRepository } from "../../data/repositories/userRepositoryImpl";
 
 /* ================= 내 정보 조회 ================= */
 export const me = async (req: Request, res: Response, next: NextFunction) => {
-  const userService = container.resolve<UserService>("UserService");
+  const userService = createUserService(createUserRepository());
 
   try {
     const userId = req.user!.id;
@@ -20,9 +20,9 @@ export const me = async (req: Request, res: Response, next: NextFunction) => {
 export const changePassword = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
-  const userService = container.resolve<UserService>("UserService");
+  const userService = createUserService(createUserRepository());
 
   try {
     const userId = req.user!.id;
