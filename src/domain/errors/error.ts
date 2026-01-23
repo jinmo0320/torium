@@ -1,4 +1,4 @@
-import { Timer } from "../../utils/timer";
+import { Timer } from "src/utils/timer";
 import { ErrorCode } from "./errorCodes";
 
 export class HttpException extends Error {

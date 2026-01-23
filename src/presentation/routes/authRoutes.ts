@@ -1,7 +1,7 @@
 import { Router } from "express";
 import {
-  login,
   register,
+  login,
   sendVerificationCode,
   checkVerificationCode,
   sendForgotCode,

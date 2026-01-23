@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon --watch \"src/**/*.ts\" --exec ts-node --files src/app.ts",
+    "dev": "nodemon --watch src --exec \"ts-node -r tsconfig-paths/register src/app.ts\"",
     "build": "tsc -p . && copyfiles -u 1 \"src/**/*.yaml\" dist",
     "start": "node dist/app.js",
     "test": "echo \"No tests specified\" && exit 0"
@@ -24,6 +24,7 @@
     "copyfiles": "^2.4.1",
     "nodemon": "^3.1.9",
     "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.3"
   },
   "dependencies": {
@@ -36,9 +37,7 @@
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.15.3",
     "nodemailer": "^7.0.10",
-    "reflect-metadata": "^0.2.2",
     "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.1",
-    "tsyringe": "^4.8.0"
+    "swagger-ui-express": "^5.0.1"
   }
 }

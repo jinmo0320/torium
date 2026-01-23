@@ -1,20 +1,24 @@
 import { NextFunction, Request, Response } from "express";
-import { AuthService } from "../../domain/services/authService";
-import { container } from "tsyringe";
+import { createAuthService } from "src/domain/services/authService";
+import { createUserRepository } from "src/data/repositories/userRepositoryImpl";
+import { createAuthRepository } from "src/data/repositories/authRepositoryImpl";
+
+const authService = createAuthService(
+  createUserRepository(),
+  createAuthRepository(),
+);
 
 /* ================= 회원가입 ================= */
 export const register = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
-  const authService = container.resolve<AuthService>("AuthService");
-
   try {
     const { email, password } = req.body;
     const { accessToken, refreshToken, user } = await authService.register(
       email,
-      password
+      password,
     );
     res.status(201).json({
       message: "User created",
@@ -31,15 +35,13 @@ export const register = async (
 export const login = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
-  const authService = container.resolve<AuthService>("AuthService");
-
   try {
     const { email, password } = req.body;
     const { accessToken, refreshToken, user } = await authService.login(
       email,
-      password
+      password,
     );
     res.status(200).json({
       message: "Login successful",
@@ -56,10 +58,8 @@ export const login = async (
 export const sendVerificationCode = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
-  const authService = container.resolve<AuthService>("AuthService");
-
   try {
     const { email } = req.body;
     await authService.sendVerificationCode(email);
@@ -73,10 +73,8 @@ export const sendVerificationCode = async (
 export const checkVerificationCode = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
-  const authService = container.resolve<AuthService>("AuthService");
-
   try {
     const { email, code } = req.body;
     await authService.checkVerificationCode(email, code);
@@ -90,10 +88,8 @@ export const checkVerificationCode = async (
 export const sendForgotCode = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
-  const authService = container.resolve<AuthService>("AuthService");
-
   try {
     const { email } = req.body;
     await authService.sendForgotCode(email);
@@ -107,10 +103,8 @@ export const sendForgotCode = async (
 export const checkForgotCode = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
-  const authService = container.resolve<AuthService>("AuthService");
-
   try {
     const { email, code } = req.body;
     await authService.checkForgotCode(email, code);
@@ -124,10 +118,8 @@ export const checkForgotCode = async (
 export const resetPassword = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
-  const authService = container.resolve<AuthService>("AuthService");
-
   try {
     const { email, newPassword } = req.body;
     await authService.resetPassword(email, newPassword);
@@ -141,21 +133,17 @@ export const resetPassword = async (
 export const refreshToken = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
-  const authService = container.resolve<AuthService>("AuthService");
-
   try {
     const { refreshToken } = req.body;
     const { accessToken, refreshToken: newRefreshToken } =
       await authService.refreshToken(refreshToken);
-    res
-      .status(200)
-      .json({
-        message: "Token refreshed successfully",
-        accessToken,
-        refreshToken: newRefreshToken,
-      });
+    res.status(200).json({
+      message: "Token refreshed successfully",
+      accessToken,
+      refreshToken: newRefreshToken,
+    });
   } catch (error) {
     next(error);
   }

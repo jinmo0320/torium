@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction } from "express";
-import { HttpException } from "../../domain/errors/error";
-import { ErrorCode } from "../../domain/errors/errorCodes";
-import { TokenProvider } from "../../utils/tokenProvider";
+import { HttpException } from "src/domain/errors/error";
+import { ErrorCode } from "src/domain/errors/errorCodes";
+import { TokenProvider } from "src/utils/tokenProvider";
 
 export const authenticate = (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   /* 1. Header에서 토큰 추출 */
   const authHeader = req.headers.authorization;
@@ -14,7 +14,7 @@ export const authenticate = (
     throw new HttpException(
       400,
       ErrorCode.TOKEN_REQUIRED,
-      "Access token is required."
+      "Access token is required.",
     );
   }
   const token = authHeader.split(" ")[1];
@@ -22,7 +22,7 @@ export const authenticate = (
     throw new HttpException(
       400,
       ErrorCode.TOKEN_REQUIRED,
-      "Access token is required."
+      "Access token is required.",
     );
   }
 
@@ -32,7 +32,7 @@ export const authenticate = (
     throw new HttpException(
       401,
       ErrorCode.TOKEN_INVALID,
-      "Invalid access token."
+      "Invalid access token.",
     );
   }
 
