@@ -7,20 +7,8 @@ import {
 } from "../models/dtos/investmentProfileDto";
 import { HttpException } from "../errors/error";
 import { ErrorCode } from "../errors/errorCodes";
-
-const determineRiskType = (score: number): RiskType => {
-  if (score >= 10 && score <= 15) return "STABLE";
-  if (score <= 20) return "STABLE_SEEK";
-  if (score <= 25) return "NEUTRAL";
-  if (score <= 30) return "ACTIVE";
-  if (score <= 40) return "AGGRESSIVE";
-
-  throw new HttpException(
-    400,
-    ErrorCode.INVALID_RISK_SCORE,
-    "Invalid risk assessment score",
-  );
-};
+import { determineRiskType } from "src/utils/riskAssesment";
+import { isValidInvestmentPlan } from "src/utils/investmentCalculator";
 
 export type InvestmentProfileService = {
   /**
@@ -51,17 +39,24 @@ export const createInvestmentProfileService = (
 ): InvestmentProfileService => ({
   assessRisk: async (userId: UUID, score: number): Promise<void> => {
     const type = determineRiskType(score);
+    if (!type) {
+      throw new HttpException(
+        400,
+        ErrorCode.INVALID_RISK_SCORE,
+        "Invalid risk assessment score",
+      );
+    }
     await investmentProfileRepository.updateRiskType(userId, type);
   },
 
   updatePlan: async (userId: UUID, plan: InvestmentPlan): Promise<void> => {
-    // if (!validatePlan(plan)) {
-    //         throw new HttpException(
-    //     400,
-    //     ErrorCode.INVALID_INVESTMENT_PLAN,
-    //     "Invalid investment plan",
-    //   );
-    // }
+    if (!isValidInvestmentPlan(plan)) {
+      throw new HttpException(
+        400,
+        ErrorCode.INVALID_INVESTMENT_PLAN,
+        "Invalid investment plan",
+      );
+    }
     await investmentProfileRepository.upsertPlan(userId, plan);
   },
 

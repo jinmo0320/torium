@@ -30,7 +30,7 @@ export const updateInvestmentPlan = async (
     const userId = req.user!.id;
     const { plan } = req.body;
     await investmentProfileService.updatePlan(userId, plan);
-    res.status(204).send();
+    res.status(200).json({ message: "Updated investment plan." });
   } catch (error) {
     next(error);
   }
