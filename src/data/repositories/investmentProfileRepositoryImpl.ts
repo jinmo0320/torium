@@ -10,7 +10,7 @@ import {
 
 export const createSurveyRepository = (): InvestmentProfileRepository => ({
   updateRiskType: async (userId: UUID, riskType: RiskType): Promise<void> => {
-    await db.execute(`UPDATE users SET investment_type = ? WHERE id = ?`, [
+    await db.execute(`UPDATE users SET risk_type = ? WHERE id = ?`, [
       riskType,
       userId,
     ]);
@@ -39,8 +39,8 @@ export const createSurveyRepository = (): InvestmentProfileRepository => ({
         SELECT
           u.risk_type,
           p.monthly_amount,
-          p.years,
-          p.return_rate,
+          p.investment_years,
+          p.expected_return_rate,
           p.target_amount
         FROM users u
         LEFT JOIN investment_plans p ON u.id = p.user_id
@@ -54,8 +54,8 @@ export const createSurveyRepository = (): InvestmentProfileRepository => ({
       plan: row?.monthly_amount
         ? {
             monthlyAmount: row.monthly_amount,
-            years: row.years,
-            returnRate: row.return_rate,
+            years: row.investment_years,
+            returnRate: row.expected_return_rate,
             targetAmount: row.target_amount,
           }
         : null,

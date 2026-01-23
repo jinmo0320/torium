@@ -15,7 +15,7 @@ export const assessInvestmentRisk = async (
     const userId = req.user!.id;
     const { score } = req.body;
     await investmentProfileService.assessRisk(userId, Number(score));
-    res.status(200).json({ message: "Updated investment type." });
+    res.status(200).json({ message: "Updated risk type." });
   } catch (error) {
     next(error);
   }
@@ -28,8 +28,8 @@ export const updateInvestmentPlan = async (
 ) => {
   try {
     const userId = req.user!.id;
-    const { profile } = req.body;
-    await investmentProfileService.updatePlan(userId, profile);
+    const { plan } = req.body;
+    await investmentProfileService.updatePlan(userId, plan);
     res.status(204).send();
   } catch (error) {
     next(error);
