@@ -43,7 +43,7 @@ export type InvestmentProfileService = {
    * @errors         INVALID_INVESTMENT_PROFILE
    * @returns        유저의 투자 프로필
    */
-  getProfile: (userId: UUID) => Promise<InvestmentProfile>;
+  getProfile: (userId: UUID) => Promise<InvestmentProfile | null>;
 };
 
 export const createInvestmentProfileService = (
@@ -65,7 +65,17 @@ export const createInvestmentProfileService = (
     await investmentProfileRepository.upsertPlan(userId, plan);
   },
 
-  getProfile: async (userId: UUID): Promise<InvestmentProfile> => {
-    return await investmentProfileRepository.getProfile(userId);
+  getProfile: async (userId: UUID): Promise<InvestmentProfile | null> => {
+    const profile = await investmentProfileRepository.getProfile(userId);
+
+    if (!profile) {
+      throw new HttpException(
+        404,
+        ErrorCode.INVESTMENT_PROFILE_NOT_FOUND,
+        "User Not Found",
+      );
+    }
+
+    return profile;
   },
 });

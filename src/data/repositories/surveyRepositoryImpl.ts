@@ -17,18 +17,32 @@ export const createSurveyRepository = (): SurveyRepository => ({
       ORDER BY q.order_no ASC, a.order_no ASC
     `);
 
-    const questions: SurveyDto.Question[] = [];
-    for (let i = 0; i < rows.length; i += 4) {
-      questions.push({
-        title: rows[i].question_text,
-        answers: [
-          rows[i].answer_text,
-          rows[i + 1].answer_text,
-          rows[i + 2].answer_text,
-          rows[i + 3].answer_text,
-        ],
-      });
-    }
+    const questionMap = new Map<
+      number,
+      {
+        text: string;
+        order: number;
+        answers: string[];
+      }
+    >();
+
+    rows.forEach((row) => {
+      if (!questionMap.has(row.question_id)) {
+        questionMap.set(row.question_id, {
+          text: row.question_text,
+          order: row.question_order,
+          answers: [],
+        });
+      }
+      questionMap.get(row.question_id)!.answers.push(row.answer_text);
+    });
+
+    const questions: SurveyDto.Question[] = Array.from(questionMap.values())
+      .sort((a, b) => a.order - b.order)
+      .map((q) => ({
+        title: q.text,
+        answers: q.answers as [string, string, string, string],
+      }));
 
     return { questions };
   },
