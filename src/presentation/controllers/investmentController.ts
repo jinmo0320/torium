@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import { createInvestmentProfileService } from "src/domain/services/investmentProfileService";
-import { createSurveyRepository } from "src/data/repositories/investmentProfileRepositoryImpl";
+import { createInvestmentProfileRepository } from "src/data/repositories/investmentProfileRepositoryImpl";
 
 const investmentProfileService = createInvestmentProfileService(
-  createSurveyRepository(),
+  createInvestmentProfileRepository(),
 );
 
 export const assessInvestmentRisk = async (
@@ -30,7 +30,7 @@ export const updateInvestmentPlan = async (
     const userId = req.user!.id;
     const { plan } = req.body;
     await investmentProfileService.updatePlan(userId, plan);
-    res.status(204).send();
+    res.status(200).json({ message: "Updated investment plan." });
   } catch (error) {
     next(error);
   }
@@ -42,9 +42,11 @@ export const getInvestmentProfile = async (
   res: Response,
   next: NextFunction,
 ): Promise<void> => {
-  const userId = req.user!.id;
-
-  const profile = await investmentProfileService.getProfile(userId); // 못 가져왔을 때를 대비하자
-
-  res.status(200).json(profile);
+  try {
+    const userId = req.user!.id;
+    const profile = await investmentProfileService.getProfile(userId);
+    res.status(200).json(profile);
+  } catch (error) {
+    next(error);
+  }
 };
