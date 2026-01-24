@@ -6,7 +6,7 @@ import {
 } from "../models/dtos/investmentProfileDto";
 
 export type InvestmentProfileRepository = {
-  updateRiskType: (userId: UUID, riskType: RiskType) => Promise<void>;
+  upsertRiskType: (userId: UUID, riskType: RiskType) => Promise<void>;
   upsertPlan: (userId: UUID, plan: InvestmentPlan) => Promise<void>;
   getProfile: (userId: UUID) => Promise<InvestmentProfile>;
 };

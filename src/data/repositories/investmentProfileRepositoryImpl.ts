@@ -10,56 +10,62 @@ import {
 
 export const createInvestmentProfileRepository =
   (): InvestmentProfileRepository => ({
-    updateRiskType: async (userId: UUID, riskType: RiskType): Promise<void> => {
-      await db.execute(`UPDATE users SET risk_type = ? WHERE id = ?`, [
-        riskType,
-        userId,
-      ]);
+    upsertRiskType: async (userId: UUID, riskType: RiskType): Promise<void> => {
+      await db.execute(
+        `INSERT INTO investment_profiles (user_id, risk_type)
+       VALUES (?, ?)
+       ON DUPLICATE KEY UPDATE risk_type = VALUES(risk_type)`,
+        [userId, riskType],
+      );
     },
 
     upsertPlan: async (userId: UUID, plan: InvestmentPlan): Promise<void> => {
-      const { monthlyAmount, years, returnRate, targetAmount } = plan;
+      const {
+        monthlyAmount,
+        investmentYears,
+        expectedReturnRate,
+        targetAmount,
+      } = plan;
       await db.execute(
-        `
-      INSERT INTO investment_plans
-        (user_id, monthly_amount, investment_years, expected_return_rate, target_amount)
-      VALUES (?, ?, ?, ?, ?)
-      ON DUPLICATE KEY UPDATE
-        monthly_amount = VALUES(monthly_amount),
-        investment_years = VALUES(investment_years),
-        expected_return_rate = VALUES(expected_return_rate),
-        target_amount = VALUES(target_amount)
-      `,
-        [userId, monthlyAmount, years, returnRate, targetAmount],
+        `INSERT INTO investment_profiles
+         (user_id, monthly_amount, investment_years, expected_return_rate, target_amount)
+       VALUES (?, ?, ?, ?, ?)
+       ON DUPLICATE KEY UPDATE
+         monthly_amount = VALUES(monthly_amount),
+         investment_years = VALUES(investment_years),
+         expected_return_rate = VALUES(expected_return_rate),
+         target_amount = VALUES(target_amount)`,
+        [
+          userId,
+          monthlyAmount,
+          investmentYears,
+          expectedReturnRate,
+          targetAmount,
+        ],
       );
     },
 
     getProfile: async (userId: UUID): Promise<InvestmentProfile> => {
-      const [[row]] = await db.query<RowDataPacket[]>(
-        `
-        SELECT
-          u.risk_type,
-          p.monthly_amount,
-          p.investment_years,
-          p.expected_return_rate,
-          p.target_amount
-        FROM users u
-        LEFT JOIN investment_plans p ON u.id = p.user_id
-        WHERE u.id = ?
-        `,
+      const [[row]] = await db.execute<RowDataPacket[]>(
+        `SELECT
+         risk_type,
+         monthly_amount,
+         investment_years,
+         expected_return_rate,
+         target_amount
+       FROM investment_profiles
+       WHERE user_id = ?`,
         [userId],
       );
 
       return {
-        riskType: row?.risk_type ?? null,
-        plan: row?.monthly_amount
-          ? {
-              monthlyAmount: row.monthly_amount,
-              years: row.investment_years,
-              returnRate: row.expected_return_rate,
-              targetAmount: row.target_amount,
-            }
-          : null,
+        riskType: row?.risk_type,
+        plan: {
+          monthlyAmount: row?.monthly_amount,
+          investmentYears: row?.investment_years,
+          expectedReturnRate: row?.expected_return_rate,
+          targetAmount: row?.target_amount,
+        },
       };
     },
   });
