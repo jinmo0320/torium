@@ -14,8 +14,11 @@ export const assessInvestmentRisk = async (
   try {
     const userId = req.user!.id;
     const { score } = req.body;
-    await investmentProfileService.assessRisk(userId, Number(score));
-    res.status(200).json({ message: "Updated risk type." });
+    const riskType = await investmentProfileService.assessRiskType(
+      userId,
+      Number(score),
+    );
+    res.status(200).json({ riskType });
   } catch (error) {
     next(error);
   }

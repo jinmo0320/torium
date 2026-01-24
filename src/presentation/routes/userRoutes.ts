@@ -15,7 +15,7 @@ router.patch("/password", authenticate, changePassword);
 // Survey & Investment
 router.get("/investment-profile", authenticate, getInvestmentProfile);
 router.post(
-  "/investment-profile/risk-assessment",
+  "/investment-profile/risk-type",
   authenticate,
   assessInvestmentRisk,
 );

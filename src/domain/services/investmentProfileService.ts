@@ -17,7 +17,7 @@ export type InvestmentProfileService = {
    * @param score    투자 성향 총점
    * @errors         INVALID_INVESTMENT_SCORE
    */
-  assessRisk: (userId: UUID, score: number) => Promise<void>;
+  assessRiskType: (userId: UUID, score: number) => Promise<RiskType>;
   /**
    * 예산 계획 업데이트
    * @param userId   user id
@@ -37,16 +37,17 @@ export type InvestmentProfileService = {
 export const createInvestmentProfileService = (
   investmentProfileRepository: InvestmentProfileRepository,
 ): InvestmentProfileService => ({
-  assessRisk: async (userId: UUID, score: number): Promise<void> => {
-    const type = determineRiskType(score);
-    if (!type) {
+  assessRiskType: async (userId: UUID, score: number): Promise<RiskType> => {
+    const riskType = determineRiskType(score);
+    if (!riskType) {
       throw new HttpException(
         400,
         ErrorCode.INVALID_RISK_SCORE,
         "Invalid risk assessment score",
       );
     }
-    await investmentProfileRepository.updateRiskType(userId, type);
+    await investmentProfileRepository.upsertRiskType(userId, riskType);
+    return riskType;
   },
 
   updatePlan: async (userId: UUID, plan: InvestmentPlan): Promise<void> => {
