@@ -1,4 +1,5 @@
 import { Router } from "express";
+import portfolioRoutes from "./portfolioRoutes";
 import { authenticate } from "../middlewares/authMiddleware";
 import { me, changePassword } from "../controllers/userController";
 import {
@@ -20,5 +21,6 @@ router.post(
   assessInvestmentRisk,
 );
 router.put("/investment-profile/plan", authenticate, updateInvestmentPlan);
+router.use("/portfolio", authenticate, portfolioRoutes);
 
 export default router;
