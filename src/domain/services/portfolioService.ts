@@ -1,16 +1,25 @@
 import { UUID } from "crypto";
 import { PortfolioRepository } from "../repositories/portfolioRepository";
+import { InvestmentProfileRepository } from "../repositories/investmentProfileRepository";
 import { HttpException } from "../errors/error";
 import { ErrorCode } from "../errors/errorCodes";
+import { ExpectedReturn } from "../models/dtos/portfolioDto";
 
 export const createPortfolioService = (
   portfolioRepository: PortfolioRepository,
+  investmentProfileRepository: InvestmentProfileRepository,
 ) => ({
   // 전체 & 추천
   getPortfolio: async (userId: UUID) =>
     await portfolioRepository.getPortfolioByUserId(userId),
-  getRecommendations: async (targetReturn: number) =>
-    await portfolioRepository.findPresetsByReturn(targetReturn),
+  getRecommendations: async (userId: UUID) => {
+    const {
+      plan: { expectedReturnRate },
+    } = await investmentProfileRepository.getProfile(userId);
+    return await portfolioRepository.findPresetsByReturn(
+      expectedReturnRate * 100,
+    );
+  },
   createFromPreset: async (userId: UUID, presetCode: string) =>
     await portfolioRepository.createPortfolioFromPreset(userId, presetCode),
 
@@ -28,23 +37,34 @@ export const createPortfolioService = (
         ErrorCode.INVALID_PORTIONS,
         "자산군 비중 합은 100%여야 합니다.",
       );
-    // 자산군 비중 0으로 만들었다가 다시 0 이상의 값으로 수정하면 하위 자산의 비율 복구 안 됨
     return await portfolioRepository.updateCategoryPortions(
       portfolioId,
       portions,
     );
   },
-  // 커스텀 데이터 타입 지정하자....
   addCategory: async (
     portfolioId: number,
-    categoryId: number | null,
-    customData?: any,
-  ) =>
-    await portfolioRepository.addCategory(portfolioId, categoryId, customData),
+    categoryId?: number,
+    customCategoryInfo?: { name: string; description: string },
+  ) => {
+    if (!(categoryId ?? customCategoryInfo))
+      throw new HttpException(
+        400,
+        ErrorCode.INVALID_DATA_FOR_ADDING_CATEGORY,
+        "Invalid data for adding category.",
+      );
+    return await portfolioRepository.addCategory(
+      portfolioId,
+      categoryId,
+      customCategoryInfo,
+    );
+  },
   deleteCategory: async (portfolioId: number, categoryId: number) =>
     await portfolioRepository.deleteCategory(portfolioId, categoryId),
-  updateCategoryInfo: async (id: number, name?: string, description?: string) =>
-    await portfolioRepository.updateCategoryInfo(id, name, description),
+  updateCategoryInfo: async (
+    id: number,
+    categoryInfo: { name?: string; description?: string },
+  ) => await portfolioRepository.updateCategoryInfo(id, categoryInfo),
   getAvailableCategories: async (portfolioId: number) =>
     await portfolioRepository.getAvailableCategories(portfolioId),
 
@@ -88,13 +108,35 @@ export const createPortfolioService = (
   },
   addItem: async (
     categoryId: number,
-    masterItemId: number | null,
-    customData?: any,
-  ) => await portfolioRepository.addItem(categoryId, masterItemId, customData),
+    masterItemId?: number,
+    customItemInfo?: {
+      name: string;
+      description: string;
+      expectedReturn: ExpectedReturn;
+    },
+  ) => {
+    if (!(masterItemId ?? customItemInfo))
+      throw new HttpException(
+        400,
+        ErrorCode.INVALID_DATA_FOR_ADDING_ITEM,
+        "Invalid data for adding asset item.",
+      );
+    return await portfolioRepository.addItem(
+      categoryId,
+      masterItemId,
+      customItemInfo,
+    );
+  },
   deleteItem: async (itemId: number) =>
     await portfolioRepository.deleteItem(itemId),
-  updateItemInfo: async (itemId: number, data: any) =>
-    await portfolioRepository.updateItemInfo(itemId, data),
+  updateItemInfo: async (
+    itemId: number,
+    itemInfo: {
+      name?: string;
+      description?: string;
+      expectedReturn?: ExpectedReturn;
+    },
+  ) => await portfolioRepository.updateItemInfo(itemId, itemInfo),
   getAvailableItems: async (categoryId: number) =>
     await portfolioRepository.getAvailableItems(categoryId),
 });
