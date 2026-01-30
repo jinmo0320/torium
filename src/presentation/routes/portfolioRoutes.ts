@@ -4,7 +4,7 @@ import * as controller from "../controllers/portfolioController";
 
 const router = Router();
 
-// === 포폴 전체 ===
+// === 전체 & 추천 ===
 router.get("/", authenticate, controller.getMyPortfolio);
 router.get("/recommendations", authenticate, controller.getRecommendations);
 router.post("/create-from-preset", authenticate, controller.createFromPreset);
@@ -24,7 +24,6 @@ router.get(
   authenticate,
   controller.getAvailableCategories,
 );
-// 뭔가 이상함
 router.post("/categories/available", authenticate, controller.addCategory);
 
 // === 하위자산 ===
@@ -43,7 +42,7 @@ router.put(
 router.post("/items", authenticate, controller.addItem);
 router.delete("/items/:itemId", authenticate, controller.deleteItem);
 router.patch("/items/:itemId", authenticate, controller.patchItem);
-router.get("/items/available", authenticate, controller.getAvailableItems); // 쿼리스트링 안 쓰게
+router.get("/items/available", authenticate, controller.getAvailableItems); // TODO: 라우트 구조 수정
 router.post("/items/available", authenticate, controller.addItem);
 
 export default router;

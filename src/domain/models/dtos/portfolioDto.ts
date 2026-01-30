@@ -5,21 +5,35 @@ export interface ExpectedReturn {
 
 export interface PortfolioItemDto {
   id: number;
-  categoryId: number; // 부모 Category의 ID
+  categoryId: number;
   name: string;
   description: string;
-  portion: number; // 절대/상대 비중
+  portion: number; // 자산의 절대 비중
   expectedReturn: ExpectedReturn;
   isCustomReturn: boolean;
   isCustom: boolean;
 }
 
+export interface PortfolioAvailableItemDto {
+  id: number;
+  categoryId: number;
+  name: string;
+  description: string;
+  expectedReturn: ExpectedReturn;
+}
+
 export interface PortfolioCategoryDto {
   id: number;
-  categoryCode: string; // EQUITY, BOND, CUSTOM 등
+  code: string;
   name: string;
   description: string;
   portion: number;
+}
+
+export interface PortfolioAvailableCategoryDto {
+  id: number;
+  name: string;
+  description: string;
 }
 
 export interface PortfolioDto {
@@ -28,13 +42,13 @@ export interface PortfolioDto {
   description: string;
   categories: PortfolioCategoryDto[];
   items: PortfolioItemDto[];
-  totalExpectedReturn: ExpectedReturn;
+  expectedReturn: ExpectedReturn;
   isCustomized: boolean;
   updatedAt: string;
 }
 
 export interface PortfolioPresetDto {
-  presetCode: string;
+  code: string;
   name: string;
   description: string;
   targetReturnPercent: number;

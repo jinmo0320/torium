@@ -1,37 +1,48 @@
 import { UUID } from "crypto";
-import { PortfolioDto, PortfolioPresetDto } from "../models/dtos/portfolioDto";
+import {
+  PortfolioDto,
+  PortfolioPresetDto,
+  PortfolioCategoryDto,
+  PortfolioAvailableCategoryDto,
+  PortfolioItemDto,
+  PortfolioAvailableItemDto,
+  ExpectedReturn,
+} from "../models/dtos/portfolioDto";
 
 export type PortfolioRepository = {
   // 전체 & 추천
   getPortfolioByUserId: (userId: UUID) => Promise<PortfolioDto | null>;
-  findPresetsByReturn: (targetReturn: number) => Promise<PortfolioPresetDto[]>;
+  findPresetsByReturn: (
+    targetReturnPercent: number,
+  ) => Promise<PortfolioPresetDto[]>;
   createPortfolioFromPreset: (
     userId: UUID,
     presetCode: string,
   ) => Promise<void>;
 
-  // 카테고리(Category) 관련
-  getCategories: (portfolioId: number) => Promise<any[]>;
+  // 자산군 관련
+  getCategories: (portfolioId: number) => Promise<PortfolioCategoryDto[]>;
   updateCategoryPortions: (
     portfolioId: number,
     portions: { id: number; portion: number }[],
   ) => Promise<void>;
   addCategory: (
     portfolioId: number,
-    masterCategoryId: number | null,
-    customData?: any,
+    masterCategoryId?: number,
+    customCategoryInfo?: { name: string; description: string },
   ) => Promise<void>;
   deleteCategory: (portfolioId: number, categoryId: number) => Promise<void>;
   updateCategoryInfo: (
     categoryId: number,
-    name?: string,
-    description?: string,
+    categoryInfo: { name?: string; description?: string },
   ) => Promise<void>;
-  getAvailableCategories: (portfolioId: number) => Promise<any[]>;
+  getAvailableCategories: (
+    portfolioId: number,
+  ) => Promise<PortfolioAvailableCategoryDto[]>;
 
-  // 아이템(Item) 관련
-  getItems: (portfolioId: number) => Promise<any[]>;
-  getItemsByCategory: (categoryId: number) => Promise<any[]>;
+  // 하위자산 관련
+  getItems: (portfolioId: number) => Promise<PortfolioItemDto[]>;
+  getItemsByCategory: (categoryId: number) => Promise<PortfolioItemDto[]>;
   updateItemAbsolutePortions: (
     portfolioId: number,
     portions: { id: number; portion: number }[],
@@ -42,10 +53,23 @@ export type PortfolioRepository = {
   ) => Promise<void>;
   addItem: (
     categoryId: number,
-    masterItemId: number | null,
-    customData?: any,
+    masterItemId?: number,
+    customItemInfo?: {
+      name: string;
+      description: string;
+      expectedReturn: ExpectedReturn;
+    },
   ) => Promise<void>;
   deleteItem: (itemId: number) => Promise<void>;
-  updateItemInfo: (itemId: number, data: any) => Promise<void>;
-  getAvailableItems: (categoryId: number) => Promise<any[]>;
+  updateItemInfo: (
+    itemId: number,
+    itemInfo: {
+      name?: string;
+      description?: string;
+      expectedReturn?: ExpectedReturn;
+    },
+  ) => Promise<void>;
+  getAvailableItems: (
+    categoryId: number,
+  ) => Promise<PortfolioAvailableItemDto[]>;
 };

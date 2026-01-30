@@ -1,8 +1,13 @@
 import { Request, Response, NextFunction } from "express";
+
 import { createPortfolioService } from "src/domain/services/portfolioService";
 import { createPortfolioRepository } from "src/data/repositories/portfolioRepositoryImpl";
+import { createInvestmentProfileRepository } from "src/data/repositories/investmentProfileRepositoryImpl";
 
-const portfolioService = createPortfolioService(createPortfolioRepository());
+const portfolioService = createPortfolioService(
+  createPortfolioRepository(),
+  createInvestmentProfileRepository(),
+);
 
 /** === 포폴 전체 === */
 export const getMyPortfolio = async (
@@ -18,17 +23,13 @@ export const getMyPortfolio = async (
   }
 };
 
-// 쿼리 말고 사용자 슁ㄱ률 ㅏㄱ져ㅛ와소 한 걸로 바꿀거임
 export const getRecommendations = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const { targetReturn } = req.query;
-    const presets = await portfolioService.getRecommendations(
-      Number(targetReturn),
-    );
+    const presets = await portfolioService.getRecommendations(req.user!.id);
     res.status(200).json(presets);
   } catch (e) {
     next(e);
@@ -75,7 +76,7 @@ export const updateCategoryPortions = async (
     const portfolio = await portfolioService.getPortfolio(req.user!.id);
     await portfolioService.updateCategoryPortions(
       portfolio!.id,
-      req.body.assetCategories,
+      req.body.categoryPortions,
     );
     res.status(200).json({ message: "Asset Categories updated." });
   } catch (e) {
@@ -90,13 +91,13 @@ export const addCategory = async (
 ) => {
   try {
     const portfolio = await portfolioService.getPortfolio(req.user!.id);
-    const { assetCategoryId } = req.body;
-
-    const customData = req.body.customData || req.body;
+    const { categoryId } = req.body;
+    const customAssetCategoryInfo =
+      req.body.customAssetCategoryInfo || req.body;
     await portfolioService.addCategory(
       portfolio!.id,
-      assetCategoryId,
-      customData,
+      categoryId,
+      customAssetCategoryInfo,
     );
     res.status(201).json({ message: "Asset Category added." });
   } catch (e) {
@@ -127,11 +128,10 @@ export const patchCategory = async (
   next: NextFunction,
 ) => {
   try {
-    const { name, description } = req.body;
+    const categoryInfo = req.body.categoryInfo || req.body;
     await portfolioService.updateCategoryInfo(
       Number(req.params.categoryId),
-      name,
-      description,
+      categoryInfo,
     );
     res.status(200).json({ message: "Asset Category info updated." });
   } catch (e) {
@@ -179,7 +179,7 @@ export const updateItemAbsolutePortions = async (
     const portfolio = await portfolioService.getPortfolio(req.user!.id);
     await portfolioService.updateItemAbsolutePortions(
       portfolio!.id,
-      req.body.assetItems,
+      req.body.itemPortions,
     );
     res.status(200).json({ message: "Absolute portions updated." });
   } catch (e) {
@@ -210,7 +210,7 @@ export const updateItemRelativePortions = async (
   try {
     await portfolioService.updateItemRelativePortions(
       Number(req.params.categoryId),
-      req.body.assets,
+      req.body.itemPortions,
     );
     res.status(200).json({ message: "Relative portions updated." });
   } catch (e) {
@@ -224,13 +224,9 @@ export const addItem = async (
   next: NextFunction,
 ) => {
   try {
-    const { assetCategoryId, masterAssetItemId } = req.body;
-    const customData = req.body.customData || req.body;
-    await portfolioService.addItem(
-      assetCategoryId,
-      masterAssetItemId,
-      customData,
-    );
+    const { categoryId, masterItemId } = req.body;
+    const customItemInfo = req.body.customItemInfo || req.body;
+    await portfolioService.addItem(categoryId, masterItemId, customItemInfo);
     res.status(201).json({ message: "Asset added." });
   } catch (e) {
     next(e);
@@ -256,7 +252,8 @@ export const patchItem = async (
   next: NextFunction,
 ) => {
   try {
-    await portfolioService.updateItemInfo(Number(req.params.itemId), req.body);
+    const itemInfo = req.body.itemInfo || req.body;
+    await portfolioService.updateItemInfo(Number(req.params.itemId), itemInfo);
     res.status(200).json({ message: "Asset Item info updated." });
   } catch (e) {
     next(e);
@@ -270,8 +267,7 @@ export const getAvailableItems = async (
 ) => {
   try {
     const list = await portfolioService.getAvailableItems(
-      // 쿼리로 특정하지 말고 그냥 모든 자산군 볼 수 있게
-      Number(req.query.assetCategoryId),
+      Number(req.query.categoryId),
     );
     res.status(200).json(list);
   } catch (e) {
