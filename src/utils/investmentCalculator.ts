@@ -5,21 +5,21 @@ import { InvestmentPlan } from "../domain/models/dtos/investmentProfileDto";
  * F = M * ((1+R)^t - 1) / R
  *
  * @param monthlyAmount 월 투자금 (원)
- * @param investmentYears 투자 기간 (년)
- * @param expectedReturnRate 연 수익률 (소수)
+ * @param period 투자 기간 (개월)
+ * @param expectedReturn 연 수익률 (소수)
  * @returns 최종 투자금 (원)
  */
 export const calculateFutureValue = (
   monthlyAmount: number,
-  investmentYears: number,
-  expectedReturnRate: number,
+  period: number,
+  expectedReturn: number,
 ): number => {
   const M = monthlyAmount;
-  const t = 12 * investmentYears; // 총 납입 횟수
-  const R = expectedReturnRate / 12; // 월 수익률
+  const t = period; // 총 납입 횟수
+  const R = expectedReturn / 12; // 월 수익률
 
-  const futureValue = M * ((Math.pow(1 + R, t) - 1) / R);
-  return Math.round(futureValue);
+  const F = M * ((Math.pow(1 + R, t) - 1) / R);
+  return Math.round(F);
 };
 
 /**
@@ -33,13 +33,12 @@ export const isValidInvestmentPlan = (
   plan: InvestmentPlan,
   tolerance: number = 0.01,
 ): boolean => {
-  const { monthlyAmount, investmentYears, expectedReturnRate, targetAmount } =
-    plan;
+  const { monthlyAmount, period, expectedReturn, targetAmount } = plan;
 
   if (
     monthlyAmount <= 0 ||
-    investmentYears <= 0 ||
-    expectedReturnRate <= 0 ||
+    period <= 0 ||
+    expectedReturn <= 0 ||
     targetAmount <= 0
   ) {
     return false;
@@ -47,8 +46,8 @@ export const isValidInvestmentPlan = (
 
   const calculatedAmount = calculateFutureValue(
     monthlyAmount,
-    investmentYears,
-    expectedReturnRate,
+    period,
+    expectedReturn,
   );
 
   const lowerBound = targetAmount * (1 - tolerance);
