@@ -27,6 +27,7 @@ router.patch(
   clearInvestmentRisk,
 );
 router.put("/investment-profile/plan", authenticate, updateInvestmentPlan);
+// Portfolio
 router.use("/portfolio", authenticate, portfolioRoutes);
 
 export default router;

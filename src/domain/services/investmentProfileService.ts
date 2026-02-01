@@ -76,7 +76,7 @@ export const createInvestmentProfileService = (
       throw new HttpException(
         404,
         ErrorCode.INVESTMENT_PROFILE_NOT_FOUND,
-        "User Not Found",
+        "Investment profile Not Found",
       );
     }
 

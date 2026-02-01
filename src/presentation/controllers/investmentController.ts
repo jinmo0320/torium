@@ -53,7 +53,6 @@ export const updateInvestmentPlan = async (
   }
 };
 
-// TODO: error handling
 export const getInvestmentProfile = async (
   req: Request,
   res: Response,

@@ -6,10 +6,10 @@ export type RiskType =
   | "AGGRESSIVE";
 
 export type InvestmentPlan = {
-  monthlyAmount: number; // 단위: 원
-  investmentYears: number; // 단위: 연
-  expectedReturnRate: number; // 소수 형태 (예: 0.06 === 6%)
-  targetAmount: number; // 단위: 원
+  monthlyAmount: number; // 월 투자금 (단위: 원)
+  period: number; // 투자 기간 (단위: 개월)
+  expectedReturn: number; // 연간 기대 수익률 (소수 형태: 6% -> 0.06)
+  targetAmount: number; // 목표 금액 (단위: 원)
 };
 
 export type InvestmentProfile = {
