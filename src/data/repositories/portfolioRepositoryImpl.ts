@@ -70,16 +70,30 @@ export const createPortfolioRepository = (): PortfolioRepository => ({
       `SELECT * FROM portfolio_presets ORDER BY ABS(target_return_percent - ?) ASC LIMIT 3`,
       [targetReturnPercent],
     );
-    return presets.map((preset) => ({
-      code: preset.code,
-      name: preset.name,
-      description: preset.description,
-      targetReturnPercent: preset.target_return_percent,
-      expectedReturn: {
-        min: Number(preset.min_total_return),
-        max: Number(preset.max_total_return),
-      },
-    }));
+    const mappedPresets = presets.map(async (preset) => {
+      const [categories] = await db.execute<RowDataPacket[]>(
+        `SELECT mc.name, ppc.portion FROM portfolio_preset_categories ppc
+         JOIN master_categories mc ON ppc.master_category_id = mc.id
+         WHERE ppc.preset_id = ?`,
+        [preset.id],
+      );
+      return {
+        code: preset.code,
+        name: preset.name,
+        description: preset.description,
+        categories: categories.map((c) => ({
+          name: c.name,
+          portion: Number(c.portion),
+        })),
+        targetReturnPercent: preset.target_return_percent,
+        expectedReturn: {
+          min: Number(preset.min_return),
+          max: Number(preset.max_return),
+        },
+      };
+    });
+
+    return Promise.all(mappedPresets);
   },
 
   createPortfolioFromPreset: async (userId, presetCode) => {
