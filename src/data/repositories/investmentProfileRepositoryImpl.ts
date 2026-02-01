@@ -22,8 +22,16 @@ export const createInvestmentProfileRepository =
       );
     },
 
-    upsertPlan: async (userId: UUID, plan: InvestmentPlan): Promise<void> => {
-      const { monthlyAmount, period, expectedReturn, targetAmount } = plan;
+    upsertPlan: async (
+      userId: UUID,
+      plan: InvestmentPlan | null,
+    ): Promise<void> => {
+      const {
+        monthlyAmount = null,
+        period = null,
+        expectedReturn = null,
+        targetAmount = null,
+      } = plan ?? {};
       await db.execute(
         `INSERT INTO investment_profiles
          (user_id, monthly_amount, period, expected_return, target_amount)

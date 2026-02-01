@@ -3,10 +3,11 @@ import portfolioRoutes from "./portfolioRoutes";
 import { authenticate } from "../middlewares/authMiddleware";
 import { me, changePassword } from "../controllers/userController";
 import {
+  getInvestmentProfile,
   assessInvestmentRisk,
   clearInvestmentRisk,
-  getInvestmentProfile,
   updateInvestmentPlan,
+  clearInvestmentPlan,
 } from "../controllers/investmentController";
 
 const router = Router();
@@ -27,6 +28,8 @@ router.patch(
   clearInvestmentRisk,
 );
 router.put("/investment-profile/plan", authenticate, updateInvestmentPlan);
+router.patch("/investment-profile/plan", authenticate, clearInvestmentPlan);
+
 // Portfolio
 router.use("/portfolio", authenticate, portfolioRoutes);
 

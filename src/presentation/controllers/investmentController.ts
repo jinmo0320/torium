@@ -53,6 +53,20 @@ export const updateInvestmentPlan = async (
   }
 };
 
+export const clearInvestmentPlan = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const userId = req.user!.id;
+    await investmentProfileService.clearPlan(userId);
+    res.status(200).json({ message: "Cleared investment plan." });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const getInvestmentProfile = async (
   req: Request,
   res: Response,

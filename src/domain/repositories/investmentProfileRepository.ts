@@ -7,6 +7,6 @@ import {
 
 export type InvestmentProfileRepository = {
   upsertRiskType: (userId: UUID, riskType: RiskType | null) => Promise<void>;
-  upsertPlan: (userId: UUID, plan: InvestmentPlan) => Promise<void>;
+  upsertPlan: (userId: UUID, plan: InvestmentPlan | null) => Promise<void>;
   getProfile: (userId: UUID) => Promise<InvestmentProfile>;
 };

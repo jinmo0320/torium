@@ -14,11 +14,9 @@ export const createPortfolioService = (
     await portfolioRepository.getPortfolioByUserId(userId),
   getRecommendations: async (userId: UUID) => {
     const {
-      plan: { expectedReturnRate },
+      plan: { expectedReturn },
     } = await investmentProfileRepository.getProfile(userId);
-    return await portfolioRepository.findPresetsByReturn(
-      expectedReturnRate * 100,
-    );
+    return await portfolioRepository.findPresetsByReturn(expectedReturn * 100);
   },
   createFromPreset: async (userId: UUID, presetCode: string) =>
     await portfolioRepository.createPortfolioFromPreset(userId, presetCode),

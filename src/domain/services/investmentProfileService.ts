@@ -31,6 +31,11 @@ export type InvestmentProfileService = {
    */
   updatePlan: (userId: UUID, plan: InvestmentPlan) => Promise<void>;
   /**
+   * 예산 계획 비우기
+   * @param userId   user id
+   */
+  clearPlan: (userId: UUID) => Promise<void>;
+  /**
    * 유저의 투자 프로필 조회
    * @param userId   user id
    * @errors         INVALID_INVESTMENT_PROFILE
@@ -68,6 +73,9 @@ export const createInvestmentProfileService = (
     }
     await investmentProfileRepository.upsertPlan(userId, plan);
   },
+
+  clearPlan: async (userId: UUID): Promise<void> =>
+    await investmentProfileRepository.upsertPlan(userId, null),
 
   getProfile: async (userId: UUID): Promise<InvestmentProfile | null> => {
     const profile = await investmentProfileRepository.getProfile(userId);
