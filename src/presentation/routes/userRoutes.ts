@@ -4,6 +4,7 @@ import { authenticate } from "../middlewares/authMiddleware";
 import { me, changePassword } from "../controllers/userController";
 import {
   assessInvestmentRisk,
+  clearInvestmentRisk,
   getInvestmentProfile,
   updateInvestmentPlan,
 } from "../controllers/investmentController";
@@ -19,6 +20,11 @@ router.post(
   "/investment-profile/risk-type",
   authenticate,
   assessInvestmentRisk,
+);
+router.patch(
+  "/investment-profile/risk-type",
+  authenticate,
+  clearInvestmentRisk,
 );
 router.put("/investment-profile/plan", authenticate, updateInvestmentPlan);
 router.use("/portfolio", authenticate, portfolioRoutes);

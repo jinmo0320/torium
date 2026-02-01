@@ -24,6 +24,20 @@ export const assessInvestmentRisk = async (
   }
 };
 
+export const clearInvestmentRisk = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const userId = req.user!.id;
+    await investmentProfileService.clearRiskType(userId);
+    res.status(200).json({ message: "Cleared investment plan." });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const updateInvestmentPlan = async (
   req: Request,
   res: Response,

@@ -10,7 +10,10 @@ import {
 
 export const createInvestmentProfileRepository =
   (): InvestmentProfileRepository => ({
-    upsertRiskType: async (userId: UUID, riskType: RiskType): Promise<void> => {
+    upsertRiskType: async (
+      userId: UUID,
+      riskType: RiskType | null,
+    ): Promise<void> => {
       await db.execute(
         `INSERT INTO investment_profiles (user_id, risk_type)
        VALUES (?, ?)
