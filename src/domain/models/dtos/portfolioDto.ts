@@ -1,9 +1,9 @@
-export interface ExpectedReturn {
+export type ExpectedReturn = {
   min: number;
   max: number;
-}
+};
 
-export interface PortfolioItemDto {
+export type PortfolioItemDto = {
   id: number;
   categoryId: number;
   name: string;
@@ -12,31 +12,27 @@ export interface PortfolioItemDto {
   expectedReturn: ExpectedReturn;
   isCustomReturn: boolean;
   isCustom: boolean;
-}
+};
 
-export interface PortfolioAvailableItemDto {
-  id: number;
-  categoryId: number;
-  name: string;
-  description: string;
-  expectedReturn: ExpectedReturn;
-}
+export type PortfolioAvailableItemDto = Pick<
+  PortfolioItemDto,
+  "id" | "categoryId" | "name" | "description" | "expectedReturn"
+>;
 
-export interface PortfolioCategoryDto {
+export type PortfolioCategoryDto = {
   id: number;
   code: string;
   name: string;
   description: string;
   portion: number;
-}
+};
 
-export interface PortfolioAvailableCategoryDto {
-  id: number;
-  name: string;
-  description: string;
-}
+export type PortfolioAvailableCategoryDto = Pick<
+  PortfolioCategoryDto,
+  "id" | "name" | "description"
+>;
 
-export interface PortfolioDto {
+export type PortfolioDto = {
   id: number;
   name: string;
   description: string;
@@ -45,12 +41,13 @@ export interface PortfolioDto {
   expectedReturn: ExpectedReturn;
   isCustomized: boolean;
   updatedAt: string;
-}
+};
 
-export interface PortfolioPresetDto {
+export type PortfolioPresetDto = {
   code: string;
   name: string;
   description: string;
+  categories: Pick<PortfolioCategoryDto, "name" | "portion">[];
   targetReturnPercent: number;
   expectedReturn: ExpectedReturn;
-}
+};
