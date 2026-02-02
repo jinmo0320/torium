@@ -25,7 +25,7 @@ export const createPortfolioRepository = (): PortfolioRepository => ({
     );
     const [items] = await db.execute<RowDataPacket[]>(
       `SELECT ui.* FROM user_items ui
-       JOIN user_categories uc ON ui.user_category_id = uc.id
+       JOIN user_categories uc ON ui.category_id = uc.id
        WHERE uc.portfolio_id = ?`,
       [pf.id],
     );
@@ -43,7 +43,8 @@ export const createPortfolioRepository = (): PortfolioRepository => ({
       })),
       items: items.map((i) => ({
         id: i.id,
-        categoryId: i.user_category_id,
+        categoryId: i.category_id,
+        masterItemId: i.master_item_id,
         name: i.name,
         description: i.description,
         portion: Number(i.portion),
@@ -102,7 +103,7 @@ export const createPortfolioRepository = (): PortfolioRepository => ({
       await conn.beginTransaction();
 
       const [[preset]] = await conn.execute<RowDataPacket[]>(
-        "SELECT * FROM portfolio_presets WHERE preset_code = ?",
+        "SELECT * FROM portfolio_presets WHERE code = ?",
         [presetCode],
       );
       if (!preset) throw new Error("Preset not found");
@@ -146,10 +147,10 @@ export const createPortfolioRepository = (): PortfolioRepository => ({
       );
       // 프리셋 자산 복제
       await conn.execute(
-        `INSERT INTO user_items (user_category_id, name, description, abs_portion, min_return, max_return)
-         SELECT uc.id, mi.name, mi.description, ppi.abs_portion, mi.min_return, mi.max_return
+        `INSERT INTO user_items (category_id, master_item_id, name, description, portion, min_return, max_return)
+         SELECT uc.id, mi.id, mi.name, mi.description, ppi.portion, mi.min_return, mi.max_return
          FROM portfolio_preset_items ppi
-         JOIN master_items mi ON ppi.master_asset_id = mi.id
+         JOIN master_items mi ON ppi.master_item_id = mi.id
          JOIN master_categories mc ON mi.category_id = mc.id
          JOIN user_categories uc ON uc.portfolio_id = ? AND uc.code = mc.code
          WHERE ppi.preset_id = ?`,
@@ -193,7 +194,7 @@ export const createPortfolioRepository = (): PortfolioRepository => ({
         const [items] = await conn.execute<RowDataPacket[]>(
           `SELECT ui.id, ui.portion as old_abs_portion, uc.portion as old_cat_portion
            FROM user_items ui
-           JOIN user_categories uc ON ui.user_category_id = uc.id
+           JOIN user_categories uc ON ui.category_id = uc.id
            WHERE uc.portfolio_id = ? AND uc.id = ?`,
           [portfolioId, p.id],
         );
@@ -233,7 +234,7 @@ export const createPortfolioRepository = (): PortfolioRepository => ({
          SUM(ui.portion * ui.min_return) as new_min,
          SUM(ui.portion * ui.max_return) as new_max
          FROM user_items ui
-         JOIN user_categories uc ON ui.user_category_id = uc.id
+         JOIN user_categories uc ON ui.category_id = uc.id
          WHERE uc.portfolio_id = ?`,
         [portfolioId],
       );
@@ -280,7 +281,7 @@ export const createPortfolioRepository = (): PortfolioRepository => ({
     const conn = await db.getConnection();
     try {
       await conn.beginTransaction();
-      await conn.execute("DELETE FROM user_items WHERE user_category_id = ?", [
+      await conn.execute("DELETE FROM user_items WHERE category_id = ?", [
         categoryId,
       ]);
       await conn.execute(
@@ -324,13 +325,14 @@ export const createPortfolioRepository = (): PortfolioRepository => ({
   getItems: async (portfolioId) => {
     const [items] = await db.execute<RowDataPacket[]>(
       `SELECT ui.* FROM user_items ui
-       JOIN user_categories uc ON ui.user_category_id = uc.id
+       JOIN user_categories uc ON ui.category_id = uc.id
        WHERE uc.portfolio_id = ?`,
       [portfolioId],
     );
     return items.map((item) => ({
       id: item.id,
-      categoryId: item.categoryId,
+      categoryId: item.category_id,
+      masterItemId: item.master_item_id,
       name: item.name,
       description: item.description,
       portion: Number(item.portion),
@@ -338,19 +340,20 @@ export const createPortfolioRepository = (): PortfolioRepository => ({
         min: Number(item.min_return),
         max: Number(item.max_return),
       },
-      isCustomReturn: Boolean(item.isCustomReturn),
-      isCustom: Boolean(item.isCustom),
+      isCustomReturn: Boolean(item.is_custom_return),
+      isCustom: Boolean(item.is_custom),
     }));
   },
 
   getItemsByCategory: async (categoryId) => {
     const [items] = await db.execute<RowDataPacket[]>(
-      "SELECT * FROM user_items WHERE user_category_id = ?",
+      "SELECT * FROM user_items WHERE category_id = ?",
       [categoryId],
     );
     return items.map((item) => ({
       id: item.id,
-      categoryId: item.categoryId,
+      categoryId: item.category_id,
+      masterItemId: item.master_item_id,
       name: item.name,
       description: item.description,
       portion: Number(item.portion),
@@ -358,8 +361,8 @@ export const createPortfolioRepository = (): PortfolioRepository => ({
         min: Number(item.min_return),
         max: Number(item.max_return),
       },
-      isCustomReturn: Boolean(item.isCustomReturn),
-      isCustom: Boolean(item.isCustom),
+      isCustomReturn: Boolean(item.is_custom_return),
+      isCustom: Boolean(item.is_custom),
     }));
   },
 
@@ -380,7 +383,7 @@ export const createPortfolioRepository = (): PortfolioRepository => ({
       // 자산군 비중 동기화 (하위자산 비중들의 합)
       await conn.execute(
         `UPDATE user_categories uc
-         SET portion = (SELECT SUM(portion) FROM user_items WHERE user_category_id = uc.id)
+         SET portion = (SELECT SUM(portion) FROM user_items WHERE category_id = uc.id)
          WHERE portfolio_id = ?`,
         [portfolioId],
       );
@@ -391,7 +394,7 @@ export const createPortfolioRepository = (): PortfolioRepository => ({
         SUM(ui.portion * ui.min_return) as new_min,
         SUM(ui.portion * ui.max_return) as new_max
         FROM user_items ui
-        JOIN user_categories uc ON ui.user_category_id = uc.id
+        JOIN user_categories uc ON ui.category_id = uc.id
         WHERE uc.portfolio_id = ?`,
         [portfolioId],
       );
@@ -442,7 +445,7 @@ export const createPortfolioRepository = (): PortfolioRepository => ({
         SUM(ui.portion * ui.min_return) as new_min,
         SUM(ui.portion * ui.max_return) as new_max
         FROM user_items ui
-        JOIN user_categories uc ON ui.user_category_id = uc.id
+        JOIN user_categories uc ON ui.category_id = uc.id
         WHERE uc.portfolio_id = ?`,
         [category.portfolio_id],
       );
@@ -466,13 +469,13 @@ export const createPortfolioRepository = (): PortfolioRepository => ({
   addItem: async (categoryId, masterItemId, customItemInfo) => {
     if (masterItemId) {
       await db.execute(
-        `INSERT INTO user_items (user_category_id, name, description, min_return, max_return)
-         SELECT ?, name, description, min_return, max_return FROM master_asset_items WHERE id = ?`,
+        `INSERT INTO user_items (category_id, master_item_id, name, description, min_return, max_return)
+         SELECT ?, id, name, description, min_return, max_return FROM master_items WHERE id = ?`,
         [categoryId, masterItemId],
       );
     } else {
       await db.execute(
-        `INSERT INTO user_items (user_category_id, name, description, min_return, max_return, is_custom)
+        `INSERT INTO user_items (category_id, name, description, min_return, max_return, is_custom)
          VALUES (?, ?, ?, ?, ?, 1)`,
         [
           categoryId,
@@ -507,7 +510,6 @@ export const createPortfolioRepository = (): PortfolioRepository => ({
     );
   },
 
-  // TODO: MUST BE TESTED !!!
   getAvailableItems: async (categoryId) => {
     const [[category]] = await db.execute<RowDataPacket[]>(
       "SELECT code FROM user_categories WHERE id = ?",
@@ -521,7 +523,7 @@ export const createPortfolioRepository = (): PortfolioRepository => ({
        WHERE mc.code = ? 
        AND mi.id NOT IN (
          SELECT master_item_id FROM user_items 
-         WHERE user_category_id = ? AND master_item_id IS NOT NULL
+         WHERE category_id = ? AND master_item_id IS NOT NULL
        )`,
       [category.code, categoryId],
     );

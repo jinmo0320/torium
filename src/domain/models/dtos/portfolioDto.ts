@@ -6,6 +6,7 @@ export type ExpectedReturn = {
 export type PortfolioItemDto = {
   id: number;
   categoryId: number;
+  masterItemId: number;
   name: string;
   description: string;
   portion: number; // 자산의 절대 비중

@@ -26,23 +26,33 @@ router.get(
 );
 router.post("/categories/available", authenticate, controller.addCategory);
 
-// === 하위자산 ===
-router.get("/items", authenticate, controller.getItemsAbsolute); // 절대 비중 조회
-router.put("/items", authenticate, controller.updateItemAbsolutePortions);
+// == 자산군 내 하위 자산
 router.get(
   "/categories/:categoryId/items",
   authenticate,
   controller.getItemsRelative,
-); // 상대 비중 조회
+);
 router.put(
   "/categories/:categoryId/items",
   authenticate,
   controller.updateItemRelativePortions,
 );
-router.post("/items", authenticate, controller.addItem);
+router.post("/categories/:categoryId/items", authenticate, controller.addItem);
+router.get(
+  "/categories/:categoryId/items/available",
+  authenticate,
+  controller.getAvailableItems,
+);
+router.post(
+  "/categories/:categoryId/items/available",
+  authenticate,
+  controller.addItem,
+);
+
+// === 개별 하위 자산 ===
+router.get("/items", authenticate, controller.getItemsAbsolute); // 절대 비중 조회
+router.put("/items", authenticate, controller.updateItemAbsolutePortions);
 router.delete("/items/:itemId", authenticate, controller.deleteItem);
 router.patch("/items/:itemId", authenticate, controller.patchItem);
-router.get("/items/available", authenticate, controller.getAvailableItems); // TODO: 라우트 구조 수정
-router.post("/items/available", authenticate, controller.addItem);
 
 export default router;
