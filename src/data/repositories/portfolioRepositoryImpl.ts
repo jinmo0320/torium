@@ -184,7 +184,6 @@ export const createPortfolioRepository = (): PortfolioRepository => ({
     }));
   },
 
-  // TODO: MUST BE TESTED !!!
   updateCategoryPortions: async (portfolioId, portions) => {
     const conn = await db.getConnection();
     try {
@@ -219,7 +218,7 @@ export const createPortfolioRepository = (): PortfolioRepository => ({
             newAbsPortion = p.portion / items.length;
           }
 
-          // 새로운 수익률 반영
+          // 자산에 새로운 비중 반영
           await conn.execute("UPDATE user_items SET portion = ? WHERE id = ?", [
             newAbsPortion,
             item.id,
@@ -350,13 +349,20 @@ export const createPortfolioRepository = (): PortfolioRepository => ({
       "SELECT * FROM user_items WHERE category_id = ?",
       [categoryId],
     );
+    const [[category]] = await db.execute<RowDataPacket[]>(
+      "SELECT portion FROM user_categories WHERE id = ?",
+      [categoryId],
+    );
     return items.map((item) => ({
       id: item.id,
       categoryId: item.category_id,
       masterItemId: item.master_item_id,
       name: item.name,
       description: item.description,
-      portion: Number(item.portion),
+      portion:
+        Number(category.portion) < 0
+          ? 0
+          : Number(item.portion) / Number(category.portion),
       expectedReturn: {
         min: Number(item.min_return),
         max: Number(item.max_return),
@@ -366,7 +372,6 @@ export const createPortfolioRepository = (): PortfolioRepository => ({
     }));
   },
 
-  // TODO: MUST BE TESTED !!!
   updateItemAbsolutePortions: async (portfolioId, portions) => {
     const conn = await db.getConnection();
     try {
@@ -415,7 +420,6 @@ export const createPortfolioRepository = (): PortfolioRepository => ({
     }
   },
 
-  // TODO: MUST BE TESTED !!!
   updateItemRelativePortions: async (categoryId, portions) => {
     const conn = await db.getConnection();
     try {
@@ -475,8 +479,8 @@ export const createPortfolioRepository = (): PortfolioRepository => ({
       );
     } else {
       await db.execute(
-        `INSERT INTO user_items (category_id, name, description, min_return, max_return, is_custom)
-         VALUES (?, ?, ?, ?, ?, 1)`,
+        `INSERT INTO user_items (category_id, name, description, min_return, max_return, is_custom, is_custom_return)
+         VALUES (?, ?, ?, ?, ?, 1, 1)`,
         [
           categoryId,
           customItemInfo?.name,

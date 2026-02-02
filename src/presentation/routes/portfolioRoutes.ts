@@ -50,7 +50,7 @@ router.post(
 );
 
 // === 개별 하위 자산 ===
-router.get("/items", authenticate, controller.getItemsAbsolute); // 절대 비중 조회
+router.get("/items", authenticate, controller.getItemsAbsolute);
 router.put("/items", authenticate, controller.updateItemAbsolutePortions);
 router.delete("/items/:itemId", authenticate, controller.deleteItem);
 router.patch("/items/:itemId", authenticate, controller.patchItem);
