@@ -18,7 +18,7 @@ export const calculateFutureValue = (
   const t = period; // 총 납입 횟수
   const R = expectedReturn / 12; // 월 수익률
 
-  const F = M * ((Math.pow(1 + R, t) - 1) / R);
+  const F = M * (((1 + R) ** t - 1) / R);
   return Math.round(F);
 };
 
