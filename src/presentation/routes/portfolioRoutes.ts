@@ -1,8 +1,10 @@
 import { Router } from "express";
 import { authenticate } from "../middlewares/authMiddleware";
+import { loadPortfolio } from "../middlewares/portfolioMiddleware";
 import * as controller from "../controllers/portfolioController";
 
 const router = Router();
+const portFolioLoader = loadPortfolio(controller.portfolioService);
 
 // === 전체 & 추천 ===
 router.get("/", authenticate, controller.getMyPortfolio);
@@ -10,12 +12,28 @@ router.get("/recommendations", authenticate, controller.getRecommendations);
 router.post("/create-from-preset", authenticate, controller.createFromPreset);
 
 // === 자산군 ===
-router.get("/categories", authenticate, controller.getCategories);
-router.put("/categories", authenticate, controller.updateCategoryPortions);
-router.post("/categories", authenticate, controller.addCategory);
+router.get(
+  "/categories",
+  authenticate,
+  portFolioLoader,
+  controller.getCategories,
+);
+router.put(
+  "/categories",
+  authenticate,
+  portFolioLoader,
+  controller.updateCategoryPortions,
+);
+router.post(
+  "/categories",
+  authenticate,
+  portFolioLoader,
+  controller.addCategory,
+);
 router.delete(
   "/categories/:categoryId",
   authenticate,
+  portFolioLoader,
   controller.deleteCategory,
 );
 router.patch("/categories/:categoryId", authenticate, controller.patchCategory);
@@ -24,7 +42,12 @@ router.get(
   authenticate,
   controller.getAvailableCategories,
 );
-router.post("/categories/available", authenticate, controller.addCategory);
+router.post(
+  "/categories/available",
+  authenticate,
+  portFolioLoader,
+  controller.addCategory,
+);
 
 // == 자산군 내 하위 자산
 router.get(
@@ -50,8 +73,18 @@ router.post(
 );
 
 // === 개별 하위 자산 ===
-router.get("/items", authenticate, controller.getItemsAbsolute);
-router.put("/items", authenticate, controller.updateItemAbsolutePortions);
+router.get(
+  "/items",
+  authenticate,
+  portFolioLoader,
+  controller.getItemsAbsolute,
+);
+router.put(
+  "/items",
+  authenticate,
+  portFolioLoader,
+  controller.updateItemAbsolutePortions,
+);
 router.delete("/items/:itemId", authenticate, controller.deleteItem);
 router.patch("/items/:itemId", authenticate, controller.patchItem);
 
