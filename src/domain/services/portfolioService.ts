@@ -132,7 +132,7 @@ export type PortfolioService = {
   /**
    * 하위 자산 삭제
    */
-  deleteItem: (itemId: number) => Promise<void>;
+  deleteItem: (portfolioId: number, itemId: number) => Promise<void>;
 
   /**
    * 하위 자산 상세 정보 및 기대 수익률 수정
@@ -159,24 +159,21 @@ export const createPortfolioService = (
   investmentProfileRepository: InvestmentProfileRepository,
 ): PortfolioService => ({
   // 전체 & 추천
-  getPortfolio: async (userId: UUID) =>
+  getPortfolio: async (userId) =>
     await portfolioRepository.getPortfolioByUserId(userId),
-  getRecommendations: async (userId: UUID) => {
+  getRecommendations: async (userId) => {
     const {
       plan: { expectedReturn },
     } = await investmentProfileRepository.getProfile(userId);
     return await portfolioRepository.findPresetsByReturn(expectedReturn * 100);
   },
-  createFromPreset: async (userId: UUID, presetCode: string) =>
+  createFromPreset: async (userId, presetCode) =>
     await portfolioRepository.createPortfolioFromPreset(userId, presetCode),
 
   // 자산군 관련
-  getCategories: async (portfolioId: number) =>
+  getCategories: async (portfolioId) =>
     await portfolioRepository.getCategories(portfolioId),
-  updateCategoryPortions: async (
-    portfolioId: number,
-    portions: { id: number; portion: number }[],
-  ) => {
+  updateCategoryPortions: async (portfolioId, portions) => {
     const total = portions.reduce((acc, p) => acc + p.portion, 0);
     if (Math.abs(total - 1.0) > 0.001)
       throw new HttpException(
@@ -189,11 +186,7 @@ export const createPortfolioService = (
       portions,
     );
   },
-  addCategory: async (
-    portfolioId: number,
-    categoryId?: number,
-    customCategoryInfo?: { name: string; description: string },
-  ) => {
+  addCategory: async (portfolioId, categoryId, customCategoryInfo) => {
     if (!(categoryId ?? customCategoryInfo))
       throw new HttpException(
         400,
@@ -206,24 +199,19 @@ export const createPortfolioService = (
       customCategoryInfo,
     );
   },
-  deleteCategory: async (portfolioId: number, categoryId: number) =>
+  deleteCategory: async (portfolioId, categoryId) =>
     await portfolioRepository.deleteCategory(portfolioId, categoryId),
-  updateCategoryInfo: async (
-    id: number,
-    categoryInfo: { name?: string; description?: string },
-  ) => await portfolioRepository.updateCategoryInfo(id, categoryInfo),
-  getAvailableCategories: async (portfolioId: number) =>
+  updateCategoryInfo: async (id, categoryInfo) =>
+    await portfolioRepository.updateCategoryInfo(id, categoryInfo),
+  getAvailableCategories: async (portfolioId) =>
     await portfolioRepository.getAvailableCategories(portfolioId),
 
   // 하위 자산 관련
-  getItemsAbsolute: async (portfolioId: number) =>
+  getItemsAbsolute: async (portfolioId) =>
     await portfolioRepository.getItems(portfolioId),
-  getItemsRelative: async (categoryId: number) =>
+  getItemsRelative: async (categoryId) =>
     await portfolioRepository.getItemsByCategory(categoryId),
-  updateItemAbsolutePortions: async (
-    portfolioId: number,
-    portions: { id: number; portion: number }[],
-  ) => {
+  updateItemAbsolutePortions: async (portfolioId, portions) => {
     const total = portions.reduce((acc, p) => acc + p.portion, 0);
     if (Math.abs(total - 1.0) > 0.001) {
       throw new HttpException(
@@ -237,10 +225,7 @@ export const createPortfolioService = (
       portions,
     );
   },
-  updateItemRelativePortions: async (
-    categoryId: number,
-    portions: { id: number; portion: number }[],
-  ) => {
+  updateItemRelativePortions: async (categoryId, portions) => {
     const total = portions.reduce((acc, p) => acc + p.portion, 0);
     if (Math.abs(total - 1.0) > 0.001)
       throw new HttpException(
@@ -253,15 +238,7 @@ export const createPortfolioService = (
       portions,
     );
   },
-  addItem: async (
-    categoryId: number,
-    masterItemId?: number,
-    customItemInfo?: {
-      name: string;
-      description: string;
-      expectedReturn: ExpectedReturn;
-    },
-  ) => {
+  addItem: async (categoryId, masterItemId, customItemInfo) => {
     if (!(masterItemId ?? customItemInfo))
       throw new HttpException(
         400,
@@ -274,16 +251,10 @@ export const createPortfolioService = (
       customItemInfo,
     );
   },
-  deleteItem: async (itemId: number) =>
-    await portfolioRepository.deleteItem(itemId),
-  updateItemInfo: async (
-    itemId: number,
-    itemInfo: {
-      name?: string;
-      description?: string;
-      expectedReturn?: ExpectedReturn;
-    },
-  ) => await portfolioRepository.updateItemInfo(itemId, itemInfo),
-  getAvailableItems: async (categoryId: number) =>
+  deleteItem: async (portfolioId, itemId) =>
+    await portfolioRepository.deleteItem(portfolioId, itemId),
+  updateItemInfo: async (itemId, itemInfo) =>
+    await portfolioRepository.updateItemInfo(itemId, itemInfo),
+  getAvailableItems: async (categoryId) =>
     await portfolioRepository.getAvailableItems(categoryId),
 });

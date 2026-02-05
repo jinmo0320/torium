@@ -60,7 +60,7 @@ export type PortfolioRepository = {
       expectedReturn: ExpectedReturn;
     },
   ) => Promise<void>;
-  deleteItem: (itemId: number) => Promise<void>;
+  deleteItem: (portfolioId: number, itemId: number) => Promise<void>;
   updateItemInfo: (
     itemId: number,
     itemInfo: {
