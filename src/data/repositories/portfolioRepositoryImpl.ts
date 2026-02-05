@@ -15,9 +15,9 @@ export const createPortfolioRepository = (): PortfolioRepository => {
        SET portion = CASE 
          WHEN (SELECT portion FROM (SELECT portion FROM user_categories WHERE id = ?) as tmp) > 0
          THEN (portion / (SELECT portion FROM (SELECT portion FROM user_categories WHERE id = ?) as tmp2)) * ?
-         ELSE ? / (SELECT count FROM (SELECT COUNT(*) as count FROM user_items WHERE user_category_id = ?) as tmp3)
+         ELSE ? / (SELECT count FROM (SELECT COUNT(*) as count FROM user_items WHERE category_id = ?) as tmp3)
        END
-       WHERE user_category_id = ?`,
+       WHERE category_id = ?`,
       [id, id, portion, portion, id, id],
     );
   };
@@ -28,7 +28,7 @@ export const createPortfolioRepository = (): PortfolioRepository => {
   ) => {
     await conn.execute(
       `UPDATE user_categories uc
-       SET portion = (SELECT COALESCE(SUM(ui.portion), 0) FROM user_items ui WHERE ui.user_category_id = uc.id)
+       SET portion = (SELECT COALESCE(SUM(ui.portion), 0) FROM user_items ui WHERE ui.category_id = uc.id)
        WHERE uc.portfolio_id = ?`,
       [portfolioId],
     );
@@ -43,7 +43,7 @@ export const createPortfolioRepository = (): PortfolioRepository => {
        COALESCE(SUM(ui.portion * ui.min_return), 0) as new_min,
        COALESCE(SUM(ui.portion * ui.max_return), 0) as new_max
        FROM user_items ui
-       JOIN user_categories uc ON ui.user_category_id = uc.id
+       JOIN user_categories uc ON ui.category_id = uc.id
        WHERE uc.portfolio_id = ?`,
       [portfolioId],
     );
@@ -153,7 +153,6 @@ export const createPortfolioRepository = (): PortfolioRepository => {
           "SELECT * FROM portfolio_presets WHERE code = ?",
           [presetCode],
         );
-        if (!preset) throw new Error("Preset not found");
 
         // 프리셋 복제
         await conn.execute(
@@ -412,7 +411,6 @@ export const createPortfolioRepository = (): PortfolioRepository => {
           "SELECT portion, portfolio_id FROM user_categories WHERE id = ?",
           [categoryId],
         );
-        if (!category) throw new Error("Category not found");
 
         await Promise.all(
           // 새로운 절대비중 = 자산군 비중 * 새로운 상대비중

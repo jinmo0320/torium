@@ -9,10 +9,6 @@ export const getInvestmentQuestions = async (
   res: Response,
   next: NextFunction,
 ) => {
-  try {
-    const questions = await surveyService.getInvestmentQuestions();
-    res.status(200).json(questions);
-  } catch (error) {
-    next(error);
-  }
+  const questions = await surveyService.getInvestmentQuestions();
+  res.status(200).json(questions);
 };

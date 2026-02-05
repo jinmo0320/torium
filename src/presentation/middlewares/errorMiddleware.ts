@@ -3,17 +3,27 @@ import { HttpException } from "src/domain/errors/error";
 import { Timer } from "src/utils/timer";
 
 export default function errorMiddleware(
-  error: HttpException,
+  error: Error, // 모든 종류의 Error를 받음
   req: Request,
   res: Response,
   next: NextFunction,
 ) {
   console.error(error);
-  const status = error.status || 500;
-  const message = error.message || "internal server error";
-  const code = error.errorCode || "INTERNAL_SERVER_ERROR";
-  const timestamp = error.timestamp || Timer.getTimestampKST();
-  res
-    .status(status)
-    .json({ message: message, code: code, timestamp: timestamp });
+
+  const timestamp = Timer.getTimestampKST();
+
+  if (error instanceof HttpException) {
+    res.status(error.status).json({
+      message: error.message,
+      code: error.errorCode,
+      timestamp,
+    });
+    return;
+  }
+
+  res.status(500).json({
+    message: "Internal Server Error",
+    code: "INTERNAL_SERVER_ERROR",
+    timestamp,
+  });
 }
