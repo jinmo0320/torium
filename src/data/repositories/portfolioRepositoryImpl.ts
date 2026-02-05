@@ -28,7 +28,11 @@ export const createPortfolioRepository = (): PortfolioRepository => {
   ) => {
     await conn.execute(
       `UPDATE user_categories uc
-       SET portion = (SELECT COALESCE(SUM(ui.portion), 0) FROM user_items ui WHERE ui.category_id = uc.id)
+       SET portion = (
+         SELECT COALESCE(SUM(ui.portion), 0) 
+         FROM user_items ui 
+         WHERE ui.category_id = uc.id
+       )
        WHERE uc.portfolio_id = ?`,
       [portfolioId],
     );
@@ -280,13 +284,36 @@ export const createPortfolioRepository = (): PortfolioRepository => {
       const conn = await db.getConnection();
       try {
         await conn.beginTransaction();
-        await conn.execute("DELETE FROM user_items WHERE category_id = ?", [
-          categoryId,
-        ]);
-        await conn.execute(
-          "DELETE FROM user_categories WHERE id = ? AND portfolio_id = ?",
+        // 삭제 대상 카테고리의 비중 확인
+        const [[category]] = await conn.execute<RowDataPacket[]>(
+          "SELECT portion FROM user_categories WHERE id = ? AND portfolio_id = ?",
           [categoryId, portfolioId],
         );
+        const p = Number(category?.portion) || 0;
+
+        // 카테고리 삭제
+        await conn.execute("DELETE FROM user_categories WHERE id = ?", [
+          categoryId,
+        ]);
+
+        // 재분배: 남은 카테고리가 있을 때만 실행
+        // p == 0 | 삭제하려는 카테고리의 비중이 0 > 지워도 변화 없음
+        // p == 1 | 포트폴리오에 카테고리가 삭제하려는 카테고리 하나 밖에 없는 상태 > 그냥 0
+        if (p > 0 && p < 1) {
+          const ratio = 1 / (1 - p);
+          await conn.execute(
+            "UPDATE user_categories SET portion = portion * ? WHERE portfolio_id = ?",
+            [ratio, portfolioId],
+          );
+          // 아이템 비중 업데이트
+          await conn.execute(
+            `UPDATE user_items ui JOIN user_categories uc ON ui.category_id = uc.id 
+             SET ui.portion = ui.portion * ? WHERE uc.portfolio_id = ?`,
+            [ratio, portfolioId],
+          );
+        }
+
+        await recalculatePortfolioMetrics(conn, portfolioId);
         await conn.commit();
       } catch (e) {
         await conn.rollback();
@@ -456,11 +483,48 @@ export const createPortfolioRepository = (): PortfolioRepository => {
       }
     },
 
-    deleteItem: async (id) => {
-      await db.execute("DELETE FROM user_items WHERE id = ?", [id]);
+    deleteItem: async (portfolioId, itemId) => {
+      const conn = await db.getConnection();
+      try {
+        await conn.beginTransaction();
+
+        // 삭제 대상 아이템 조회
+        const [[item]] = await conn.execute<RowDataPacket[]>(
+          "SELECT portion FROM user_items WHERE id = ?",
+          [itemId],
+        );
+        const p = Number(item?.portion) || 0;
+
+        // 아이템 삭제
+        await conn.execute("DELETE FROM user_items WHERE id = ?", [itemId]);
+
+        // 아이템 비중 재분배 > 포트폴리오 전체 카테고리 비중 재계산 필요 X
+        // item.p == 0 | 아이템의 비중이 0 > 지워도 변화 X
+        // item.p == 1 | 아이템의 비중이 100% > 지우면 아이템 하나도 없으므로 아무것도 할 필요 X
+        if (p > 0 && p < 1) {
+          const ratio = 1 / (1 - p);
+          await conn.execute(
+            `UPDATE user_items ui
+               JOIN user_categories uc ON ui.category_id = uc.id
+               SET ui.portion = ui.portion * ?
+               WHERE uc.portfolio_id = ?`,
+            [ratio, portfolioId],
+          );
+          // 카테고리 비중 동기화
+          await syncCategoryPortionFromItems(conn, portfolioId);
+        }
+
+        await recalculatePortfolioMetrics(conn, portfolioId);
+        await conn.commit();
+      } catch (e) {
+        await conn.rollback();
+        throw e;
+      } finally {
+        conn.release();
+      }
     },
 
-    updateItemInfo: async (id, itemInfo) => {
+    updateItemInfo: async (itemId, itemInfo) => {
       const { name = null, description = null, expectedReturn } = itemInfo;
       const { min = null, max = null } = expectedReturn ?? {};
       await db.execute(
@@ -469,7 +533,7 @@ export const createPortfolioRepository = (): PortfolioRepository => {
          min_return=COALESCE(?, min_return), max_return=COALESCE(?, max_return), 
          is_custom_return=CASE WHEN ? IS NOT NULL THEN 1 ELSE is_custom_return END 
          WHERE id = ?`,
-        [name, description, min, max, min, id],
+        [name, description, min, max, min, itemId],
       );
     },
 

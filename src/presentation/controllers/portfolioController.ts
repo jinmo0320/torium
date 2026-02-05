@@ -192,7 +192,10 @@ export const deleteItem = async (
   res: Response,
   next: NextFunction,
 ) => {
-  await portfolioService.deleteItem(Number(req.params.itemId));
+  await portfolioService.deleteItem(
+    req.user!.portfolioId!,
+    Number(req.params.itemId),
+  );
   res.status(200).json({ message: "Asset Item deleted." });
 };
 

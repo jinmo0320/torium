@@ -85,7 +85,12 @@ router.put(
   portFolioLoader,
   controller.updateItemAbsolutePortions,
 );
-router.delete("/items/:itemId", authenticate, controller.deleteItem);
+router.delete(
+  "/items/:itemId",
+  authenticate,
+  portFolioLoader,
+  controller.deleteItem,
+);
 router.patch("/items/:itemId", authenticate, controller.patchItem);
 
 export default router;
