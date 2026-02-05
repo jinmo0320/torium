@@ -11,17 +11,13 @@ export const assessInvestmentRisk = async (
   res: Response,
   next: NextFunction,
 ) => {
-  try {
-    const userId = req.user!.id;
-    const { score } = req.body;
-    const riskType = await investmentProfileService.assessRiskType(
-      userId,
-      Number(score),
-    );
-    res.status(200).json({ riskType });
-  } catch (error) {
-    next(error);
-  }
+  const userId = req.user!.id;
+  const { score } = req.body;
+  const riskType = await investmentProfileService.assessRiskType(
+    userId,
+    Number(score),
+  );
+  res.status(200).json({ riskType });
 };
 
 export const clearInvestmentRisk = async (
@@ -29,13 +25,9 @@ export const clearInvestmentRisk = async (
   res: Response,
   next: NextFunction,
 ) => {
-  try {
-    const userId = req.user!.id;
-    await investmentProfileService.clearRiskType(userId);
-    res.status(200).json({ message: "Cleared investment plan." });
-  } catch (error) {
-    next(error);
-  }
+  const userId = req.user!.id;
+  await investmentProfileService.clearRiskType(userId);
+  res.status(200).json({ message: "Cleared investment plan." });
 };
 
 export const updateInvestmentPlan = async (
@@ -43,14 +35,10 @@ export const updateInvestmentPlan = async (
   res: Response,
   next: NextFunction,
 ) => {
-  try {
-    const userId = req.user!.id;
-    const { plan } = req.body;
-    await investmentProfileService.updatePlan(userId, plan);
-    res.status(200).json({ message: "Updated investment plan." });
-  } catch (error) {
-    next(error);
-  }
+  const userId = req.user!.id;
+  const { plan } = req.body;
+  await investmentProfileService.updatePlan(userId, plan);
+  res.status(200).json({ message: "Updated investment plan." });
 };
 
 export const clearInvestmentPlan = async (
@@ -58,13 +46,9 @@ export const clearInvestmentPlan = async (
   res: Response,
   next: NextFunction,
 ) => {
-  try {
-    const userId = req.user!.id;
-    await investmentProfileService.clearPlan(userId);
-    res.status(200).json({ message: "Cleared investment plan." });
-  } catch (error) {
-    next(error);
-  }
+  const userId = req.user!.id;
+  await investmentProfileService.clearPlan(userId);
+  res.status(200).json({ message: "Cleared investment plan." });
 };
 
 export const getInvestmentProfile = async (
@@ -72,11 +56,7 @@ export const getInvestmentProfile = async (
   res: Response,
   next: NextFunction,
 ): Promise<void> => {
-  try {
-    const userId = req.user!.id;
-    const profile = await investmentProfileService.getProfile(userId);
-    res.status(200).json(profile);
-  } catch (error) {
-    next(error);
-  }
+  const userId = req.user!.id;
+  const profile = await investmentProfileService.getProfile(userId);
+  res.status(200).json(profile);
 };
