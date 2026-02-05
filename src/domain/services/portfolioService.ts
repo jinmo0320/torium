@@ -3,12 +3,161 @@ import { PortfolioRepository } from "../repositories/portfolioRepository";
 import { InvestmentProfileRepository } from "../repositories/investmentProfileRepository";
 import { HttpException } from "../errors/error";
 import { ErrorCode } from "../errors/errorCodes";
-import { ExpectedReturn } from "../models/dtos/portfolioDto";
+import {
+  ExpectedReturn,
+  PortfolioAvailableCategoryDto,
+  PortfolioAvailableItemDto,
+  PortfolioCategoryDto,
+  PortfolioDto,
+  PortfolioItemDto,
+  PortfolioPresetDto,
+} from "../models/dtos/portfolioDto";
+
+export type PortfolioService = {
+  // ==========================================
+  // 1. 전체 & 추천 (Global & Recommendations)
+  // ==========================================
+
+  /**
+   * 유저의 포트폴리오 전체 데이터 조회
+   * @param userId user id
+   */
+  getPortfolio: (userId: UUID) => Promise<PortfolioDto | null>;
+
+  /**
+   * 유저의 투자 계획(목표 수익률)에 기반한 추천 프리셋 리스트 조회
+   * @param userId user id
+   */
+  getRecommendations: (userId: UUID) => Promise<PortfolioPresetDto[]>;
+
+  /**
+   * 프리셋 코드를 기반으로 유저의 포트폴리오 초기 생성/복제
+   * @param userId user id
+   * @param presetCode 프리셋 식별 코드
+   */
+  createFromPreset: (userId: UUID, presetCode: string) => Promise<void>;
+
+  // ==========================================
+  // 2. 자산군(Category) 관련
+  // ==========================================
+
+  /**
+   * 포트폴리오 내 자산군 목록 조회
+   */
+  getCategories: (portfolioId: number) => Promise<PortfolioCategoryDto[]>;
+
+  /**
+   * 자산군들 간의 비중 업데이트 및 하위 자산 비중 전파
+   * @errors INVALID_PORTIONS (합계가 100%가 아닐 때)
+   */
+  updateCategoryPortions: (
+    portfolioId: number,
+    portions: { id: number; portion: number }[],
+  ) => Promise<void>;
+
+  /**
+   * 새로운 자산군 추가 (마스터 카테고리 기반 혹은 커스텀)
+   */
+  addCategory: (
+    portfolioId: number,
+    masterCategoryId?: number,
+    customCategoryInfo?: { name: string; description: string },
+  ) => Promise<void>;
+
+  /**
+   * 자산군 삭제 (하위 자산도 함께 삭제됨)
+   */
+  deleteCategory: (portfolioId: number, categoryId: number) => Promise<void>;
+
+  /**
+   * 자산군 이름/설명 수정
+   */
+  updateCategoryInfo: (
+    categoryId: number,
+    categoryInfo: { name?: string; description?: string },
+  ) => Promise<void>;
+
+  /**
+   * 유저가 아직 추가하지 않은 선택 가능한 마스터 자산군 목록 조회
+   */
+  getAvailableCategories: (
+    portfolioId: number,
+  ) => Promise<PortfolioAvailableCategoryDto[]>;
+
+  // ==========================================
+  // 3. 하위자산(Item) 관련
+  // ==========================================
+
+  /**
+   * 포트폴리오 내 모든 하위 자산 목록 조회 (절대 비중 포함)
+   */
+  getItemsAbsolute: (portfolioId: number) => Promise<PortfolioItemDto[]>;
+
+  /**
+   * 특정 자산군 내에 속한 하위 자산 목록 조회 (해당 자산군 내 상대 비중으로 계산됨)
+   */
+  getItemsRelative: (categoryId: number) => Promise<PortfolioItemDto[]>;
+
+  /**
+   * 하위 자산들의 전체 포트폴리오 대비 절대 비중 업데이트
+   */
+  updateItemAbsolutePortions: (
+    portfolioId: number,
+    portions: { id: number; portion: number }[],
+  ) => Promise<void>;
+
+  /**
+   * 특정 자산군 내 하위 자산들의 상대 비중 업데이트
+   * @errors INVALID_PORTIONS (상대 비중 합계가 100%가 아닐 때)
+   */
+  updateItemRelativePortions: (
+    categoryId: number,
+    portions: { id: number; portion: number }[],
+  ) => Promise<void>;
+
+  /**
+   * 자산군 내 새로운 하위 자산 추가
+   * @errors INVALID_DATA_FOR_ADDING_ITEM
+   */
+  addItem: (
+    categoryId: number,
+    masterItemId?: number,
+    customItemInfo?: {
+      name: string;
+      description: string;
+      expectedReturn: ExpectedReturn;
+    },
+  ) => Promise<void>;
+
+  /**
+   * 하위 자산 삭제
+   */
+  deleteItem: (itemId: number) => Promise<void>;
+
+  /**
+   * 하위 자산 상세 정보 및 기대 수익률 수정
+   */
+  updateItemInfo: (
+    itemId: number,
+    itemInfo: {
+      name?: string;
+      description?: string;
+      expectedReturn?: ExpectedReturn;
+    },
+  ) => Promise<void>;
+
+  /**
+   * 특정 자산군 내에서 추가 가능한 마스터 자산 목록 조회
+   */
+  getAvailableItems: (
+    categoryId: number,
+  ) => Promise<PortfolioAvailableItemDto[]>;
+};
 
 export const createPortfolioService = (
   portfolioRepository: PortfolioRepository,
   investmentProfileRepository: InvestmentProfileRepository,
-) => ({
+): PortfolioService => ({
   // 전체 & 추천
   getPortfolio: async (userId: UUID) =>
     await portfolioRepository.getPortfolioByUserId(userId),

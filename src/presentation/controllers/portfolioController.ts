@@ -4,7 +4,7 @@ import { createPortfolioService } from "src/domain/services/portfolioService";
 import { createPortfolioRepository } from "src/data/repositories/portfolioRepositoryImpl";
 import { createInvestmentProfileRepository } from "src/data/repositories/investmentProfileRepositoryImpl";
 
-const portfolioService = createPortfolioService(
+export const portfolioService = createPortfolioService(
   createPortfolioRepository(),
   createInvestmentProfileRepository(),
 );
@@ -59,8 +59,9 @@ export const getCategories = async (
   next: NextFunction,
 ) => {
   try {
-    const portfolio = await portfolioService.getPortfolio(req.user!.id);
-    const categories = await portfolioService.getCategories(portfolio!.id);
+    const categories = await portfolioService.getCategories(
+      req.user!.portfolioId!,
+    );
     res.status(200).json(categories);
   } catch (e) {
     next(e);
@@ -73,9 +74,8 @@ export const updateCategoryPortions = async (
   next: NextFunction,
 ) => {
   try {
-    const portfolio = await portfolioService.getPortfolio(req.user!.id);
     await portfolioService.updateCategoryPortions(
-      portfolio!.id,
+      req.user!.portfolioId!,
       req.body.categoryPortions,
     );
     res.status(200).json({ message: "Asset Categories updated." });
@@ -90,11 +90,10 @@ export const addCategory = async (
   next: NextFunction,
 ) => {
   try {
-    const portfolio = await portfolioService.getPortfolio(req.user!.id);
     const { categoryId } = req.body;
     const customCategoryInfo = req.body.customCategoryInfo || req.body;
     await portfolioService.addCategory(
-      portfolio!.id,
+      req.user!.portfolioId!,
       categoryId,
       customCategoryInfo,
     );
@@ -110,9 +109,8 @@ export const deleteCategory = async (
   next: NextFunction,
 ) => {
   try {
-    const portfolio = await portfolioService.getPortfolio(req.user!.id);
     await portfolioService.deleteCategory(
-      portfolio!.id,
+      req.user!.portfolioId!,
       Number(req.params.categoryId),
     );
     res.status(200).json({ message: "Asset Category deleted." });
@@ -144,9 +142,8 @@ export const getAvailableCategories = async (
   next: NextFunction,
 ) => {
   try {
-    const portfolio = await portfolioService.getPortfolio(req.user!.id);
     const categories = await portfolioService.getAvailableCategories(
-      portfolio!.id,
+      req.user!.portfolioId!,
     );
     res.status(200).json(categories);
   } catch (e) {
@@ -227,8 +224,9 @@ export const getItemsAbsolute = async (
   next: NextFunction,
 ) => {
   try {
-    const portfolio = await portfolioService.getPortfolio(req.user!.id);
-    const items = await portfolioService.getItemsAbsolute(portfolio!.id);
+    const items = await portfolioService.getItemsAbsolute(
+      req.user!.portfolioId!,
+    );
     res.status(200).json(items);
   } catch (e) {
     next(e);
@@ -241,9 +239,8 @@ export const updateItemAbsolutePortions = async (
   next: NextFunction,
 ) => {
   try {
-    const portfolio = await portfolioService.getPortfolio(req.user!.id);
     await portfolioService.updateItemAbsolutePortions(
-      portfolio!.id,
+      req.user!.portfolioId!,
       req.body.itemPortions,
     );
     res.status(200).json({ message: "Absolute portions updated." });
