@@ -66,7 +66,7 @@ export const createPortfolioService = (
   getAvailableCategories: async (portfolioId: number) =>
     await portfolioRepository.getAvailableCategories(portfolioId),
 
-  // 하위자산 관련
+  // 하위 자산 관련
   getItemsAbsolute: async (portfolioId: number) =>
     await portfolioRepository.getItems(portfolioId),
   getItemsRelative: async (categoryId: number) =>

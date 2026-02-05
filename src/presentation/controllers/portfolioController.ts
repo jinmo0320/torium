@@ -9,7 +9,7 @@ const portfolioService = createPortfolioService(
   createInvestmentProfileRepository(),
 );
 
-/** === 포폴 전체 === */
+// === 포폴 전체 & 추천 ===
 export const getMyPortfolio = async (
   req: Request,
   res: Response,
@@ -52,7 +52,7 @@ export const createFromPreset = async (
   }
 };
 
-/** === 자산군 === */
+// === 자산군 ===
 export const getCategories = async (
   req: Request,
   res: Response,
@@ -92,12 +92,11 @@ export const addCategory = async (
   try {
     const portfolio = await portfolioService.getPortfolio(req.user!.id);
     const { categoryId } = req.body;
-    const customAssetCategoryInfo =
-      req.body.customAssetCategoryInfo || req.body;
+    const customCategoryInfo = req.body.customCategoryInfo || req.body;
     await portfolioService.addCategory(
       portfolio!.id,
       categoryId,
-      customAssetCategoryInfo,
+      customCategoryInfo,
     );
     res.status(201).json({ message: "Asset Category added." });
   } catch (e) {
@@ -155,38 +154,7 @@ export const getAvailableCategories = async (
   }
 };
 
-/** === 하위자산 === */
-export const getItemsAbsolute = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
-    const portfolio = await portfolioService.getPortfolio(req.user!.id);
-    const items = await portfolioService.getItemsAbsolute(portfolio!.id);
-    res.status(200).json(items);
-  } catch (e) {
-    next(e);
-  }
-};
-
-export const updateItemAbsolutePortions = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
-    const portfolio = await portfolioService.getPortfolio(req.user!.id);
-    await portfolioService.updateItemAbsolutePortions(
-      portfolio!.id,
-      req.body.itemPortions,
-    );
-    res.status(200).json({ message: "Absolute portions updated." });
-  } catch (e) {
-    next(e);
-  }
-};
-
+// === 자산군 내 하위 자산 ===
 export const getItemsRelative = async (
   req: Request,
   res: Response,
@@ -224,10 +192,61 @@ export const addItem = async (
   next: NextFunction,
 ) => {
   try {
-    const { categoryId, masterItemId } = req.body;
+    const { masterItemId } = req.body;
     const customItemInfo = req.body.customItemInfo || req.body;
-    await portfolioService.addItem(categoryId, masterItemId, customItemInfo);
+    await portfolioService.addItem(
+      Number(req.params.categoryId),
+      masterItemId,
+      customItemInfo,
+    );
     res.status(201).json({ message: "Asset added." });
+  } catch (e) {
+    next(e);
+  }
+};
+
+export const getAvailableItems = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const list = await portfolioService.getAvailableItems(
+      Number(req.params.categoryId),
+    );
+    res.status(200).json(list);
+  } catch (e) {
+    next(e);
+  }
+};
+
+// === 개별 하위 자산 ===
+export const getItemsAbsolute = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const portfolio = await portfolioService.getPortfolio(req.user!.id);
+    const items = await portfolioService.getItemsAbsolute(portfolio!.id);
+    res.status(200).json(items);
+  } catch (e) {
+    next(e);
+  }
+};
+
+export const updateItemAbsolutePortions = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const portfolio = await portfolioService.getPortfolio(req.user!.id);
+    await portfolioService.updateItemAbsolutePortions(
+      portfolio!.id,
+      req.body.itemPortions,
+    );
+    res.status(200).json({ message: "Absolute portions updated." });
   } catch (e) {
     next(e);
   }
@@ -255,21 +274,6 @@ export const patchItem = async (
     const itemInfo = req.body.itemInfo || req.body;
     await portfolioService.updateItemInfo(Number(req.params.itemId), itemInfo);
     res.status(200).json({ message: "Asset Item info updated." });
-  } catch (e) {
-    next(e);
-  }
-};
-
-export const getAvailableItems = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
-    const list = await portfolioService.getAvailableItems(
-      Number(req.query.categoryId),
-    );
-    res.status(200).json(list);
   } catch (e) {
     next(e);
   }
