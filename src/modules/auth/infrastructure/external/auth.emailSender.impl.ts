@@ -3,9 +3,9 @@ import {
   SendEmailCommand,
   SendEmailCommandInput,
 } from "@aws-sdk/client-ses";
-import { EmailSender } from "src/modules/auth/application/auth.external";
-
+import { EmailSender } from "src/modules/auth/domain/auth.external";
 import * as dotenv from "dotenv";
+
 dotenv.config();
 
 const sesClient = new SESClient({

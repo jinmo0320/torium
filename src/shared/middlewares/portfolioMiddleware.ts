@@ -1,15 +1,15 @@
 import { Request, Response, NextFunction } from "express";
-import { PortfolioUsecase } from "src/modules/portfolio/application/portfolio.usecase";
+import { PortfolioService } from "src/modules/portfolio/application/portfolio.service";
 import { DomainError } from "src/shared/errors/error";
 import { ErrorCodes } from "src/shared/errors/errorCodes";
 
-export const loadPortfolio = (portfolioUsecase: PortfolioUsecase) => {
+export const loadPortfolio = (portfolioService: PortfolioService) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       const user = req.user!; // authMiddleware 선행 필요
       // 이미 있다면 굳이 또 조회하지 않음
       if (!user.portfolioId) {
-        const portfolio = await portfolioUsecase.getPortfolio(user.id);
+        const portfolio = await portfolioService.getPortfolio(user.id);
         if (!portfolio) {
           throw new DomainError(
             ErrorCodes.PORTFOLIO.NOT_FOUND,

@@ -1,13 +1,16 @@
 import { Router } from "express";
 import { authenticate } from "src/shared/middlewares/authMiddleware";
 import { invProfileController } from "./interface/invProfile.controller";
-import { invProfileUsecase } from "./application/invProfile.usecase";
+import { createInvProfileService } from "./application/invProfile.service";
 import { createInvProfileRepository } from "./infrastructure/invProfile.repo.impl";
 
 const router = Router();
 
-const usecase = invProfileUsecase(createInvProfileRepository());
-const ctrl = invProfileController(usecase);
+const ctrl = invProfileController(
+  createInvProfileService({
+    invProfileRepository: createInvProfileRepository(),
+  }),
+);
 
 router.get("/investment-profile", authenticate, ctrl.getInvestmentProfile);
 router.post(

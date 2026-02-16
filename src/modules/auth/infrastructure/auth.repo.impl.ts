@@ -1,6 +1,6 @@
 import { RowDataPacket } from "mysql2";
 import db from "src/shared/infrastructure/db";
-import { AuthRepository } from "../application/auth.repo";
+import { AuthRepository } from "../domain/auth.repo";
 
 export const createAuthRepository = (): AuthRepository => ({
   saveVerificationCode: async (email, code) => {

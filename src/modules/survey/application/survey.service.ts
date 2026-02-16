@@ -1,9 +1,9 @@
-import { SurveyRepository } from "./survey.repo";
+import { SurveyRepository } from "../domain/survey.repo";
 import { Survey } from "../domain/survey.entity";
 import { DomainError } from "src/shared/errors/error";
 import { ErrorCodes } from "src/shared/errors/errorCodes";
 
-export type SurveyUsecase = {
+export type SurveyService = {
   /**
    * 투자 성향 설문 질문 가져오기
    * @errors        QUESTIONS_NOT_FOUND
@@ -12,9 +12,11 @@ export type SurveyUsecase = {
   getInvestmentQuestions: () => Promise<Survey.Question[]>;
 };
 
-export const surveyUsecase = (
-  surveyRepository: SurveyRepository,
-): SurveyUsecase => ({
+export const createSurveyService = ({
+  surveyRepository,
+}: {
+  surveyRepository: SurveyRepository;
+}): SurveyService => ({
   getInvestmentQuestions: async (): Promise<Survey.Question[]> => {
     const questions = await surveyRepository.getInvestmentQuestions();
     if (!questions) {

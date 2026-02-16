@@ -2,19 +2,19 @@ import { Router } from "express";
 import { authenticate } from "src/shared/middlewares/authMiddleware";
 import { loadPortfolio } from "src/shared/middlewares/portfolioMiddleware";
 import { portfolioController } from "./interface/portoflio.controller";
-import { portfolioUsecase } from "./application/portfolio.usecase";
+import { createPortfolioService } from "./application/portfolio.service";
 import { createPortfolioRepository } from "./infrastructure/portfolio.repo.impl";
 import { createInvProfileRepository } from "../investmentProfile/infrastructure/invProfile.repo.impl";
 
 const router = Router();
 
-const usecase = portfolioUsecase(
-  createPortfolioRepository(),
-  createInvProfileRepository(),
-);
-const ctrl = portfolioController(usecase);
+const service = createPortfolioService({
+  portfolioRepository: createPortfolioRepository(),
+  invProfileRepository: createInvProfileRepository(),
+});
+const ctrl = portfolioController(service);
 
-const portFolioLoader = loadPortfolio(usecase);
+const portFolioLoader = loadPortfolio(service);
 
 // === 전체 & 추천 ===
 router.get("/", authenticate, ctrl.getMyPortfolio);

@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import { BcryptHelper } from "src/modules/auth/application/auth.external";
+import { BcryptHelper } from "src/modules/auth/domain/auth.external";
 
 export const createBcryptHelper = (): BcryptHelper => ({
   hashPassword: async (password: string): Promise<string> => {

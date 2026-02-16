@@ -1,11 +1,11 @@
-import { NextFunction, Request, Response } from "express";
-import type { AuthUsecase } from "../application/auth.usecase";
+import { Request, Response } from "express";
+import { AuthService } from "../application/auth.service";
 
-export const authContoller = (authUsecase: AuthUsecase) => ({
+export const authContoller = (authService: AuthService) => ({
   /* ================= 회원가입 ================= */
-  register: async (req: Request, res: Response, next: NextFunction) => {
+  register: async (req: Request, res: Response) => {
     const { email, password } = req.body;
-    const { accessToken, refreshToken, user } = await authUsecase.register(
+    const { accessToken, refreshToken, user } = await authService.register(
       email,
       password,
     );
@@ -18,9 +18,9 @@ export const authContoller = (authUsecase: AuthUsecase) => ({
   },
 
   /* ================= 로그인 ================= */
-  login: async (req: Request, res: Response, next: NextFunction) => {
+  login: async (req: Request, res: Response) => {
     const { email, password } = req.body;
-    const { accessToken, refreshToken, user } = await authUsecase.login(
+    const { accessToken, refreshToken, user } = await authService.login(
       email,
       password,
     );
@@ -33,53 +33,45 @@ export const authContoller = (authUsecase: AuthUsecase) => ({
   },
 
   /* ================= 이메일 인증코드 전송 ================= */
-  sendVerificationCode: async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) => {
+  sendVerificationCode: async (req: Request, res: Response) => {
     const { email } = req.body;
-    await authUsecase.sendVerificationCode(email);
+    await authService.sendVerificationCode(email);
     res.status(200).json({ message: "Verification email sent" });
   },
 
   /* ================= 이메일 인증코드 검증 ================= */
-  checkVerificationCode: async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) => {
+  checkVerificationCode: async (req: Request, res: Response) => {
     const { email, code } = req.body;
-    await authUsecase.checkVerificationCode(email, code);
+    await authService.checkVerificationCode(email, code);
     res.status(200).json({ message: "Email verified" });
   },
 
   /* ================= 비밀번호 재설정 코드 전송 ================= */
-  sendForgotCode: async (req: Request, res: Response, next: NextFunction) => {
+  sendForgotCode: async (req: Request, res: Response) => {
     const { email } = req.body;
-    await authUsecase.sendForgotCode(email);
+    await authService.sendForgotCode(email);
     res.status(200).json({ message: "Verification email sent" });
   },
 
   /* ================= 비밀번호 재설정 코드 검증 ================= */
-  checkForgotCode: async (req: Request, res: Response, next: NextFunction) => {
+  checkForgotCode: async (req: Request, res: Response) => {
     const { email, code } = req.body;
-    await authUsecase.checkForgotCode(email, code);
+    await authService.checkForgotCode(email, code);
     res.status(200).json({ message: "Email verified" });
   },
 
   /* ================= 비밀번호 재설정 ================= */
-  resetPassword: async (req: Request, res: Response, next: NextFunction) => {
+  resetPassword: async (req: Request, res: Response) => {
     const { email, newPassword } = req.body;
-    await authUsecase.resetPassword(email, newPassword);
+    await authService.resetPassword(email, newPassword);
     res.status(200).json({ message: "Password reset successfully" });
   },
 
   /* ================= 토큰 리프레쉬 ================= */
-  refreshToken: async (req: Request, res: Response, next: NextFunction) => {
+  refreshToken: async (req: Request, res: Response) => {
     const { refreshToken } = req.body;
     const { accessToken, refreshToken: newRefreshToken } =
-      await authUsecase.refreshToken(refreshToken);
+      await authService.refreshToken(refreshToken);
     res.status(200).json({
       message: "Token refreshed successfully",
       accessToken,

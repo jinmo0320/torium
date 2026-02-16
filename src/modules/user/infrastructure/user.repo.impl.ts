@@ -1,6 +1,6 @@
 import { RowDataPacket } from "mysql2";
 import db from "src/shared/infrastructure/db";
-import { UserRepository } from "../application/user.repo";
+import { UserRepository } from "../domain/user.repo";
 
 export const createUserRepository = (): UserRepository => ({
   createUser: async (user) => {

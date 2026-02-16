@@ -1,12 +1,14 @@
 import { UUID } from "crypto";
-import { UserRepository } from "../application/user.repo";
-import { validatePassword } from "src/modules/auth/domain/auth.logic";
 import { User } from "../domain/user.entity";
-import { DomainError } from "src/shared/errors/error";
-import { ErrorCodes } from "src/shared/errors/errorCodes";
+import { validatePassword } from "src/modules/auth/domain/auth.logic";
+
+import { UserRepository } from "../domain/user.repo";
 import { BcryptHelper } from "./user.external";
 
-export type UserUsecase = {
+import { DomainError } from "src/shared/errors/error";
+import { ErrorCodes } from "src/shared/errors/errorCodes";
+
+export type UserService = {
   /**
    * 내 정보 조회
    * @param userId  유저 id
@@ -28,10 +30,15 @@ export type UserUsecase = {
   ) => Promise<void>;
 };
 
-export const userUsecase = (
-  userRepository: UserRepository,
-  BcryptHelper: BcryptHelper,
-): UserUsecase => ({
+type UserDeps = {
+  userRepository: UserRepository;
+  BcryptHelper: BcryptHelper;
+};
+
+export const createUserService = ({
+  userRepository,
+  BcryptHelper,
+}: UserDeps): UserService => ({
   me: async (userId: UUID): Promise<User.Info> => {
     /* 0. User 조회 */
     const user = await userRepository.findUserById(userId);

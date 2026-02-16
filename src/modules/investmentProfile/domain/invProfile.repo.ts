@@ -3,7 +3,7 @@ import {
   RiskType,
   InvestmentPlan,
   InvestmentProfile,
-} from "../domain/invProfile.entity";
+} from "./invProfile.entity";
 
 export type InvProfileRepository = {
   upsertRiskType: (userId: UUID, riskType: RiskType | null) => Promise<void>;

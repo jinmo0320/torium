@@ -1,6 +1,6 @@
 import { RowDataPacket } from "mysql2";
 import db from "src/shared/infrastructure/db";
-import { InvProfileRepository } from "../application/invProfile.repo";
+import { InvProfileRepository } from "../domain/invProfile.repo";
 
 export const createInvProfileRepository = (): InvProfileRepository => ({
   upsertRiskType: async (userId, riskType) => {

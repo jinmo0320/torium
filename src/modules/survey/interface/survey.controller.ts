@@ -1,13 +1,9 @@
-import { NextFunction, Request, Response } from "express";
-import { SurveyUsecase } from "../application/survey.usecase";
+import { Request, Response } from "express";
+import { SurveyService } from "../application/survey.service";
 
-export const surveyController = (surveyUsecase: SurveyUsecase) => ({
-  getInvestmentQuestions: async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) => {
-    const questions = await surveyUsecase.getInvestmentQuestions();
+export const surveyController = (surveyService: SurveyService) => ({
+  getInvestmentQuestions: async (req: Request, res: Response) => {
+    const questions = await surveyService.getInvestmentQuestions();
     res.status(200).json(questions);
   },
 });

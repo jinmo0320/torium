@@ -1,6 +1,6 @@
 import { RowDataPacket, PoolConnection } from "mysql2/promise";
 import db from "src/shared/infrastructure/db";
-import { PortfolioRepository } from "../application/portfolio.repo";
+import { PortfolioRepository } from "../domain/portfolio.repo";
 
 export const createPortfolioRepository = (): PortfolioRepository => {
   // 내부 헬퍼 함수

@@ -1,5 +1,5 @@
 import { UUID } from "crypto";
-import { InvProfileRepository } from "../application/invProfile.repo";
+import { InvProfileRepository } from "../domain/invProfile.repo";
 import {
   RiskType,
   InvestmentPlan,
@@ -12,7 +12,7 @@ import {
 import { DomainError } from "src/shared/errors/error";
 import { ErrorCodes } from "src/shared/errors/errorCodes";
 
-export type InvProfileUsecase = {
+export type InvProfileService = {
   /**
    * 설문 점수로 유저의 투자 성향 업데이트
    * @param userId   user id
@@ -46,9 +46,11 @@ export type InvProfileUsecase = {
   getProfile: (userId: UUID) => Promise<InvestmentProfile | null>;
 };
 
-export const invProfileUsecase = (
-  invProfileRepository: InvProfileRepository,
-): InvProfileUsecase => ({
+export const createInvProfileService = ({
+  invProfileRepository,
+}: {
+  invProfileRepository: InvProfileRepository;
+}): InvProfileService => ({
   assessRiskType: async (userId: UUID, score: number): Promise<RiskType> => {
     const riskType = determineRiskType(score);
     if (!riskType) {
