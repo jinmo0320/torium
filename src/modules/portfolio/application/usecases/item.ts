@@ -2,6 +2,13 @@ import { PortfolioDeps } from "../portfolio.service";
 import { ExpectedReturn, Portfolio } from "../../domain/portfolio.entity";
 import { isValidPortions } from "../../domain/portfolio.logic";
 
+import {
+  AddItemReqDto,
+  DeleteItemReqDto,
+  UpdateItemAbsolutePortionsReqDto,
+  UpdateItemInfoReqDto,
+  UpdateItemRelativePortionsReqDto,
+} from "../portfolio.dto";
 import { DomainError } from "src/shared/errors/error";
 import { ErrorCodes } from "src/shared/errors/errorCodes";
 
@@ -32,14 +39,14 @@ export const createGetItemsRelative =
 /**
  * 하위 자산들의 전체 포트폴리오 대비 절대 비중 업데이트
  */
-type UpdateItemAbsolutePortionsUsecase = (
-  portfolioId: number,
-  portions: { id: number; portion: number }[],
-) => Promise<void>;
+type UpdateItemAbsolutePortionsUsecase = ({
+  portfolioId,
+  portions,
+}: UpdateItemAbsolutePortionsReqDto) => Promise<void>;
 
 export const createUpdateItemAbsolutePortions =
   ({ portfolioRepository }: PortfolioDeps): UpdateItemAbsolutePortionsUsecase =>
-  async (portfolioId, portions) => {
+  async ({ portfolioId, portions }) => {
     if (!isValidPortions(portions)) {
       throw new DomainError(
         ErrorCodes.PORTFOLIO.INVALID_PORTIONS,
@@ -56,14 +63,14 @@ export const createUpdateItemAbsolutePortions =
  * 특정 자산군 내 하위 자산들의 상대 비중 업데이트
  * @errors INVALID_PORTIONS (상대 비중 합계가 100%가 아닐 때)
  */
-type UpdateItemRelativePortionsUsecase = (
-  categoryId: number,
-  portions: { id: number; portion: number }[],
-) => Promise<void>;
+type UpdateItemRelativePortionsUsecase = ({
+  categoryId,
+  portions,
+}: UpdateItemRelativePortionsReqDto) => Promise<void>;
 
 export const createUpdateItemRelativePortions =
   ({ portfolioRepository }: PortfolioDeps): UpdateItemRelativePortionsUsecase =>
-  async (categoryId, portions) => {
+  async ({ categoryId, portions }) => {
     if (!isValidPortions(portions))
       throw new DomainError(
         ErrorCodes.PORTFOLIO.INVALID_PORTIONS,
@@ -79,19 +86,15 @@ export const createUpdateItemRelativePortions =
  * 자산군 내 새로운 하위 자산 추가
  * @errors INVALID_DATA_FOR_ADDING_ITEM
  */
-type AddItemUsecase = (
-  categoryId: number,
-  masterItemId?: number,
-  customItemInfo?: {
-    name: string;
-    description: string;
-    expectedReturn: ExpectedReturn;
-  },
-) => Promise<void>;
+type AddItemUsecase = ({
+  categoryId,
+  masterItemId,
+  customItemInfo,
+}: AddItemReqDto) => Promise<void>;
 
 export const createAddItem =
   ({ portfolioRepository }: PortfolioDeps): AddItemUsecase =>
-  async (categoryId, masterItemId, customItemInfo) => {
+  async ({ categoryId, masterItemId, customItemInfo }) => {
     if (!(masterItemId ?? customItemInfo))
       throw new DomainError(
         ErrorCodes.PORTFOLIO.INVALID_DATA_FOR_ADDING_ITEM,
@@ -107,28 +110,27 @@ export const createAddItem =
 /**
  * 하위 자산 삭제
  */
-type DeleteItemUsecase = (portfolioId: number, itemId: number) => Promise<void>;
+type DeleteItemUsecase = ({
+  portfolioId,
+  itemId,
+}: DeleteItemReqDto) => Promise<void>;
 
 export const createDeleteItem =
   ({ portfolioRepository }: PortfolioDeps): DeleteItemUsecase =>
-  async (portfolioId, itemId) =>
+  async ({ portfolioId, itemId }) =>
     await portfolioRepository.deleteItem(portfolioId, itemId);
 
 /**
  * 하위 자산 상세 정보 및 기대 수익률 수정
  */
-type UpdateItemInfoUsecase = (
-  itemId: number,
-  itemInfo: {
-    name?: string;
-    description?: string;
-    expectedReturn?: ExpectedReturn;
-  },
-) => Promise<void>;
+type UpdateItemInfoUsecase = ({
+  itemId,
+  itemInfo,
+}: UpdateItemInfoReqDto) => Promise<void>;
 
 export const createUpdateItemInfo =
   ({ portfolioRepository }: PortfolioDeps): UpdateItemInfoUsecase =>
-  async (itemId, itemInfo) =>
+  async ({ itemId, itemInfo }) =>
     await portfolioRepository.updateItemInfo(itemId, itemInfo);
 
 /**

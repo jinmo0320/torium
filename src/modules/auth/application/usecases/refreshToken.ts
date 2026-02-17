@@ -1,5 +1,6 @@
 import { AuthDeps } from "../auth.service";
 
+import { RefreshTokenResDto } from "../auth.dto";
 import { DomainError } from "src/shared/errors/error";
 import { ErrorCodes } from "src/shared/errors/errorCodes";
 
@@ -9,10 +10,9 @@ import { ErrorCodes } from "src/shared/errors/errorCodes";
  * @errors  TOKEN_INVALID
  * @returns JWT access token and refresh token
  */
-type RefreshTokenUsecase = (refreshToken: string) => Promise<{
-  accessToken: string;
-  refreshToken: string;
-}>;
+type RefreshTokenUsecase = (
+  refreshToken: string,
+) => Promise<RefreshTokenResDto>;
 
 export const createRefreshToken =
   ({ authRepository, TokenProvider }: AuthDeps): RefreshTokenUsecase =>

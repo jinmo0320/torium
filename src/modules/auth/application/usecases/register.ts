@@ -6,6 +6,7 @@ import {
 } from "src/modules/auth/domain/auth.logic";
 import { generateName, generateTag } from "src/modules/user/domain/user.logic";
 
+import { RegisterReqDto, RegisterResDto } from "../auth.dto";
 import { DomainError } from "src/shared/errors/error";
 import { ErrorCodes } from "src/shared/errors/errorCodes";
 
@@ -16,14 +17,10 @@ import { ErrorCodes } from "src/shared/errors/errorCodes";
  * @errors  EMAIL_ALREADY_REGISTERED, EMAIL_NOT_VERIFIED, WRONG_EMAIL_FORMAT, WRONG_PASSWORD_FORMAT
  * @returns JWT access token, refresh token and user data
  */
-type RegisterUsecase = (
-  email: string,
-  password: string,
-) => Promise<{
-  accessToken: string;
-  refreshToken: string;
-  user: User.Info;
-}>;
+type RegisterUsecase = ({
+  email,
+  password,
+}: RegisterReqDto) => Promise<RegisterResDto>;
 
 export const createRegister =
   ({
@@ -32,7 +29,7 @@ export const createRegister =
     BcryptHelper,
     TokenProvider,
   }: AuthDeps): RegisterUsecase =>
-  async (email, password) => {
+  async ({ email, password }) => {
     /* [Error] input validation */
     if (!validateEmail(email))
       throw new DomainError(

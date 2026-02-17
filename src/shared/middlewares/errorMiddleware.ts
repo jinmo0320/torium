@@ -17,9 +17,12 @@ const errorMiddleware = (
 
     console.error("[DomainError]", error);
     res.status(statusCode).json({
-      code: error.code,
+      success: false,
       message: error.message,
-      timestamp,
+      error: {
+        code: error.code,
+        timestamp,
+      },
     });
     return;
   }
@@ -28,9 +31,12 @@ const errorMiddleware = (
   // 에러 내용은 로그에만
   console.error("[SystemError]", error);
   res.status(500).json({
-    code: ErrorCodes.COMMON.INTERNAL_SERVER_ERROR,
+    success: false,
     message: "서버 내부 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
-    timestamp,
+    error: {
+      code: ErrorCodes.COMMON.INTERNAL_SERVER_ERROR,
+      timestamp,
+    },
   });
 };
 

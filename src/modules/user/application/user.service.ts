@@ -5,6 +5,7 @@ import { validatePassword } from "src/modules/auth/domain/auth.logic";
 import { UserRepository } from "../domain/user.repo";
 import { BcryptHelper } from "./user.external";
 
+import { ChangePasswordReqDto } from "./user.dto";
 import { DomainError } from "src/shared/errors/error";
 import { ErrorCodes } from "src/shared/errors/errorCodes";
 
@@ -23,11 +24,11 @@ export type UserService = {
    * @param newPassword 새 비밀번호
    * @errors            WRONG_PASSWORD_FORMAT, CURRENT_PASSWORD_NOT_MATCHED
    */
-  changePassword: (
-    userId: UUID,
-    oldPassword: string,
-    newPassword: string,
-  ) => Promise<void>;
+  changePassword: ({
+    userId,
+    oldPassword,
+    newPassword,
+  }: ChangePasswordReqDto) => Promise<void>;
 };
 
 type UserDeps = {
@@ -39,21 +40,16 @@ export const createUserService = ({
   userRepository,
   BcryptHelper,
 }: UserDeps): UserService => ({
-  me: async (userId: UUID): Promise<User.Info> => {
+  me: async (userId) => {
     /* 0. User 조회 */
     const user = await userRepository.findUserById(userId);
     if (!user) {
       throw new DomainError(ErrorCodes.USER.NOT_FOUND, "User not found");
     }
-
     return user;
   },
 
-  changePassword: async (
-    userId: UUID,
-    oldPassword: string,
-    newPassword: string,
-  ): Promise<void> => {
+  changePassword: async ({ userId, oldPassword, newPassword }) => {
     /* [Error] input validation */
     if (validatePassword(oldPassword) || validatePassword(newPassword))
       throw new DomainError(

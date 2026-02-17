@@ -1,5 +1,6 @@
 import { AuthDeps } from "../auth.service";
 
+import { CheckCodeReqDto } from "../auth.dto";
 import { DomainError } from "src/shared/errors/error";
 import { ErrorCodes } from "src/shared/errors/errorCodes";
 
@@ -9,11 +10,14 @@ import { ErrorCodes } from "src/shared/errors/errorCodes";
  * @param   code
  * @errors  EMAIL_VERIFICATION_FAILED
  */
-type CheckForgotCodeUsecase = (email: string, code: string) => Promise<void>;
+type CheckForgotCodeUsecase = ({
+  email,
+  code,
+}: CheckCodeReqDto) => Promise<void>;
 
 export const createCheckForgotCode =
   ({ authRepository }: AuthDeps): CheckForgotCodeUsecase =>
-  async (email, code) => {
+  async ({ email, code }) => {
     /* [Error] verification failed */
     const isVerified = await authRepository.checkVerificationCode(email, code);
     if (!isVerified) {

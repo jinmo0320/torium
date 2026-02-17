@@ -1,6 +1,7 @@
 import { UUID } from "crypto";
 import { PortfolioDeps } from "../portfolio.service";
 import { Portfolio } from "../../domain/portfolio.entity";
+import { CreateFromPresetReqDto } from "../portfolio.dto";
 
 /**
  * 유저의 포트폴리오 전체 데이터 조회
@@ -36,12 +37,12 @@ export const createGetRecommendations =
  * @param userId user id
  * @param presetCode 프리셋 식별 코드
  */
-type CreateFromPresetUsecase = (
-  userId: UUID,
-  presetCode: string,
-) => Promise<void>;
+type CreateFromPresetUsecase = ({
+  userId,
+  presetCode,
+}: CreateFromPresetReqDto) => Promise<void>;
 
 export const createCreateFromPreset =
   ({ portfolioRepository }: PortfolioDeps): CreateFromPresetUsecase =>
-  async (userId, presetCode) =>
+  async ({ userId, presetCode }) =>
     await portfolioRepository.createPortfolioFromPreset(userId, presetCode);

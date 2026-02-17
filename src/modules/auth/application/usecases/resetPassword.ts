@@ -3,6 +3,7 @@ import { validatePassword } from "src/modules/auth/domain/auth.logic";
 
 import { DomainError } from "src/shared/errors/error";
 import { ErrorCodes } from "src/shared/errors/errorCodes";
+import { ResetPasswordReqDto } from "../auth.dto";
 
 /**
  * 비밀번호 재설정
@@ -10,10 +11,10 @@ import { ErrorCodes } from "src/shared/errors/errorCodes";
  * @param newPassword
  * @errors  EMAIL_NOT_VERIFIED, WRONG_PASSWORD_FORMAT, USER_NOT_FOUND
  */
-type ResetPasswordUsecase = (
-  email: string,
-  newPassword: string,
-) => Promise<void>;
+type ResetPasswordUsecase = ({
+  email,
+  newPassword,
+}: ResetPasswordReqDto) => Promise<void>;
 
 export const createResetPassword =
   ({
@@ -21,7 +22,7 @@ export const createResetPassword =
     authRepository,
     BcryptHelper,
   }: AuthDeps): ResetPasswordUsecase =>
-  async (email, newPassword) => {
+  async ({ email, newPassword }) => {
     /* [Error] input validation */
     if (!validatePassword(newPassword))
       throw new DomainError(

@@ -5,30 +5,36 @@ export const authContoller = (authService: AuthService) => ({
   /* ================= 회원가입 ================= */
   register: async (req: Request, res: Response) => {
     const { email, password } = req.body;
-    const { accessToken, refreshToken, user } = await authService.register(
+    const { accessToken, refreshToken, user } = await authService.register({
       email,
       password,
-    );
+    });
     res.status(201).json({
+      success: true,
       message: "User created",
-      accessToken,
-      refreshToken,
-      user,
+      data: {
+        accessToken,
+        refreshToken,
+        user,
+      },
     });
   },
 
   /* ================= 로그인 ================= */
   login: async (req: Request, res: Response) => {
     const { email, password } = req.body;
-    const { accessToken, refreshToken, user } = await authService.login(
+    const { accessToken, refreshToken, user } = await authService.login({
       email,
       password,
-    );
+    });
     res.status(200).json({
+      success: true,
       message: "Login successful",
-      accessToken,
-      refreshToken,
-      user,
+      data: {
+        accessToken,
+        refreshToken,
+        user,
+      },
     });
   },
 
@@ -36,35 +42,43 @@ export const authContoller = (authService: AuthService) => ({
   sendVerificationCode: async (req: Request, res: Response) => {
     const { email } = req.body;
     await authService.sendVerificationCode(email);
-    res.status(200).json({ message: "Verification email sent" });
+    res.status(200).json({
+      success: true,
+      message: "Verification email sent",
+    });
   },
 
   /* ================= 이메일 인증코드 검증 ================= */
   checkVerificationCode: async (req: Request, res: Response) => {
     const { email, code } = req.body;
-    await authService.checkVerificationCode(email, code);
-    res.status(200).json({ message: "Email verified" });
+    await authService.checkVerificationCode({ email, code });
+    res.status(200).json({
+      success: true,
+      message: "Email verified",
+    });
   },
 
   /* ================= 비밀번호 재설정 코드 전송 ================= */
   sendForgotCode: async (req: Request, res: Response) => {
     const { email } = req.body;
     await authService.sendForgotCode(email);
-    res.status(200).json({ message: "Verification email sent" });
+    res.status(200).json({ success: true, message: "Verification email sent" });
   },
 
   /* ================= 비밀번호 재설정 코드 검증 ================= */
   checkForgotCode: async (req: Request, res: Response) => {
     const { email, code } = req.body;
-    await authService.checkForgotCode(email, code);
-    res.status(200).json({ message: "Email verified" });
+    await authService.checkForgotCode({ email, code });
+    res.status(200).json({ success: true, message: "Email verified" });
   },
 
   /* ================= 비밀번호 재설정 ================= */
   resetPassword: async (req: Request, res: Response) => {
     const { email, newPassword } = req.body;
-    await authService.resetPassword(email, newPassword);
-    res.status(200).json({ message: "Password reset successfully" });
+    await authService.resetPassword({ email, newPassword });
+    res
+      .status(200)
+      .json({ success: true, message: "Password reset successfully" });
   },
 
   /* ================= 토큰 리프레쉬 ================= */
@@ -73,9 +87,14 @@ export const authContoller = (authService: AuthService) => ({
     const { accessToken, refreshToken: newRefreshToken } =
       await authService.refreshToken(refreshToken);
     res.status(200).json({
+      success: true,
       message: "Token refreshed successfully",
-      accessToken,
-      refreshToken: newRefreshToken,
+      data: {
+        accessToken,
+        refreshToken: newRefreshToken,
+      },
     });
   },
 });
+
+export type AuthContoller = ReturnType<typeof authContoller>;

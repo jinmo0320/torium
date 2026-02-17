@@ -5,6 +5,7 @@ import {
   validatePassword,
 } from "src/modules/auth/domain/auth.logic";
 
+import { LoginReqDto, LoginResDto } from "../auth.dto";
 import { DomainError } from "src/shared/errors/error";
 import { ErrorCodes } from "src/shared/errors/errorCodes";
 
@@ -15,14 +16,7 @@ import { ErrorCodes } from "src/shared/errors/errorCodes";
  * @errors  LOGIN_FAILED, WRONG_EMAIL_FORMAT, WRONG_PASSWORD_FORMAT
  * @returns JWT access token, refresh token and user data
  */
-type LoginUsecase = (
-  email: string,
-  password: string,
-) => Promise<{
-  accessToken: string;
-  refreshToken: string;
-  user: User.Info;
-}>;
+type LoginUsecase = ({ email, password }: LoginReqDto) => Promise<LoginResDto>;
 
 export const createLogin =
   ({
@@ -31,7 +25,7 @@ export const createLogin =
     BcryptHelper,
     TokenProvider,
   }: AuthDeps): LoginUsecase =>
-  async (email, password) => {
+  async ({ email, password }) => {
     /* [Error] input validation */
     if (!validateEmail(email))
       throw new DomainError(

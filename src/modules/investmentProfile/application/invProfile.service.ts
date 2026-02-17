@@ -9,6 +9,8 @@ import {
   determineRiskType,
   isValidInvestmentPlan,
 } from "../domain/invProfile.logic";
+
+import { AssessRiskTypeReqDto, UpdatePlanReqDto } from "./invProfile.dto";
 import { DomainError } from "src/shared/errors/error";
 import { ErrorCodes } from "src/shared/errors/errorCodes";
 
@@ -19,7 +21,10 @@ export type InvProfileService = {
    * @param score    투자 성향 총점
    * @errors         INVALID_INVESTMENT_SCORE
    */
-  assessRiskType: (userId: UUID, score: number) => Promise<RiskType>;
+  assessRiskType: ({
+    userId,
+    score,
+  }: AssessRiskTypeReqDto) => Promise<RiskType>;
   /**
    * 유저의 투자 성향 비우기
    * @param userId   user id
@@ -31,7 +36,7 @@ export type InvProfileService = {
    * @param plan     투자 계획 요소
    * @errors         INVALID_INVESTMENT_PROFILE
    */
-  updatePlan: (userId: UUID, plan: InvestmentPlan) => Promise<void>;
+  updatePlan: ({ userId, plan }: UpdatePlanReqDto) => Promise<void>;
   /**
    * 예산 계획 비우기
    * @param userId   user id
@@ -51,7 +56,7 @@ export const createInvProfileService = ({
 }: {
   invProfileRepository: InvProfileRepository;
 }): InvProfileService => ({
-  assessRiskType: async (userId: UUID, score: number): Promise<RiskType> => {
+  assessRiskType: async ({ userId, score }) => {
     const riskType = determineRiskType(score);
     if (!riskType) {
       throw new DomainError(
@@ -63,10 +68,10 @@ export const createInvProfileService = ({
     return riskType;
   },
 
-  clearRiskType: async (userId: UUID): Promise<void> =>
+  clearRiskType: async (userId) =>
     await invProfileRepository.upsertRiskType(userId, null),
 
-  updatePlan: async (userId: UUID, plan: InvestmentPlan): Promise<void> => {
+  updatePlan: async ({ userId, plan }) => {
     if (!isValidInvestmentPlan(plan)) {
       throw new DomainError(
         ErrorCodes.INV_PROFILE.INVALID_INVESTMENT_PLAN,
@@ -76,10 +81,10 @@ export const createInvProfileService = ({
     await invProfileRepository.upsertPlan(userId, plan);
   },
 
-  clearPlan: async (userId: UUID): Promise<void> =>
+  clearPlan: async (userId) =>
     await invProfileRepository.upsertPlan(userId, null),
 
-  getProfile: async (userId: UUID): Promise<InvestmentProfile | null> => {
+  getProfile: async (userId) => {
     const profile = await invProfileRepository.getProfile(userId);
 
     if (!profile) {
