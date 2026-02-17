@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { surveyController } from "./interface/survey.controller";
+import { surveyController } from "./presentation/survey.controller";
 import { createSurveyService } from "./application/survey.service";
 import { createSurveyRepository } from "./infrastructure/survey.repo.impl";
 

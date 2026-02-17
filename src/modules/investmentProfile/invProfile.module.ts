@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { authenticate } from "src/shared/middlewares/authMiddleware";
-import { invProfileController } from "./interface/invProfile.controller";
+import { invProfileController } from "./presentation/invProfile.controller";
 import { createInvProfileService } from "./application/invProfile.service";
 import { createInvProfileRepository } from "./infrastructure/invProfile.repo.impl";
 

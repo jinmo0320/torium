@@ -3,7 +3,7 @@ import { authenticate } from "src/shared/middlewares/authMiddleware";
 import { createUserService } from "./application/user.service";
 import { createUserRepository } from "./infrastructure/user.repo.impl";
 import { createBcryptHelper } from "src/shared/infrastructure/bcryptHelper";
-import { userController } from "./interface/user.controller";
+import { userController } from "./presentation/user.controller";
 
 const router = Router();
 

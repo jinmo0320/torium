@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { authenticate } from "src/shared/middlewares/authMiddleware";
 import { loadPortfolio } from "src/shared/middlewares/portfolioMiddleware";
-import { portfolioController } from "./interface/portoflio.controller";
+import { portfolioController } from "./presentation/portoflio.controller";
 import { createPortfolioService } from "./application/portfolio.service";
 import { createPortfolioRepository } from "./infrastructure/portfolio.repo.impl";
 import { createInvProfileRepository } from "../investmentProfile/infrastructure/invProfile.repo.impl";
