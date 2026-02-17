@@ -41,10 +41,15 @@ export const authContoller = (authService: AuthService) => ({
   /* ================= 이메일 인증코드 전송 ================= */
   sendVerificationCode: async (req: Request, res: Response) => {
     const { email } = req.body;
-    await authService.sendVerificationCode(email);
+    const { createdAt, expiredAt } =
+      await authService.sendVerificationCode(email);
     res.status(200).json({
       success: true,
       message: "Verification email sent",
+      data: {
+        createdAt,
+        expiredAt,
+      },
     });
   },
 
@@ -61,8 +66,15 @@ export const authContoller = (authService: AuthService) => ({
   /* ================= 비밀번호 재설정 코드 전송 ================= */
   sendForgotCode: async (req: Request, res: Response) => {
     const { email } = req.body;
-    await authService.sendForgotCode(email);
-    res.status(200).json({ success: true, message: "Verification email sent" });
+    const { createdAt, expiredAt } = await authService.sendForgotCode(email);
+    res.status(200).json({
+      success: true,
+      message: "Forgot password email sent",
+      data: {
+        createdAt,
+        expiredAt,
+      },
+    });
   },
 
   /* ================= 비밀번호 재설정 코드 검증 ================= */

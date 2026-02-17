@@ -22,6 +22,11 @@ export type LoginResDto = {
   user: User.Info;
 };
 
+export type SendCodeResDto = {
+  createdAt: string;
+  expiredAt: string;
+};
+
 export type CheckCodeReqDto = {
   email: string;
   code: string;
