@@ -12,22 +12,10 @@ const ctrl = invProfileController(
   }),
 );
 
-router.get("/investment-profile", authenticate, ctrl.getInvestmentProfile);
-router.post(
-  "/investment-profile/risk-type",
-  authenticate,
-  ctrl.assessInvestmentRisk,
-);
-router.patch(
-  "/investment-profile/risk-type",
-  authenticate,
-  ctrl.clearInvestmentRisk,
-);
-router.put("/investment-profile/plan", authenticate, ctrl.updateInvestmentPlan);
-router.patch(
-  "/investment-profile/plan",
-  authenticate,
-  ctrl.clearInvestmentPlan,
-);
+router.get("/", authenticate, ctrl.getInvestmentProfile);
+router.post("/risk-type", authenticate, ctrl.assessInvestmentRisk);
+router.patch("/risk-type", authenticate, ctrl.clearInvestmentRisk);
+router.put("/plan", authenticate, ctrl.updateInvestmentPlan);
+router.patch("/plan", authenticate, ctrl.clearInvestmentPlan);
 
 export default router;
