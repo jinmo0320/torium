@@ -1,0 +1,25 @@
+paths:
+  # ====================================
+  # /investment/questions (GET)
+  # ====================================
+  /investment/questions:
+    get:
+      summary: 설문 질문 조회
+      tags: [Survey]
+      security: [{ bearerAuth: [] }]
+      responses:
+        200:
+          description: 설문 질문 조회 성공
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SurveyResponse"
+        404:
+          description: 설문 질문 조회 실패
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              examples:
+                QUESTIONS_NOT_FOUND:
+                  $ref: "#/components/examples/QUESTIONS_NOT_FOUND"

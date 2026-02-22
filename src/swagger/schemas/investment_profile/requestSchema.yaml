@@ -1,0 +1,48 @@
+components:
+  schemas:
+    # ------------------------------------
+    # Request Body Schemas
+    # ------------------------------------
+    # ------------------------------------
+    # 1. update risk type by survey score
+    # ------------------------------------
+    UpdateRisktypeRequest:
+      type: object
+      required:
+        - score
+      properties:
+        score:
+          type: number
+          format: score
+      example:
+        score: 30
+    # ------------------------------------
+    # 2. update investment plan
+    # ------------------------------------
+    UpdatePlanRequest:
+      type: object
+      required:
+        - plan
+      properties:
+        plan:
+          type: object
+          required:
+            - monthlyAmount
+            - period
+            - expectedReturn
+            - targetAmount
+          properties:
+            monthlyAmount:
+              type: number
+            period:
+              type: number
+            expectedReturn:
+              type: number
+            targetAmount:
+              type: number
+      example:
+        plan:
+          monthlyAmount: 300000
+          period: 5
+          expectedReturn: 0.06
+          targetAmount: 21000000
