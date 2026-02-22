@@ -1,0 +1,95 @@
+components:
+  schemas:
+    # ------------------------------------
+    # Response Schemas
+    # ------------------------------------
+    # ------------------------------------
+    # find survey questions
+    # ------------------------------------
+    SurveyResponse:
+      type: object
+      description: return survey questions
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            questions:
+              type: array
+              items:
+                type: object
+                properties:
+                  title:
+                    type: string
+                  answers:
+                    type: array
+                    items:
+                      type: string
+      example:
+        success: true
+        message: "string"
+        data:
+          questions:
+            - title: "귀하의 투자 목적은 무엇입니까?"
+              answers:
+                - "원금 보전이 가장 중요"
+                - "원금 보전 + 소폭 수익"
+                - "자산의 중장기적 성장"
+                - "높은 수익 추구 (원금 손실 감수)"
+            - title: "투자 자금을 얼마나 오랜 기간 운용할 수 있습니까?"
+              answers:
+                - "1년 미만"
+                - "1년 이상 ~ 3년 미만"
+                - "3년 이상 ~ 5년 미만"
+                - "5년 이상"
+            - title: "금융자산 중 투자 자산이 차지하는 비중은?"
+              answers:
+                - "10% 미만"
+                - "10% 이상 ~ 30% 미만"
+                - "30% 이상 ~ 50% 미만"
+                - "50% 이상"
+            - title: "귀하의 소득 상태는 어떠합니까?"
+              answers:
+                - "소득이 없거나 매우 불안정"
+                - "일정한 소득 있으나 여유 없음"
+                - "안정적 소득과 일부 여유 자금"
+                - "매우 안정적이며 여유 자금 충분"
+            - title: "투자 경험이 있는 상품은 무엇입니까?"
+              answers:
+                - "예·적금, CMA"
+                - "채권형 펀드, MMF"
+                - "주식형 펀드, ETF, 주식"
+                - "파생상품, ELW, 가상자산 등"
+            - title: "금융 투자 상품에 대한 이해 수준은?"
+              answers:
+                - "거의 없음"
+                - "기본 구조는 이해"
+                - "위험·수익 구조 이해"
+                - "상품 구조와 리스크를 충분히 이해"
+            - title: "투자금이 10% 손실이 발생할 경우 귀하의 대응은?"
+              answers:
+                - "즉시 전량 매도"
+                - "일부 매도"
+                - "보유 유지"
+                - "추가 투자 고려"
+            - title: "최대 어느 정도 손실까지 감내 가능합니까?"
+              answers:
+                - "5% 이내"
+                - "10% 이내"
+                - "20% 이내"
+                - "20% 초과 가능"
+            - title: "투자 수익의 변동성에 대한 생각은?"
+              answers:
+                - "변동성이 매우 싫다"
+                - "낮은 변동성 선호"
+                - "일정 변동성 감내 가능"
+                - "변동성이 커도 무관"
+            - title: "다음 중 본인과 가장 가까운 설명은?"
+              answers:
+                - "안정적 수익만을 추구"
+                - "안정성과 수익의 균형"
+                - "수익 중심, 위험 일부 감수"
+                - "수익 최우선, 위험 적극 감수"

@@ -1,11 +1,11 @@
 paths:
   # ====================================
-  # /user/me (GET)
+  # /users/me (GET)
   # ====================================
-  /user/me:
+  /users/me:
     get:
       summary: 내 정보 조회
-      tags: [User]
+      tags: [Users]
       security: [{ bearerAuth: [] }]
       responses:
         200:
@@ -36,12 +36,12 @@ paths:
                   $ref: "#/components/examples/USER_NOT_FOUND"
 
   # ====================================
-  # /user/change-password (POST)
+  # /users/password (PATCH)
   # ====================================
-  /user/change-password:
-    post:
+  /users/password:
+    patch:
       summary: 비밀번호 변경
-      tags: [User]
+      tags: [Users]
       security: [{ bearerAuth: [] }]
       requestBody:
         required: true

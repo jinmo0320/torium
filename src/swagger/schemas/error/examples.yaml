@@ -4,77 +4,171 @@ components:
     EMAIL_ALREADY_REGISTERED:
       summary: 이미 가입된 이메일
       value:
+        success: false
         message: "This email address is already registered."
-        errorCode: "EMAIL_ALREADY_REGISTERED"
-        timestamp: "2025-12-14T15:00:00Z"
+        data:
+          code: "EMAIL_ALREADY_REGISTERED"
+          timestamp: "2025-12-14T15:00:00Z"
     # ------------------------------------
     EMAIL_NOT_VERIFIED:
       summary: 인증되지 않은 이메일
       value:
+        success: false
         message: "This email has not been verified."
-        errorCode: "EMAIL_NOT_VERIFIED"
-        timestamp: "2025-12-14T15:00:00Z"
+        data:
+          code: "EMAIL_NOT_VERIFIED"
+          timestamp: "2025-12-14T15:00:00Z"
     # ------------------------------------
     EMAIL_VERIFICATION_FAILED:
       summary: 이메일 인증 코드 불일치/만료
       value:
+        success: false
         message: "Email verification code is incorrect or expired."
-        errorCode: "EMAIL_VERIFICATION_FAILED"
-        timestamp: "2025-12-14T15:00:00Z"
+        data:
+          code: "EMAIL_VERIFICATION_FAILED"
+          timestamp: "2025-12-14T15:00:00Z"
     # ------------------------------------
     EMAIL_NOT_REGISTERED:
       summary: 가입되지 않은 이메일로 비밀번호 찾기
       value:
+        success: false
         message: "You cannot retrieve your password with an unregistered email address."
-        errorCode: "EMAIL_NOT_REGISTERED"
-        timestamp: "2025-12-14T15:00:00Z"
+        data:
+          code: "EMAIL_NOT_REGISTERED"
+          timestamp: "2025-12-14T15:00:00Z"
     # ------------------------------------
     LOGIN_FAILED:
       summary: 로그인 정보 불일치
       value:
+        success: false
         message: "Invalid email or password."
-        errorCode: "LOGIN_FAILED"
-        timestamp: "2025-12-14T15:00:00Z"
+        data:
+          code: "LOGIN_FAILED"
+          timestamp: "2025-12-14T15:00:00Z"
     # ------------------------------------
     WRONG_EMAIL_FORMAT:
       summary: 이메일 형식 오류
       value:
+        success: false
         message: "The email format is incorrect."
-        errorCode: "WRONG_EMAIL_FORMAT"
-        timestamp: "2025-12-14T15:00:00Z"
+        data:
+          code: "WRONG_EMAIL_FORMAT"
+          timestamp: "2025-12-14T15:00:00Z"
     # ------------------------------------
     WRONG_PASSWORD_FORMAT:
       summary: 비밀번호 형식 오류
       value:
+        success: false
         message: "The password format is incorrect."
-        errorCode: "WRONG_PASSWORD_FORMAT"
-        timestamp: "2025-12-14T15:00:00Z"
+        data:
+          code: "WRONG_PASSWORD_FORMAT"
+          timestamp: "2025-12-14T15:00:00Z"
     # ------------------------------------
     TOKEN_REQUIRED:
       summary: 유저 토큰 필요
       value:
+        success: false
         message: "Access token is required."
-        errorCode: "TOKEN_REQUIRED"
-        timestamp: "2025-12-14T15:00:00Z"
+        data:
+          code: "TOKEN_REQUIRED"
+          timestamp: "2025-12-14T15:00:00Z"
     # ------------------------------------
     TOKEN_INVALID:
       summary: 유저 토큰 인증 실패
       value:
+        success: false
         message: "Invalid access token."
-        errorCode: "TOKEN_INVALID"
-        timestamp: "2025-12-14T15:00:00Z"
+        data:
+          code: "TOKEN_INVALID"
+          timestamp: "2025-12-14T15:00:00Z"
     # ------------------------------------
     USER_NOT_FOUND:
       summary: 유저를 찾을 수 없음
       value:
+        success: false
         message: "User not found with the provided identifier."
-        errorCode: "USER_NOT_FOUND"
-        timestamp: "2025-12-14T15:00:00Z"
+        data:
+          code: "USER_NOT_FOUND"
+          timestamp: "2025-12-14T15:00:00Z"
     # ------------------------------------
     CURRENT_PASSWORD_NOT_MATCHED:
       summary: 현재 비밀번호 불일치
       value:
+        success: false
         message: "Your current password is incorrect."
-        errorCode: "CURRENT_PASSWORD_NOT_MATCHED"
-        timestamp: "2025-12-14T15:00:00Z"
+        data:
+          code: "CURRENT_PASSWORD_NOT_MATCHED"
+          timestamp: "2025-12-14T15:00:00Z"
+    # ------------------------------------
+    QUESTIONS_NOT_FOUND:
+      summary: 설문 질문을 찾을 수 없음
+      value:
+        success: false
+        message: "Questions not found."
+        data:
+          code: "QUESTIONS_NOT_FOUND"
+          timestamp: "2025-12-14T15:00:00Z"
+    # ------------------------------------
+    INVALID_RISK_SCORE:
+      summary: 설문 점수가 올바르지 않음
+      value:
+        success: false
+        message: "Invalid risk assessment score."
+        data:
+          code: "INVALID_RISK_SCORE"
+          timestamp: "2025-12-14T15:00:00Z"
+    # ------------------------------------
+    INVALID_INVESTMENT_PLAN:
+      summary: 투자 계획이 올바르지 않음
+      value:
+        success: false
+        message: "Invalid investment plan."
+        data:
+          code: "INVALID_INVESTMENT_PLAN"
+          timestamp: "2025-12-14T15:00:00Z"
+    # ------------------------------------
+    INVESTMENT_PROFILE_NOT_FOUND:
+      summary: 투자 프로필을 찾을 수 없음
+      value:
+        success: false
+        message: "Investment profile Not Found."
+        data:
+          code: "INVESTMENT_PROFILE_NOT_FOUND"
+          timestamp: "2025-12-14T15:00:00Z"
+    # ------------------------------------
+    PORTFOLIO_NOT_FOUND:
+      summary: 포트폴리오를 찾을 수 없음
+      value:
+        success: false
+        message: "User not found with the provided identifier."
+        data:
+          code: "PORTFOLIO_NOT_FOUND"
+          timestamp: "2025-12-14T15:00:00Z"
+    # ------------------------------------
+    INVALID_PORTIONS:
+      summary: 주어진 비율들이 올바르지 않음
+      value:
+        success: false
+        message: "Invalid portions"
+        data:
+          code: "INVALID_PORTIONS"
+          timestamp: "2025-12-14T15:00:00Z"
+    # ------------------------------------
+    INVALID_DATA_FOR_ADDING_CATEGORY:
+      summary: 자산군 추가를 위한 데이터가 올바르지 않음
+      value:
+        success: false
+        message: "Invalid data for adding category."
+        data:
+          code: "INVALID_DATA_FOR_ADDING_CATEGORY"
+          timestamp: "2025-12-14T15:00:00Z"
+    # ------------------------------------
+    INVALID_DATA_FOR_ADDING_ITEM:
+      summary: 자산 추가를 위한 데이터가 올바르지 않음
+      value:
+        success: false
+        message: "Invalid data for adding item."
+        data:
+          code: "INVALID_DATA_FOR_ADDING_ITEM"
+          timestamp: "2025-12-14T15:00:00Z"
     # ------------------------------------

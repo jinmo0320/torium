@@ -1,0 +1,88 @@
+components:
+  schemas:
+    # ------------------------------------
+    # Response Schemas
+    # ------------------------------------
+    # ------------------------------------
+    # 1. update risk type by survey score
+    # ------------------------------------
+    UpdateRisktypeResponse:
+      type: object
+      description: return rick type accessed by survey score
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            riskType:
+              type: string
+      example:
+        success: true
+        message: "string"
+        data:
+          riskType: "STABLE"
+    # ------------------------------------
+    # 2. clear risk type
+    # ------------------------------------
+    ClearRisktypeResponse:
+      type: object
+      description: clear risk type
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+      example:
+        success: true
+        message: "string"
+    # ------------------------------------
+    # 3. update investment plan
+    # ------------------------------------
+    UpdatePlanResponse:
+      type: object
+      description: update investment plan
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+      example:
+        success: true
+        message: "string"
+    # ------------------------------------
+    # 4. get user's investment proifile
+    # ------------------------------------
+    InvestmentProfile:
+      type: object
+      description: return risk type and investment plan
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            riskType:
+              type: string
+              format: riskType
+            plan:
+              type: object
+              properties:
+                monthlyAmount: number,
+                investmenYears: number,
+                expectedReturnRate: number,
+                targetAmount: number
+      example:
+        success: true
+        message: "string"
+        data:
+          riskType: "STABLE"
+          plan:
+            monthlyAmount: 300000
+            investmenYears: 5
+            expectedReturnRate: 0.06
+            targetAmount: 21000000

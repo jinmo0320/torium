@@ -86,7 +86,7 @@ components:
           format: password
       example:
         email: "hong@torium.kro.kr"
-        newPassword: "Secret0123#"
+        password: "NewSecret0123#"
     # ------------------------------------
     # 6. refresh token
     # ------------------------------------
