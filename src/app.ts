@@ -8,6 +8,7 @@ import userRoutes from "./modules/user/user.module";
 import surveyRoutes from "./modules/survey/survey.module";
 import invProfileRoutes from "./modules/investmentProfile/invProfile.module";
 import portfolioRoutes from "./modules/portfolio/portfolio.module";
+import paymentRoutes from "./modules/payment/payment.module";
 
 import errorMiddleware from "./shared/middlewares/errorMiddleware";
 
@@ -45,6 +46,7 @@ router.use("/users/me", userRoutes);
 router.use("/surveys", surveyRoutes);
 router.use("/users/me/investment-profile", invProfileRoutes);
 router.use("/users/me/portfolio", portfolioRoutes);
+router.use("/users/me/payment", paymentRoutes);
 
 app.use("/api/v1", router);
 

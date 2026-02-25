@@ -6,7 +6,38 @@ export type AssessRiskTypeReqDto = {
   score: number;
 };
 
+export type InvestmentPlanReqDto = Pick<
+  InvestmentPlan,
+  | "profileId"
+  | "initialAmount"
+  | "monthlyAmount"
+  | "startDate"
+  | "paymentDay"
+  | "period"
+  | "expectedReturn"
+  | "targetAmount"
+>;
+
+export type CreatePlanReqDto = {
+  userId: UUID;
+  plan: InvestmentPlanReqDto;
+};
+
 export type UpdatePlanReqDto = {
   userId: UUID;
-  plan: InvestmentPlan;
+  plan: InvestmentPlanReqDto;
+};
+
+export const isValidInvestmentPlanReqDto = (req: any): boolean => {
+  const required = [
+    "profileId",
+    "initialAmount",
+    "monthlyAmount",
+    "startDate",
+    "paymentDay",
+    "period",
+    "expectedReturn",
+    "targetAmount",
+  ];
+  return required.every((field) => req[field] !== undefined);
 };

@@ -1,3 +1,4 @@
+import { InvestmentPlanReqDto } from "../application/invProfile.dto";
 import { RiskType, InvestmentPlan } from "./invProfile.entity";
 
 /**
@@ -17,25 +18,30 @@ export const determineRiskType = (score: number): RiskType | null => {
 };
 
 /**
- * 적립식 투자 최종 금액 계산
- * F = M * ((1+R)^t - 1) / R
+ * 혼합식 투자 최종 금액 계산
+ * - 적립식: F_1 = M * ((1+R)^t - 1) / R
+ * - 거치식: F_2 = P * (1+R)^t
  *
+ * @param initialAmount 초기 거치금 (원)
  * @param monthlyAmount 월 투자금 (원)
  * @param period 투자 기간 (개월)
- * @param expectedReturn 연 수익률 (소수)
+ * @param expectedReturn 연 수익률 (소수: 0.06)
  * @returns 최종 투자금 (원)
  */
 export const calculateFutureValue = (
+  initialAmount: number,
   monthlyAmount: number,
   period: number,
   expectedReturn: number,
 ): number => {
+  const P = initialAmount;
   const M = monthlyAmount;
   const t = period; // 총 납입 횟수
   const R = expectedReturn / 12; // 월 수익률
 
-  const F = M * (((1 + R) ** t - 1) / R);
-  return Math.round(F);
+  const lumpSumFV = P * (1 + R) ** t;
+  const dcaFV = M * (((1 + R) ** t - 1) / R);
+  return Math.round(lumpSumFV + dcaFV);
 };
 
 /**
@@ -46,12 +52,30 @@ export const calculateFutureValue = (
  * @returns 유효 여부
  */
 export const isValidInvestmentPlan = (
-  plan: InvestmentPlan,
+  plan: Partial<InvestmentPlan>,
   tolerance: number = 0.01,
 ): boolean => {
-  const { monthlyAmount, period, expectedReturn, targetAmount } = plan;
+  const {
+    initialAmount = 0,
+    monthlyAmount,
+    period,
+    expectedReturn,
+    targetAmount,
+  } = plan;
 
   if (
+    monthlyAmount === undefined ||
+    period === undefined ||
+    expectedReturn === undefined ||
+    targetAmount === undefined
+  ) {
+    return false;
+  }
+
+  // initialAmount이 0이면 적립식 투자
+  // monthlyAmount도 옵션으로 만들기 가능
+  if (
+    initialAmount < 0 ||
     monthlyAmount <= 0 ||
     period <= 0 ||
     expectedReturn <= 0 ||
@@ -61,6 +85,7 @@ export const isValidInvestmentPlan = (
   }
 
   const calculatedAmount = calculateFutureValue(
+    initialAmount,
     monthlyAmount,
     period,
     expectedReturn,
