@@ -2,6 +2,16 @@ import { Request, Response } from "express";
 import { InvProfileService } from "../application/invProfile.service";
 
 export const invProfileController = (invProfileService: InvProfileService) => ({
+  getInvestmentRisk: async (req: Request, res: Response) => {
+    const userId = req.user!.id;
+    const riskType = await invProfileService.getRiskType(userId);
+    res.status(200).json({
+      success: true,
+      message: "Successfully fetched.",
+      data: { riskType },
+    });
+  },
+
   assessInvestmentRisk: async (req: Request, res: Response) => {
     const userId = req.user!.id;
     const { score } = req.body;
@@ -22,6 +32,26 @@ export const invProfileController = (invProfileService: InvProfileService) => ({
     res.status(200).json({ success: true, message: "Cleared risk type." });
   },
 
+  getInvestmentPlan: async (req: Request, res: Response) => {
+    const userId = req.user!.id;
+    const plan = await invProfileService.getPlan(userId);
+    res.status(200).json({
+      success: true,
+      message: "Successfully fetched.",
+      data: { plan },
+    });
+  },
+
+  createInvestmentPlan: async (req: Request, res: Response) => {
+    const userId = req.user!.id;
+    const { plan } = req.body;
+    await invProfileService.createPlan({ userId, plan });
+    res.status(201).json({
+      success: true,
+      message: "Created investment plan.",
+    });
+  },
+
   updateInvestmentPlan: async (req: Request, res: Response) => {
     const userId = req.user!.id;
     const { plan } = req.body;
@@ -38,16 +68,6 @@ export const invProfileController = (invProfileService: InvProfileService) => ({
     res.status(200).json({
       success: true,
       message: "Cleared investment plan.",
-    });
-  },
-
-  getInvestmentProfile: async (req: Request, res: Response): Promise<void> => {
-    const userId = req.user!.id;
-    const profile = await invProfileService.getProfile(userId);
-    res.status(200).json({
-      success: true,
-      message: "여기 있습니다.",
-      data: { profile },
     });
   },
 });

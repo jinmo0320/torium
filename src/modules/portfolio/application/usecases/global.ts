@@ -26,9 +26,7 @@ export const createGetRecommendations =
     portfolioRepository,
   }: PortfolioDeps): GetRecommendationsUsecase =>
   async (userId) => {
-    const {
-      plan: { expectedReturn },
-    } = await invProfileRepository.getProfile(userId);
+    const { expectedReturn = 0} = await invProfileRepository.getActivePlan(userId) ?? {};
     return await portfolioRepository.findPresetsByReturn(expectedReturn * 100);
   };
 
