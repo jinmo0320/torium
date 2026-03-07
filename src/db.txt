@@ -27,7 +27,7 @@ CREATE TABLE verification_codes (
 );
 
 CREATE TABLE email_verification_status (
-		id INT AUTO_INCREMENT PRIMARY KEY,
+	id INT AUTO_INCREMENT PRIMARY KEY,
     email VARCHAR(50) NOT NULL UNIQUE,
     is_email_verified BOOLEAN DEFAULT FALSE,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -124,10 +124,6 @@ CREATE TABLE investment_profiles (
   user_id CHAR(36) NOT NULL,
   
   risk_type ENUM('STABLE', 'STABLE_SEEK', 'NEUTRAL', 'ACTIVE', 'AGGRESSIVE') NULL,
-  monthly_amount INT NULL COMMENT '월 투자금 (단위: 원)',
-  period INT NULL COMMENT '투자 기간 (단위: 개월)',
-  expected_return DECIMAL(5,4) NULL COMMENT '연간 기대 수익률 (소수점: ex. 0.06)',
-  target_amount BIGINT NULL COMMENT '목표 금액 (단위: 원)',
   
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
