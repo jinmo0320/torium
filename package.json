@@ -7,6 +7,12 @@
     "dev": "nodemon --watch src --exec \"ts-node -r tsconfig-paths/register src/app.ts\"",
     "build": "tsc -p . && tsc-alias && copyfiles -u 1 \"src/**/*.yaml\" dist",
     "start": "node dist/app.js",
+    "docker": "docker-compose restart",
+    "docker:build": "docker-compose up -d --build",
+    "docker:reset": "docker-compose down && docker-compose up -d --build",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:mysql": "docker exec -it mysql-container mysql -uroot -prootpassword torium",
     "test": "echo \"No tests specified\" && exit 0"
   },
   "author": "",

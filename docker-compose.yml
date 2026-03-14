@@ -1,0 +1,34 @@
+version: "3.8"
+services:
+  # 데이터베이스
+  db:
+    image: mysql:8.0.43
+    container_name: mysql-container
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: torium
+      TZ: Asia/Seoul
+    ports:
+      - "3306:3306"
+    command:
+      - --skip-character-set-client-handshake
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    volumes:
+      # - ./db_data:/var/lib/mysql # 데이터 영속성
+      - ./mysql/initdb.d:/docker-entrypoint-initdb.d # 초기화 스크립트
+
+  # 서버
+  torium-server:
+    build:
+      context: .
+    image: torium-server:latest
+    container_name: torium-server
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    restart: always
+    depends_on:
+      - db
