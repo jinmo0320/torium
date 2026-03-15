@@ -122,7 +122,10 @@ CREATE TABLE items (
     name VARCHAR(50) NOT NULL,
     description TEXT,
     min_return DECIMAL(5,4),
-    max_return DECIMAL(5,4)
+    max_return DECIMAL(5,4),
+
+    category_id INT NOT NULL,
+    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
 );
 
 CREATE TABLE item_allocation (
@@ -136,18 +139,6 @@ CREATE TABLE item_allocation (
     PRIMARY KEY (portfolio_id, item_id),
     FOREIGN KEY (portfolio_id) REFERENCES portfolios(id) ON DELETE CASCADE,
     FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE CASCADE
-);
-
-CREATE TABLE item_categorization (
-    item_id INT,
-    category_id INT,
-
-    alias VARCHAR(50),
-    description TEXT,
-
-    PRIMARY KEY (item_id, category_id),
-    FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE CASCADE,
-    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
 );
 
 CREATE TABLE payment_allocation (
@@ -278,35 +269,25 @@ INSERT INTO categories (code, name, description) VALUES
     ('GOLD', '금', '금 현물 및 관련 자산'),
     ('CASH', '현금', '예적금 및 현금성 자산');
 
-INSERT INTO items (name, description, min_return, max_return) VALUES
+INSERT INTO items (id, category_id, name, description, min_return, max_return) VALUES
     -- 주식
-    ('나스닥100', '미국 나스닥 기술주 중심 투자', 0.105, 0.155),
-    ('S&P500', '미국 우량 대형주 분산 투자', 0.075, 0.105),
-    ('배당 성장주', '미국 배당 성장 기업 투자', 0.065, 0.095),
-    ('글로벌 주식', '전세계 주식 분산 투자', 0.055, 0.085),
-    ('국내 대형주', '한국 코스피 대표 기업 투자', 0.040, 0.080),
+    (1, 1, '나스닥100', '미국 나스닥 기술주 중심 투자', 0.105, 0.155),
+    (2, 1, 'S&P500', '미국 우량 대형주 분산 투자', 0.075, 0.105),
+    (3, 1, '배당 성장주', '미국 배당 성장 기업 투자', 0.065, 0.095),
+    (4, 1, '글로벌 주식', '전세계 주식 분산 투자', 0.055, 0.085),
+    (5, 1, '국내 대형주', '한국 코스피 대표 기업 투자', 0.040, 0.080),
     -- 채권
-    ('미국 장기 국채', '미국 20년+ 만기 국채', 0.040, 0.070),
-    ('미국 중기 국채', '미국 7-10년 만기 국채', 0.035, 0.050),
-    ('국내 장기 국채', '한국 10년+ 만기 국채', 0.035, 0.045),
-    ('국내 중기 국채', '한국 3-5년 만기 국채', 0.032, 0.038),
-    ('우량 회사채', 'A- 이상 국내외 우량 회사채', 0.045, 0.055),
-    ('국내 단기 채권', '1년 미만 단기 유동성 채권', 0.030, 0.035),
+    (6, 2, '미국 장기 국채', '미국 20년+ 만기 국채', 0.040, 0.070),
+    (7, 2, '미국 중기 국채', '미국 7-10년 만기 국채', 0.035, 0.050),
+    (8, 2, '국내 장기 국채', '한국 10년+ 만기 국채', 0.035, 0.045),
+    (9, 2, '국내 중기 국채', '한국 3-5년 만기 국채', 0.032, 0.038),
+    (10, 2, '우량 회사채', 'A- 이상 국내외 우량 회사채', 0.045, 0.055),
+    (11, 2, '국내 단기 채권', '1년 미만 단기 유동성 채권', 0.030, 0.035),
     -- 금
-    ('금 현물', '실물 금 투자 및 헤지', 0.020, 0.060),
+    (12, 3, '금 현물', '실물 금 투자 및 헤지', 0.020, 0.060),
     -- 현금
-    ('정기 예적금', '은행 확정 금리 상품', 0.022, 0.038),
-    ('CMA/파킹통장', '수시입출금 유동성 자산', 0.020, 0.035);
-
-INSERT INTO item_categorization (item_id, category_id) VALUES
-    -- 주식
-    (1, 1), (2, 1), (3, 1), (4, 1), (5, 1),
-    -- 채권
-    (6, 2), (7, 2), (8, 2), (9, 2), (10, 2), (11, 2),
-    -- 금
-    (12, 3),
-    -- 현금
-    (13, 4), (14, 4);
+    (13, 4, '정기 예적금', '은행 확정 금리 상품', 0.022, 0.038),
+    (14, 4, 'CMA/파킹통장', '수시입출금 유동성 자산', 0.020, 0.035);
 
 INSERT INTO portfolio_presets (id, code, name, description, target_return_percent, min_return, max_return) VALUES
     (2, 'PRESET_02', '2% 안정 지향형', '원금 보호 중심의 유동성 포트폴리오', 2, 0.0200, 0.0350),
