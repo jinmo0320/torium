@@ -123,22 +123,31 @@ CREATE TABLE items (
     description TEXT,
     min_return DECIMAL(5,4),
     max_return DECIMAL(5,4),
-
-    category_id INT NOT NULL,
-    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
 );
 
 CREATE TABLE item_allocation (
     portfolio_id INT,
     item_id INT,
 
-    name VARCHAR(50),
+    alias VARCHAR(50),
     description TEXT,
     portion DECIMAL(5,4) DEFAULT 0,
 
     PRIMARY KEY (portfolio_id, item_id),
     FOREIGN KEY (portfolio_id) REFERENCES portfolios(id) ON DELETE CASCADE,
     FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE CASCADE
+);
+
+CREATE TABLE item_categorization (
+    item_id INT,
+    category_id INT,
+
+    alias VARCHAR(50),
+    description TEXT,
+
+    PRIMARY KEY (item_id, category_id),
+    FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE CASCADE,
+    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
 );
 
 CREATE TABLE payment_allocation (
