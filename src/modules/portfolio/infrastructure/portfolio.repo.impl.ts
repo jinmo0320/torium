@@ -62,6 +62,19 @@ export const createPortfolioRepository = (): PortfolioRepository => {
   };
 
   return {
+    getAllPortfolios: async (userId) => {
+      const [portfolios] = await db.execute<RowDataPacket[]>(
+        `SELECT p.*, SUM(alloc.portion) as group_portion,, 
+         FROM portfolio_ownership owner
+         JOIN portfolios p          ON  p.id = owner.portfolio_id
+         JOIN item_allocation alloc ON  alloc.portfolio_id = p.id
+         JOIN items                 ON  items.id = alloc.item_id
+         JOIN categories            ON  categories.id = items.category_id
+         WHERE owner.user_id = ?
+         GROUP BY categories.id`,
+        [userId],
+      );
+    },
     // ==========================================
     // 1. 전체 & 추천 (Global & Recommendations)
     // ==========================================
