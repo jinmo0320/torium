@@ -118,19 +118,21 @@ CREATE TABLE categories (
 
 CREATE TABLE items (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    category_id INT NOT NULL,
 
     name VARCHAR(50) NOT NULL,
     description TEXT,
     min_return DECIMAL(5,4),
     max_return DECIMAL(5,4),
 
-    category_id INT NOT NULL,
+    UNIQUE (id, category_id),
     FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
 );
 
 CREATE TABLE item_allocation (
     portfolio_id INT,
     item_id INT,
+    category_id INT NOT NULL,
 
     alias VARCHAR(50),
     description TEXT,
@@ -138,7 +140,7 @@ CREATE TABLE item_allocation (
 
     PRIMARY KEY (portfolio_id, item_id),
     FOREIGN KEY (portfolio_id) REFERENCES portfolios(id) ON DELETE CASCADE,
-    FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE CASCADE
+    FOREIGN KEY (item_id, category_id) REFERENCES items(id, category_id) ON DELETE CASCADE
 );
 
 CREATE TABLE payment_allocation (
@@ -192,12 +194,13 @@ CREATE TABLE portfolio_presets (
 CREATE TABLE preset_item_allocation (
     preset_id INT,
     item_id INT,
+    category_id INT NOT NULL,
 
     portion DECIMAL(5,4) DEFAULT 0,
 
     PRIMARY KEY (preset_id, item_id),
     FOREIGN KEY (preset_id) REFERENCES portfolio_presets(id) ON DELETE CASCADE,
-    FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE CASCADE
+    FOREIGN KEY (item_id, category_id) REFERENCES items(id, category_id) ON DELETE CASCADE
 );
 
 INSERT INTO survey_questions (question_text, order_no) VALUES
@@ -305,32 +308,32 @@ INSERT INTO portfolio_presets (id, code, name, description, target_return_percen
     (14, 'PRESET_14', '14% 기술주 주도형 (Lv.2)', '변동성을 감수한 최대 성장 추구', 14, 0.1020, 0.1500),
     (15, 'PRESET_15', '15% 나스닥 올인형', '나스닥 100 지수 완벽 추종', 15, 0.1050, 0.1550);
 
-INSERT INTO preset_item_allocation (preset_id, item_id, portion) VALUES
+INSERT INTO preset_item_allocation (preset_id, item_id, category_id, portion) VALUES
     -- 2% (CMA 100)
-    (2, 14, 1.0000),
+    (2, 14, 4, 1.0000),
     -- 3% (국내중기 40, 예적금 60)
-    (3, 9, 0.4000), (3, 13, 0.6000),
+    (3, 9, 2, 0.4000), (3, 13, 4, 0.6000),
     -- 4% (배당주 10, 우량회사채 40, 국내장기 30, CMA 20)
-    (4, 3, 0.1000), (4, 10, 0.4000), (4, 8, 0.3000), (4, 14, 0.2000),
+    (4, 3, 1, 0.1000), (4, 10, 2, 0.4000), (4, 8, 2, 0.3000), (4, 14, 4, 0.2000),
     -- 5% (S&P500 20, 우량회사채 30, 미국장기 30, 금현물 10, 예적금 10)
-    (5, 2, 0.2000), (5, 10, 0.3000), (5, 6, 0.3000), (5, 12, 0.1000), (5, 13, 0.1000),
+    (5, 2, 1, 0.2000), (5, 10, 2, 0.3000), (5, 6, 2, 0.3000), (5, 12, 3, 0.1000), (5, 13, 4, 0.1000),
     -- 6% (S&P 30, 나스닥 10, 미국장기 30, 우량회사채 15, 금현물 10, CMA 5)
-    (6, 2, 0.3000), (6, 1, 0.1000), (6, 6, 0.3000), (6, 10, 0.1500), (6, 12, 0.1000), (6, 14, 0.0500),
+    (6, 2, 1, 0.3000), (6, 1, 1, 0.1000), (6, 6, 2, 0.3000), (6, 10, 2, 0.1500), (6, 12, 3, 0.1000), (6, 14, 4, 0.0500),
     -- 7% (S&P 40, 나스닥 20, 미국장기 20, 우량회사채 10, 금현물 10)
-    (7, 2, 0.4000), (7, 1, 0.2000), (7, 6, 0.2000), (7, 10, 0.1000), (7, 12, 0.1000),
+    (7, 2, 1, 0.4000), (7, 1, 1, 0.2000), (7, 6, 2, 0.2000), (7, 10, 2, 0.1000), (7, 12, 3, 0.1000),
     -- 8% (S&P 40, 나스닥 30, 미국장기 20, 금현물 10)
-    (8, 2, 0.4000), (8, 1, 0.3000), (8, 6, 0.2000), (8, 12, 0.1000),
+    (8, 2, 1, 0.4000), (8, 1, 1, 0.3000), (8, 6, 2, 0.2000), (8, 12, 3, 0.1000),
     -- 9% (나스닥 40, S&P 40, 미국장기 20)
-    (9, 1, 0.4000), (9, 2, 0.4000), (9, 6, 0.2000),
+    (9, 1, 1, 0.4000), (9, 2, 1, 0.4000), (9, 6, 2, 0.2000),
     -- 10% (나스닥 60, S&P 30, 미국장기 10)
-    (10, 1, 0.6000), (10, 2, 0.3000), (10, 6, 0.1000),
+    (10, 1, 1, 0.6000), (10, 2, 1, 0.3000), (10, 6, 2, 0.1000),
     -- 11% (나스닥 75, S&P 25)
-    (11, 1, 0.7500), (11, 2, 0.2500),
+    (11, 1, 1, 0.7500), (11, 2, 1, 0.2500),
     -- 12% (나스닥 85, S&P 15)
-    (12, 1, 0.8500), (12, 2, 0.1500),
+    (12, 1, 1, 0.8500), (12, 2, 1, 0.1500),
     -- 13% (나스닥 90, S&P 10)
-    (13, 1, 0.9000), (13, 2, 0.1000),
+    (13, 1, 1,  0.9000), (13, 2, 1, 0.1000),
     -- 14% (나스닥 95, S&P 5)
-    (14, 1, 0.9500), (14, 2, 0.0500),
+    (14, 1, 1, 0.9500), (14, 2, 1, 0.0500),
     -- 15% (나스닥 100)
-    (15, 1, 1.0000);
+    (15, 1, 1, 1.0000);

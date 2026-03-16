@@ -1,6 +1,7 @@
 import { RowDataPacket, PoolConnection } from "mysql2/promise";
 import db from "src/shared/infrastructure/db";
 import { PortfolioRepository } from "../domain/portfolio.repo";
+import { Portfolio, ExpectedReturn } from "../domain/portfolio.entity";
 
 export const createPortfolioRepository = (): PortfolioRepository => {
   // 내부 헬퍼 함수
@@ -62,18 +63,79 @@ export const createPortfolioRepository = (): PortfolioRepository => {
   };
 
   return {
-    getAllPortfolios: async (userId) => {
-      const [portfolios] = await db.execute<RowDataPacket[]>(
-        `SELECT p.*, SUM(alloc.portion) as group_portion,, 
-         FROM portfolio_ownership owner
-         JOIN portfolios p          ON  p.id = owner.portfolio_id
-         JOIN item_allocation alloc ON  alloc.portfolio_id = p.id
-         JOIN items                 ON  items.id = alloc.item_id
-         JOIN categories            ON  categories.id = items.category_id
-         WHERE owner.user_id = ?
-         GROUP BY categories.id`,
-        [userId],
+    getPreset: async (targetReturnPercent) => {
+      const [presets] = await db.execute<RowDataPacket[]>(
+        `SELECT 
+        pre.code, 
+        pre.name AS preset_name,
+        pre.description, 
+        pre.target_return_percent, 
+        pre.min_return, 
+        pre.max_return, 
+        categories.id AS category_id, 
+        categories.code AS category_code, 
+        categories.name AS category_name,
+        SUM(alloc.portion) AS category_portion,
+        GROUP_CONCAT(alloc.item_id ORDER BY alloc.item_id) AS item_ids,
+        GROUP_CONCAT(alloc.portion ORDER BY alloc.item_id) AS item_portions
+
+        FROM portfolio_presets pre
+        JOIN preset_item_allocation alloc ON alloc.preset_id = id
+        JOIN categories ON categories.id = alloc.category_id
+        
+        GROUP BY 
+        pre.code, pre.name, pre.description, pre.target_return_percent, pre.min_return, pre.max_return, 
+        categories.id, categories.code, categories.name
+
+        HAVING ABS(target_return_percent - ?) < 2
+
+        ORDER BY target_return_percent ASC
+        `,
+        [targetReturnPercent],
       );
+      const formattedPresets = presets.reduce(
+        (acc: Portfolio.Preset[], row: any) => {
+          // 1. 이미 존재하는 프리셋인지 확인 (code 기준)
+          let preset = acc.find((p) => p.code === row.code);
+
+          // 2. 새로운 프리셋인 경우 초기 객체 생성
+          if (!preset) {
+            preset = {
+              code: row.code,
+              name: row.name,
+              description: row.description,
+              targetReturnPercent: row.target_return_percent,
+              expectedReturn: {
+                min: row.min_return,
+                max: row.max_return,
+              },
+              categories: [],
+              items: [],
+            };
+            acc.push(preset);
+          }
+
+          // 3. 카테고리 정보 추가
+          preset.categories.push({
+            name: row.category_name,
+            portion: row.category_portion,
+          });
+
+          // 4. 아이템 정보 추가 (GROUP_CONCAT 문자열 파싱)
+          const ids: number[] = row.item_ids.split(",").map(Number);
+          const portions: number[] = row.item_portions.split(",").map(Number);
+          const mappedItems = ids.map((id, index) => ({
+            id: id,
+            portion: portions[index],
+          }));
+          preset.items.push(...mappedItems);
+
+          return acc;
+        },
+        [],
+      );
+
+      return formattedPresets;
     },
     // ==========================================
     // 1. 전체 & 추천 (Global & Recommendations)

@@ -40,6 +40,7 @@ export namespace Portfolio {
     name: string;
     description: string;
     categories: Pick<Category, "name" | "portion">[];
+    items: Pick<Item, "id" | "portion">[];
     targetReturnPercent: number;
     expectedReturn: ExpectedReturn;
   };

@@ -25,9 +25,7 @@ export type PortfolioRepository = {
    * @param targetReturnPercent 목표 수익률
    * @returns 프리셋 포트폴리오 (목표 수익률과 가장 근접한 것)
    */
-  getPresetPortfolio(
-    targetReturnPercent: number,
-  ): Promise<Portfolio.Preset | null>;
+  getPreset(targetReturnPercent: number): Promise<Portfolio.Preset[] | null>;
 
   /**
    * 프리셋 기반으로 새로운 포트폴리오 생성
@@ -61,18 +59,6 @@ export type PortfolioRepository = {
   updateCategoryPortions: (
     portfolioId: number,
     portions: { categoryId: number; portion: number }[],
-  ) => Promise<void>;
-
-  /**
-   * 포트폴리오 내 카테고리 정보 업데이트
-   * @param portfolioId 포트폴리오 ID
-   * @param categoryId 카테고리 ID
-   * @param categoryInfo 카테고리 정보 (이름, 설명)
-   */
-  updateCategoryInfo: (
-    portfolioId: number,
-    categoryId: number,
-    categoryInfo: { name?: string; description?: string },
   ) => Promise<void>;
 
   /**
