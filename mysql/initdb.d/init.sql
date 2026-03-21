@@ -140,7 +140,7 @@ CREATE TABLE item_allocation (
 
     PRIMARY KEY (portfolio_id, item_id),
     FOREIGN KEY (portfolio_id) REFERENCES portfolios(id) ON DELETE CASCADE,
-    FOREIGN KEY (item_id, category_id) REFERENCES items(id, category_id) ON DELETE CASCADE
+    FOREIGN KEY (item_id, category_id) REFERENCES items(id, category_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE payment_allocation (
