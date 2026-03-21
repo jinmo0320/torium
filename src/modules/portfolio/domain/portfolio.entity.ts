@@ -8,10 +8,11 @@ export namespace Portfolio {
     id: number;
     name: string;
     description: string;
+    status: "PENDING" | "STABLE" | "DISABLED";
     categories: Category[];
     items: Item[];
     expectedReturn: ExpectedReturn;
-    isCustomized: boolean;
+    createdAt: string;
     updatedAt: string;
   };
 
@@ -21,18 +22,16 @@ export namespace Portfolio {
     name: string;
     description: string;
     portion: number;
+    expectedReturn: ExpectedReturn;
   };
 
   export type Item = {
     id: number;
     categoryId: number;
-    masterItemId: number;
     name: string;
     description: string;
     portion: number; // 자산의 절대 비중
     expectedReturn: ExpectedReturn;
-    isCustomReturn: boolean;
-    isCustom: boolean;
   };
 
   export type Preset = {
