@@ -1,6 +1,7 @@
 import { RowDataPacket } from "mysql2";
 import db from "src/shared/infrastructure/db";
 import { UserRepository } from "../domain/user.repo";
+import { User } from "../domain/user.entity";
 
 export const createUserRepository = (): UserRepository => ({
   createUser: async (user) => {
@@ -14,8 +15,8 @@ export const createUserRepository = (): UserRepository => ({
       [user.email],
     );
 
-    const { id, name, tag, email } = rows[0];
-    return { id, name, tag, email };
+    const { id, name, tag, email, riskType } = rows[0];
+    return { id, name, tag, email, riskType };
   },
 
   findUserById: async (id) => {
@@ -28,8 +29,8 @@ export const createUserRepository = (): UserRepository => ({
       return null;
     }
 
-    const { name, tag, email } = rows[0];
-    return { id, name, tag, email };
+    const { name, tag, email, riskType } = rows[0];
+    return { id, name, tag, email, riskType };
   },
 
   findUserByEmail: async (email) => {
@@ -42,8 +43,8 @@ export const createUserRepository = (): UserRepository => ({
       return null;
     }
 
-    const { id, name, tag } = rows[0];
-    return { id, name, tag, email };
+    const { id, name, tag, riskType } = rows[0];
+    return { id, name, tag, email, riskType };
   },
 
   findUserByName: async (name, tag) => {
@@ -56,8 +57,8 @@ export const createUserRepository = (): UserRepository => ({
       return null;
     }
 
-    const { id, email } = rows[0];
-    return { id, name, tag, email };
+    const { id, email, riskType } = rows[0];
+    return { id, name, tag, email, riskType };
   },
 
   getUserPassword: async (id) => {
@@ -78,6 +79,26 @@ export const createUserRepository = (): UserRepository => ({
     await db.query("UPDATE users SET password = ? WHERE id = ?", [
       hashedPassword,
       id,
+    ]);
+  },
+
+  getRiskType: async (userId) => {
+    const [rows] = await db.execute<RowDataPacket[]>(
+      "SELECT risk_type FROM users WHERE id = ?",
+      [userId],
+    );
+
+    if (rows.length === 0) {
+      return null;
+    }
+
+    return rows[0].risk_type as User.RiskType | null;
+  },
+
+  setRiskType: async (userId, riskType) => {
+    await db.execute("UPDATE users SET risk_type = ? WHERE id = ?", [
+      riskType,
+      userId,
     ]);
   },
 });
